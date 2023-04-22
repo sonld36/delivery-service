@@ -18,7 +18,7 @@ import CODBill from "@Components/custom-manage/CODBill";
 //Import for coordinator
 import General from "@Components/coordinator/general/General";
 import Quanlydonhang from "@Components/coordinator/quanlydonhang/Quanlydonhang";
-import CoordinatorSidebar from "@Components/coordinator/CoordinatorSidebar/CoordinatorSidebar";
+import CoordinatorSidebar, { orderManageLinks } from "@Components/coordinator/CoordinatorSidebar/CoordinatorSidebar";
 import QuanlyNVgiaohang from "@Components/coordinator/quanlydonhang/QuanlyNVgiaohang";
 
 import Homepage from "@Components/shipper/Homepage/Homepage";
@@ -32,7 +32,7 @@ import {
   BrowserRouter as Router, Outlet, Route, Routes
 } from "react-router-dom";
 import ProductList from "@Components/dashboard/shop/ProductList";
-import { useAppSelector } from "@App/hook";
+import { useAppDispatch, useAppSelector } from "@App/hook";
 import { selectUser } from "@Features/user/userSlice";
 import ProtectedRoute from "./ProtectedRoute";
 import RedirectRoute from "./RedirectRoute";
@@ -42,11 +42,57 @@ import ShopCustomerList from "@Components/dashboard/shop/ShopCustomerList";
 import Profile from "@Components/Profile";
 import AccessDenied from "@Components/AccessDenied";
 import OrderControl from "@Components/dashboard/shop/OrderControl";
+import { useCallback, useEffect } from "react";
+import { stompClient } from "@Services/socket.service";
+import { SocketSubcribe, roles } from "@Common/socket.subcribe";
+import { SocketTopic } from "@Common/const";
+import { SocketMessageFormat } from "@Common/types";
+import { openToast } from "@Features/toast/toastSlice";
+import { status } from "@Common/toast.const";
+import { fetchOrderWithPaging, selectOrder } from "@Features/order/orderSlice";
 
 export default function MainRouter() {
   const auth = useAppSelector(selectUser);
+  const dispatch = useAppDispatch();
 
   const { user } = auth;
+
+  // const orders = useAppSelector(selectOrder);
+
+  // console.log("orders:", orders);
+
+  // useEffect(() => {
+  //   dispatch(fetchOrderWithPaging(1));
+  // }, [])
+
+  const subcribeSocket = useCallback(() => {
+    switch (user.role) {
+      case roles.ROLE_COORDINATOR:
+        return SocketSubcribe[roles.ROLE_COORDINATOR](dispatch);
+    }
+  }, [user, dispatch]);
+
+  useEffect(() => {
+    stompClient.connect({}, function () {
+      stompClient.subscribe(
+        `/${SocketTopic.NOTIFY}`,
+        (message) => {
+          const resp: SocketMessageFormat<string | null> = JSON.parse(
+            message.body
+          );
+          dispatch(
+            openToast({
+              open: true,
+              message: resp.message,
+              status: status.INFO,
+            })
+          );
+        }
+      );
+
+      subcribeSocket();
+    });
+  }, [dispatch, subcribeSocket]);
 
   return (
     <>
@@ -90,9 +136,16 @@ export default function MainRouter() {
             <Dashboard sidebar={<CoordinatorSidebar />} />
           </ProtectedRoute>} >
             <Route index path="" element={<General />} />
-            <Route index path="quan-ly-don-hang" element={<Quanlydonhang />} />
-            {/* <Route index path={`quan-ly-don-hang/${s}`} element={<Quanlydonhang />} /> */}
-            <Route index path="quan-ly-nv-giao-hang" element={<QuanlyNVgiaohang />} />
+            <Route path="quan-ly-don-hang" element={<Quanlydonhang />} >
+              <Route index path={orderManageLinks.ALL} />
+              <Route path={orderManageLinks.PENDING} />
+              <Route path={orderManageLinks.REQUEST} />
+              <Route path={orderManageLinks.PICKING} />
+              <Route path={orderManageLinks.DELIVERING} />
+              <Route path={orderManageLinks.SUCCESS} />
+              <Route path={orderManageLinks.DONE} />
+            </Route>
+            <Route path="quan-ly-nv-giao-hang" element={<QuanlyNVgiaohang />} />
           </Route>
           {/*        */}
           <Route path="/ql-giao-hang" element={<ProtectedRoute

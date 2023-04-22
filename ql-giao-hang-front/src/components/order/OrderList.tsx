@@ -83,10 +83,9 @@ function OrderList() {
       const resp: ResponseReceived<OrderDisplayPagingType> = await orderService.getOrderWithPaging(page);
       const orders = resp.data.orders;
       const optimizeAddressForOrder = await Promise.all(orders.map(async (item) => {
-        const address = await provinceService.getAddress(item.address);
+        // const address = await provinceService.getAddress(item.address);
         return {
           ...item,
-          address: address,
         }
       }));
       setLoading(false);

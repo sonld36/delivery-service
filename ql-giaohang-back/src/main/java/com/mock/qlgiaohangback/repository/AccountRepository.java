@@ -1,6 +1,10 @@
 package com.mock.qlgiaohangback.repository;
 
+import com.mock.qlgiaohangback.common.Constans;
 import com.mock.qlgiaohangback.entity.AccountEntity;
+import com.mock.qlgiaohangback.entity.RoleEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,5 +30,7 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
 
     @Query(value = "SELECT * FROM accounts acc WHERE acc.role_id=3", nativeQuery = true)
     List<AccountEntity> findAllDeliverier();
+
+    Page<AccountEntity> findAllByRoleOrderByCreatedAt(RoleEntity role, Pageable page);
 
 }

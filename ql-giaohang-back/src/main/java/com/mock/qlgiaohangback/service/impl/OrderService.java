@@ -1,30 +1,33 @@
 package com.mock.qlgiaohangback.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mock.qlgiaohangback.common.Constans;
 import com.mock.qlgiaohangback.common.MessageResponse;
+import com.mock.qlgiaohangback.common.ResponseHandler;
 import com.mock.qlgiaohangback.dto.cod.CODByDateAndShopId;
 import com.mock.qlgiaohangback.dto.order.*;
+import com.mock.qlgiaohangback.dto.user.AccountRespDTO;
 import com.mock.qlgiaohangback.entity.*;
 import com.mock.qlgiaohangback.exception.ResponseException;
 import com.mock.qlgiaohangback.helpers.db.ICountOrderInThirtyDays;
+import com.mock.qlgiaohangback.mapper.IAccountMapper;
 import com.mock.qlgiaohangback.mapper.IAddressMapper;
 import com.mock.qlgiaohangback.mapper.IOrderMapper;
-import com.mock.qlgiaohangback.repository.AccountRepository;
-import com.mock.qlgiaohangback.repository.AddressRepository;
-import com.mock.qlgiaohangback.repository.OrderProductRepository;
-import com.mock.qlgiaohangback.repository.OrderRepository;
-import com.mock.qlgiaohangback.service.IAccountService;
-import com.mock.qlgiaohangback.service.IOrderService;
-import com.mock.qlgiaohangback.service.IProductService;
-import com.mock.qlgiaohangback.service.IShopService;
+import com.mock.qlgiaohangback.repository.*;
+import com.mock.qlgiaohangback.service.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,6 +39,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final IAccountService accountService;
@@ -43,16 +47,20 @@ public class OrderService implements IOrderService {
     private final IShopService shopService;
 
     private final IProductService productService;
-    private final AddressRepository addressRepository;
     private final AccountRepository accountRepository;
 
     private final OrderProductRepository orderProductRepository;
+
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
+    private final IOrderLogService orderLogService;
+
+    private final INotificationService notificationService;
 
     public Long getShipperId() {
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
         String username = user.getName();
         AccountEntity account = this.accountService.getAccountByUsername(username);
-         System.out.println("shipperid"+account.getId());
         return account.getId();
     }
 
@@ -108,6 +116,13 @@ public class OrderService implements IOrderService {
                 .findOrderEntityByCarrier_IdOrderByIdDesc(shipper_id).stream().map(IOrderMapper.INSTANCE::toOrderRespDTO).collect(Collectors.toList());
     }
 
+    @Override
+    public List<OrderRespDTO> getAllByShipperId(Long shipperId) {
+        return this.orderRepository
+                .findOrderEntityByCarrier_IdOrderByIdDesc(shipperId).stream().map(IOrderMapper.INSTANCE::toOrderRespDTO).collect(Collectors.toList());
+
+    }
+
     //    Lấy ra đơn hàng theo id
     public OrderRespDTO getOrderByIdAndShipperId(Long id) {
         Long shipper_id = getShipperId();
@@ -118,6 +133,11 @@ public class OrderService implements IOrderService {
     public List<OrderRespDTO> getOrderByStatusAndShipperId(Constans.OrderStatus status) {
         Long shipper_id = getShipperId();
         return this.orderRepository.findOrderEntityByStatusAndCarrier_Id(status, shipper_id).stream().map(IOrderMapper.INSTANCE::toOrderRespDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderRespDTO> getOrderByStatusAndShipperId(Constans.OrderStatus status, Long shipperId) {
+        return this.orderRepository.findOrderEntityByStatusAndCarrier_Id(status, shipperId).stream().map(IOrderMapper.INSTANCE::toOrderRespDTO).collect(Collectors.toList());
     }
 
     //     Lấy danh sách đơn hàng theo customer_name
@@ -204,24 +224,29 @@ public class OrderService implements IOrderService {
     }
 
     //      Thay đổi status đơn hàng
-    public Integer changeStatus(String id, String status) {
-        System.out.println("id, status" + id + " " + status);
-        Long shipper_id = getShipperId();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-d HH:mm:ss");
-        LocalDateTime completed_at = LocalDateTime.now();
-        if (status.matches("DELIVERY_SUCCESSFUL") || status.matches("REFUNDS")) {
-            return this.orderRepository.changeStatusToSucessOrRefund(id, shipper_id, status, completed_at.toString());
+    public Integer changeStatus(String id, Constans.OrderStatus status) throws JsonProcessingException {
+
+        OrderEntity oldOrder = this.orderRepository.findOrderEntityById(Long.parseLong(id));
+        OrderRespDTO oldOrderResp = IOrderMapper.INSTANCE.toOrderRespDTO(oldOrder);
+        oldOrder.setStatus(status);
+        if (status.equals(Constans.OrderStatus.DELIVERY_SUCCESSFUL) || status.equals(Constans.OrderStatus.REFUNDS)) {
+            oldOrder.setCompletedAt(new Date());
         }
-        return this.orderRepository.changeStatus(id, status, shipper_id);
+        this.orderRepository.save(oldOrder);
+
+        OrderRespDTO newOrderResp = IOrderMapper.INSTANCE.toOrderRespDTO(oldOrder);
+
+        this.orderLogService.save(oldOrderResp, newOrderResp, Constans.OrderLogAction.ORDER_LOG_ACTION_UPDATED);
+
+
+
+        return 1;
     }
 
     @Override
-    public Boolean createOrder(OrderCreateDTO orderCreateDTO) {
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean createOrder(OrderCreateDTO orderCreateDTO) throws JsonProcessingException {
         OrderEntity orderEntity = IOrderMapper.INSTANCE.toEntity(orderCreateDTO);
-//        System.out.println();
-//        orderEntity.getOrderProductEntities().forEach((item) -> {
-//            System.out.println(item.getOrderProductId());
-//        });
         ShopEntity shop = this.shopService.getShopLoggedIn();
         orderEntity.setShop(shop);
         orderEntity.setStatus(Constans.OrderStatus.WAITING_FOR_ACCEPT_NEW_ORDER);
@@ -232,9 +257,21 @@ public class OrderService implements IOrderService {
             return item;
         })).collect(Collectors.toList());
         orderEntity.setOrderProductEntities(orderProductEntities);
-//        System.out.println(orderEntity);
-        this.orderRepository.save(orderEntity);
+        OrderEntity orderCreated = this.orderRepository.save(orderEntity);
+        OrderRespDTO orderRespDTO = IOrderMapper.INSTANCE.toOrderRespDTO(orderCreated);
+        String topicNotify = "/" +
+                StringUtils.lowerCase(Constans.SocketTopic.NOTIFY.name()) +
+                "/3";
+        String message = MessageResponse.JUST_CREATED_ORDER + shop.getAccount().getName();
+        AccountEntity destination = this.accountService.getAccountsByRole(Constans.Roles.ROLE_COORDINATOR, 1).getContent().get(0);
 
+
+        /*
+        * Gửi tin đến topic thông báo
+        * */
+        this.notificationService.createNotify(topicNotify,
+                ResponseHandler.generateResponseSocket(message, null),
+                destination, null, Constans.SocketTopic.NOTIFY);
         return true;
     }
 
@@ -270,19 +307,11 @@ public class OrderService implements IOrderService {
 
     // Lấy tổng đơn hàng theo mọi trạng thái
     @Override
-    public OrderRespoDPhoiWithPagingDTO findAllOrder(String pageIndex, String pageSize) throws Exception {
-        Integer pageIndexInt = -1, pageSizeInt = -1;
-        try {
-            pageIndexInt = Integer.parseInt(pageIndex);
-            if (pageSize != null && pageSize.length() > 0) {
-                pageSizeInt = Integer.parseInt(pageSize);
-            } else {
-                pageSizeInt = 10;
-            }
-        } catch (NumberFormatException e) {
-            throw new Exception(e.getMessage());
+    public OrderRespoDPhoiWithPagingDTO findAllOrder(int pageIndex) throws Exception {
+        if (pageIndex < 1) {
+            throw new ResponseException(MessageResponse.VALUE_PASSED_INCORRECT, HttpStatus.BAD_REQUEST, Constans.Code.INVALID.getCode());
         }
-        Page<OrderEntity> ordersPaging = this.orderRepository.findAll(PageRequest.of(pageIndexInt - 1, pageSizeInt));
+        Page<OrderEntity> ordersPaging = this.orderRepository.findAll(PageRequest.of(pageIndex, Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())));
         List<OrderEntity> orderEntities = ordersPaging.getContent();
         //convert to dto
         List<OrderRespodieuphoiGeneralDTO> orders = new ArrayList<>();
@@ -311,19 +340,11 @@ public class OrderService implements IOrderService {
 
     //Lấy dsanh đơn hàng theo trạng thái
     @Override
-    public OrderRespoDPhoiWithPagingDTO findAllOrderStatus(String pageIndex, String pageSize, Constans.OrderStatus status) throws Exception {
-        Integer pageIndexInt = -1, pageSizeInt = -1;
-        try {
-            pageIndexInt = Integer.parseInt(pageIndex);
-            if (pageSize != null && pageSize.length() > 0) {
-                pageSizeInt = Integer.parseInt(pageSize);
-            } else {
-                pageSizeInt = 10;
-            }
-        } catch (NumberFormatException e) {
-            throw new Exception(e.getMessage());
+    public OrderRespoDPhoiWithPagingDTO findAllOrderStatus(int pageIndex, Constans.OrderStatus status) throws Exception {
+        if (pageIndex < 1) {
+            throw new ResponseException(MessageResponse.VALUE_PASSED_INCORRECT, HttpStatus.BAD_REQUEST, Constans.Code.INVALID.getCode());
         }
-        Page<OrderEntity> ordersPaging = this.orderRepository.findAllByStatus(status, PageRequest.of(pageIndexInt - 1, pageSizeInt));
+        Page<OrderEntity> ordersPaging = this.orderRepository.findAllByStatus(status, PageRequest.of(pageIndex, Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())));
         List<OrderEntity> orderEntities = ordersPaging.getContent();
         //convert to dto
         List<OrderRespodieuphoiGeneralDTO> orders = new ArrayList<>();
@@ -362,7 +383,7 @@ public class OrderService implements IOrderService {
         output.setShopAdd(IAddressMapper.INSTANCE.toDTO(orderInf.getShop().getAddresses().get(0)));
         output.setReceiverName(orderInf.getCustomer().getName());
         output.setReceiverPhone(orderInf.getCustomer().getPhoneNumber());
-        output.setReceiverAdd(IAddressMapper.INSTANCE.toDTO(orderInf.getAddress()));
+        output.setReceiverAdd(orderInf.getAddress());
         if (orderInf.getCarrier() != null) {
             output.setDeliveryName(orderInf.getCarrier().getName());
             output.setDeliveryId(orderInf.getCarrier().getId().toString());
@@ -383,7 +404,7 @@ public class OrderService implements IOrderService {
     @Override
     public Integer assignCarrier(Long orderId, String carrierId) throws Exception {
         //Check input
-        if (orderId == null || !StringUtils.hasText(carrierId)) {
+        if (orderId == null || !StringUtils.isEmpty(carrierId)) {
             throw new Exception("INPUT INVALID - orderId=" + orderId + "&carrierId=" + carrierId);
         }
         //Check loi convert tu String sang Int/Long
@@ -426,6 +447,11 @@ public class OrderService implements IOrderService {
         }
         result.setProducts(listProductConvert);
         return result;
+    }
+
+    @Override
+    public Integer countByCarrierAndStatus(AccountEntity account, Constans.OrderStatus status) {
+        return this.orderRepository.countByCarrierAndStatus(account, status);
     }
 
 
@@ -484,7 +510,6 @@ public class OrderService implements IOrderService {
 
     @Override
     public List<OrderEntity> updateOrderIsPaid(OrderByDateAndListId order) {
-        System.out.println("Hihi");
         List<Long> listId = order.getListId();
         Date orderCreatedAt = order.getCreatedAt();
         Long carrierId = order.getCarrierId();

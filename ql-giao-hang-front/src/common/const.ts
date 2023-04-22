@@ -98,3 +98,19 @@ export enum shopStatus {
   REGISTERING = "Chờ chấp nhận",
   ACCEPTED = "Đối tác",
 }
+
+export enum SocketTopic {
+  NOTIFY = "notify",
+  STATUS_UPDATE = "status_update",
+  LOG = "log",
+}
+
+export enum OrderLogTopic {
+  ALL = "/order/all",
+}
+
+export enum OrderLogAction {
+  ORDER_LOG_ACTION_CREATED = "OrderLogActionCreate",
+  ORDER_LOG_ACTION_UPDATED = "OrderLogActionUpdate",
+  ORDER_LOG_ACTION_DELETE = "OrderLogActionDelete",
+}

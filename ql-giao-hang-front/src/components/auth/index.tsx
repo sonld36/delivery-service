@@ -41,9 +41,7 @@ function Title(props: any) {
         }}
       >
         <img src={MainLogo} alt="logo-sapo" />
-        <Typography variant='h6' component={"p"}
-          sx={{ display: { sm: 'none', md: 'block', lg: 'block' }, }}
-        >Hệ thống cung cấp dịch vụ giao hàng số một Việt Nam</Typography>
+
       </Grid>
     </Box>
   )

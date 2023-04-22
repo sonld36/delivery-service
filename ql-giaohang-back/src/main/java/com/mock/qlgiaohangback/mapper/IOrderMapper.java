@@ -23,6 +23,8 @@ public interface IOrderMapper {
 
     List<OrderRespDTO> toListOrderRespDTO(List<OrderEntity> orderEntities);
 
+    OrderEntity fromRespDtoToEntity(OrderRespDTO orderRespDTO);
+
     List<OrderRespodieuphoiGeneralDTO> toOrderRespoDPhoiGeneralDTO(List<OrderEntity> orderEntities);
 }
 

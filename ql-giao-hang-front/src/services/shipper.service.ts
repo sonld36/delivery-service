@@ -1,4 +1,7 @@
 class ShipperService {
+  async getShipperForCoordinator(page: number){
+    
+  }
 }
 
 

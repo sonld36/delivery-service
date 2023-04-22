@@ -23,4 +23,6 @@ public class MessageResponse {
     public static final String TOKEN_EXPIRED = "Token has been expired";
 
     public static final String NOT_FOUND_TOKEN_IN_HEADER = "Token doesn't not found on header";
+
+    public static final String JUST_CREATED_ORDER = "Vừa có đơn hàng được tạo bởi ";
 }

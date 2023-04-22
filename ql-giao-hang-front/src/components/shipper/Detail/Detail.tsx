@@ -53,17 +53,12 @@ function Detail() {
         try {
             const resp: any = await orderService.getOrderByIdAndShipperId(id);
             if (resp && resp.data) {
-
-                let dataAddress: AddressToSave = resp.data.customer.addresses[0];
-                let addressDeliver = await getAddress(dataAddress);
-                if (addressDeliver) {
-                    setOpen(false);
-                }
+                setOpen(false);
                 let data = {
                     "status": resp.data.status,
                     "id": resp.data.id,
                     "arrayProduct": resp.data.products,
-                    "addressDeliver": addressDeliver,
+                    "addressDeliver": resp.data.address,
                     "cost": resp.data.paymentTotal,
                     "ship": resp.data.shipFee,
                     "customerName": resp.data.customer.name,

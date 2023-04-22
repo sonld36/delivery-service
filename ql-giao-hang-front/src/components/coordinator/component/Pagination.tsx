@@ -38,10 +38,10 @@ function PaginationCustom(props: { totalRecord: number, pageSize: number, pageIn
                         props.setPageSize(event.target.value)
                     }}
                 >
+                    <MenuItem value={5}>5</MenuItem>
                     <MenuItem value={10}>10</MenuItem>
-                    <MenuItem value={25}>25</MenuItem>
-                    <MenuItem value={50}>50</MenuItem>
-                    <MenuItem value={100}>100</MenuItem>
+                    <MenuItem value={15}>15</MenuItem>
+                    <MenuItem value={20}>20</MenuItem>
                 </Select>
                 <Typography sx={{ display: "flex", paddingLeft: "12px", color: "black" }}>kết quả</Typography>
                 <Typography sx={{ display: "flex", paddingLeft: "16px", color: "black" }}>Từ {(pageIndex - 1) * pageSize + 1} đến {(pageIndex * pageSize) > totalRecord ? totalRecord : (pageIndex * pageSize)} trên tổng {totalRecord}  </Typography>

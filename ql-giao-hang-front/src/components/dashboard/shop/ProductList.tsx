@@ -14,7 +14,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import { GridActionsCellItem, GridColumns } from '@mui/x-data-grid';
 import shopService from '@Services/shop.service';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { TypeOf } from 'zod';
 import ProductForm from './ProductForm';
@@ -45,7 +45,6 @@ function ProductList() {
   const [curDataEdit, setCurDataEdit] = useState<ProductSaveForm>({
     name: "",
     active: false,
-    entryPrice: 0,
     productCode: "",
     salePrice: 0,
     weight: 0,
@@ -66,22 +65,22 @@ function ProductList() {
     setIdProductDelete(id);
   }
 
-  const handleAgreeDelete = async (event: React.MouseEvent<HTMLLIElement>) => {
+  const handleAgreeDelete = useCallback(async (event: React.MouseEvent<HTMLLIElement>) => {
     if (idProductDelete) {
       const resp: ResponseReceived<number> = await shopService.deleteProduct(idProductDelete);
       if (resp.status && resp.status >= 300) {
         dispatch(openToast(ProductToastPayload[resp.code ? resp.code : 4001]));
       } else {
         dispatch(openToast(ProductToastPayload[resp.code ? resp.code : 2001]));
-        setReload(!reload);
+        setReload((reload) => !reload);
       }
 
       handleClose();
       setIdProductDelete(null);
     }
-  }
+  }, [idProductDelete, dispatch]);
 
-  const colums: GridColumns = [
+  const colums: GridColumns = useMemo(() => [
     { field: "id", headerName: "ID", width: 60, editable: false, headerAlign: "center", align: "center" },
     {
       field: "image", headerName: "Ảnh sản phẩm", renderCell(params) {
@@ -104,7 +103,6 @@ function ProductList() {
     { field: "productCode", headerName: "Mã sản phẩm", width: 150, headerAlign: "center", align: "center", flex: 1 },
     { field: "name", headerName: "Tên", width: 150, headerAlign: "center", align: "center", flex: 1 },
     { field: "salePrice", headerName: "Giá bán", type: "number", align: "center", flex: 1, headerAlign: "center" },
-    { field: "entryPrice", headerName: "Giá nhập", type: "number", align: "center", flex: 1, headerAlign: "center" },
     { field: "weight", headerName: "Khối lượng", type: "number", align: "center", flex: 1, headerAlign: "center" },
     {
       field: "active", headerName: "Trạng thái", type: "boolean", align: "center", headerAlign: "center", renderCell(params) {
@@ -161,7 +159,7 @@ function ProductList() {
         ];
       }
     }
-  ]
+  ], [anchorEl, handleAgreeDelete]);
 
   const methods = useForm<ProductSaveForm>({
     resolver: zodResolver(saveProductSchema),

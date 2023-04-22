@@ -1,5 +1,6 @@
 package com.mock.qlgiaohangback.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mock.qlgiaohangback.common.Constans;
 import com.mock.qlgiaohangback.common.MessageResponse;
 import com.mock.qlgiaohangback.common.ResponseHandler;
@@ -12,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,15 +20,13 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/order")
 @RequiredArgsConstructor
-public class OrderController {
+public class OrderController  {
     private final IOrderService orderService;
 
 
     @Secured(value = "ROLE_SHOP")
     @PostMapping
-    public ResponseEntity createOrder(@RequestBody @Valid OrderCreateDTO orderCreateDTO) {
-
-
+    public ResponseEntity createOrder(@RequestBody @Valid OrderCreateDTO orderCreateDTO) throws JsonProcessingException {
         return ResponseHandler.generateResponse(MessageResponse.CREATED_SUCCESS,
                 Constans.Code.CREATED_SUCCESS.getCode(),
                 HttpStatus.CREATED,
@@ -39,7 +35,6 @@ public class OrderController {
 
     //  API order chung
     @GetMapping("")
-
     public ResponseEntity getAll() {
         return ResponseHandler.generateResponse(MessageResponse.FOUND,
                 Constans.Code.OK.getCode(),
@@ -193,7 +188,7 @@ public class OrderController {
     //             this.orderService.changeStatus(id,status));
     // }
     @PutMapping("/shipper/change-status/id={id}/status={status}")
-    public ResponseEntity changeStatus(@PathVariable String id, @PathVariable String status) {
+    public ResponseEntity changeStatus(@PathVariable String id, @PathVariable Constans.OrderStatus status) throws JsonProcessingException {
         return ResponseHandler.generateResponse(MessageResponse.FOUND,
                 Constans.Code.OK.getCode(),
                 HttpStatus.OK,
@@ -213,24 +208,22 @@ public class OrderController {
 
     @GetMapping("/dieu-phoi/get-all-order")
     //   http://localhost:8080/api/order/dieu-phoi/get-all-order@pageIndex=&pageSize=
-    public ResponseEntity getAllOrders(@RequestParam(value = "pageIndex") String pageIndex,
-                                       @RequestParam(value = "pageSize", required = false) String pageSize) throws Exception {
+    public ResponseEntity getAllOrders(@RequestParam(value = "page") int page) throws Exception {
         return ResponseHandler.generateResponse(MessageResponse.FOUND,
                 Constans.Code.OK.getCode(),
                 HttpStatus.OK,
-                this.orderService.findAllOrder(pageIndex, pageSize));
+                this.orderService.findAllOrder(page));
 
     }
 
     @GetMapping("/dieu-phoi/get-all-order-by-status")
     //   http://localhost:8080/api/order/dieu-phoi/get-all-order@pageIndex=&pageSize=&status=
-    public ResponseEntity getAllOrdersByStatus(@RequestParam(value = "pageIndex") String pageIndex,
-                                               @RequestParam(value = "pageSize", required = false) String pageSize,
+    public ResponseEntity getAllOrdersByStatus(@RequestParam(value = "page") int page,
                                                @RequestParam(value = "status") Constans.OrderStatus status) throws Exception {
         return ResponseHandler.generateResponse(MessageResponse.FOUND,
                 Constans.Code.OK.getCode(),
                 HttpStatus.OK,
-                this.orderService.findAllOrderStatus(pageIndex, pageSize, status));
+                this.orderService.findAllOrderStatus(page, status));
     }
 
     @GetMapping("/dieu-phoi/order-info-detail")

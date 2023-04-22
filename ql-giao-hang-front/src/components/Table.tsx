@@ -20,7 +20,7 @@ type Props = {
 
 
 export default function Table(props: Props) {
-  const { header, data, title, totalPage, setPage, onCellClick, hiddeFooter, loading } = props;
+  const { header, data, title, totalPage, setPage, onCellClick, hiddeFooter = false, loading } = props;
   const [pageDisplay, setPageDisplay] = React.useState(1);
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);

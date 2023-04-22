@@ -58,8 +58,11 @@ function OrderDetail(props: { maVanDon: number, setReload: any }) {
             let resp: ResponseReceived<OrderInfDetailResponse> = await orderService.getOrderInfDetail(orderId);
             if (resp && resp.code === 2000) {
                 const fetchData = resp.data;
+                // console.log(fetchData);
+
+
                 fetchData.shopAdd = await provinceService.getAddress(fetchData.shopAdd);
-                fetchData.receiverAdd = await provinceService.getAddress(fetchData.receiverAdd);
+                // fetchData.receiverAdd = await provinceService.getAddress(fetchData.receiverAdd);
                 setOrderInfDetail(fetchData)
                 const deliverierInf: Deliverier = {
                     deliveryId: fetchData.deliveryId,
@@ -131,29 +134,29 @@ function OrderDetail(props: { maVanDon: number, setReload: any }) {
                         <Grid container xs={2} sx={{ padding: "8px" }} direction="column" >
                             {orderInfDetail?.status === "WAITING_FOR_ACCEPT_NEW_ORDER" ?
                                 <Button onClick={handleClickButtonNVDieuPhoiOpen} variant="contained" color="success" sx={{
-                                    borderRadius: "5px",
-                                    height: "40px",
+                                    borderRadius: "10px",
                                     top: "30%",
+                                    textTransform: "capitalize"
                                 }}>
                                     Gán NV vận chuyển
                                 </Button >
                                 : <></>}
                             {orderInfDetail?.status === "REQUEST_SHIPPING" ?
                                 <Button onClick={handleClickButtonNVDieuPhoiOpen} variant="contained" color="secondary" sx={{
-                                    borderRadius: "5px",
-                                    height: "40px",
+                                    borderRadius: "10px",
                                     top: "30%",
+                                    textTransform: "capitalize"
                                 }}>
                                     Đổi NV vận chuyển
                                 </Button>
                                 : <></>}
                             <Modal
                                 open={open}
-                                sx={{ overflow: "auto", width: "650px", top: "20%", left: "32%" }}>
+                                sx={{ overflow: "auto", width: "650px", top: "20%", left: "32%", }}>
                                 <Box sx={{ borderRadius: "8px", backgroundColor: "white", }}>
                                     <Grid container>
                                         <Grid container xs={11}>
-                                            <Typography sx={{ pl: "10px", fontSize: "20px", fontWeight: "600", p: "20px" }} >Gán nhân viên giao hàng</Typography>
+                                            <Typography sx={{ pl: "10px", fontSize: "20px", fontWeight: "600", p: "20px", }} >Gán nhân viên giao hàng</Typography>
                                         </Grid>
                                         <Grid container xs={1} sx={{ alignItems: 'center', justify: 'center' }} >
                                             <CloseIcon onClick={handleClickButtonNVDieuPhoiClose} />
@@ -256,11 +259,12 @@ function OrderDetail(props: { maVanDon: number, setReload: any }) {
                                 </Box>
                             </Modal>
                             <Button variant="outlined" sx={{
-                                borderRadius: "5px",
                                 height: "40px",
                                 top: "40%",
                                 backgroundColor: "white",
-                                borderColor: "#0088FF"
+                                borderColor: "#0088FF",
+                                borderRadius: "10px",
+                                textTransform: "capitalize"
                             }}
                             > In vận đơn
                             </Button>

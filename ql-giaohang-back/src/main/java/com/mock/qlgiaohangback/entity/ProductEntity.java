@@ -1,5 +1,6 @@
 package com.mock.qlgiaohangback.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -30,9 +31,6 @@ public class ProductEntity implements Serializable {
     @Column(name = "sale_price")
     private Integer salePrice;
 
-    @Column(name = "entry_price")
-    private Integer entryPrice;
-
     @Column
     private Double weight;
 
@@ -44,9 +42,11 @@ public class ProductEntity implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_id")
+
     private ShopEntity shop;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<OrderProductEntity> orderProductEntities;
 
     @Temporal(TemporalType.TIMESTAMP)

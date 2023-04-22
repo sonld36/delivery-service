@@ -1,6 +1,5 @@
 
 import MainRouter from '@Routers/MainRouter';
-import React from 'react';
 import './App.scss';
 
 function App() {

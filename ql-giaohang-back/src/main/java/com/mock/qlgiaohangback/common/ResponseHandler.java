@@ -23,6 +23,13 @@ public class ResponseHandler {
         map.put("paging", data);
 
         return map;
+    }
 
+    public static Map<String, Object> generateResponseSocket(String message, Object responseObj) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("message", message);
+        map.put("data", responseObj);
+
+        return map;
     }
 }

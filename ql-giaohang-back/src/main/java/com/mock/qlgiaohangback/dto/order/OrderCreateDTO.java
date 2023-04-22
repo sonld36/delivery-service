@@ -31,8 +31,8 @@ public class OrderCreateDTO {
     @NotNull
     private CustomerRespDTO customer;
 
-    @NotNull
-    private AddressDTO address;
+    @NotEmpty
+    private String address;
 
     @NotEmpty
     private List<ProductInOrderCreateDTO> products;

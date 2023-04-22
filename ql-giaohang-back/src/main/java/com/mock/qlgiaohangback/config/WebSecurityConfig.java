@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,13 +34,15 @@ public class WebSecurityConfig {
                 .cors().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeHttpRequests()
+                .antMatchers("/**").permitAll()
                 .antMatchers("/auth/**").permitAll()
-                .antMatchers(HttpMethod.GET,"/product/**").permitAll()
-                .antMatchers("/product/**").hasAnyAuthority(Constans.Roles.ROLE_SHOP.name(), Constans.Roles.ROLE_USER.name())
-                .antMatchers("/account/**").permitAll()
-                .antMatchers("/customer/**").hasAnyAuthority(Constans.Roles.ROLE_SHOP.name())
-                .antMatchers("/shop/**").hasAnyAuthority(Constans.Roles.ROLE_SHOP.name(), Constans.Roles.ROLE_DELIVERY_MANAGER.name(), Constans.Roles.ROLE_USER.name())
-                .antMatchers("/order/**").permitAll()
+
+//                .antMatchers(HttpMethod.GET,"/product/**").permitAll()
+//                .antMatchers("/product/**").hasAnyAuthority(Constans.Roles.ROLE_SHOP.name(), Constans.Roles.ROLE_USER.name())
+//                .antMatchers("/account/**").permitAll()
+//                .antMatchers("/customer/**").hasAnyAuthority(Constans.Roles.ROLE_SHOP.name())
+//                .antMatchers("/shop/**").hasAnyAuthority(Constans.Roles.ROLE_SHOP.name(), Constans.Roles.ROLE_DELIVERY_MANAGER.name(), Constans.Roles.ROLE_USER.name())
+//                .antMatchers("/order/**").permitAll()
                 .anyRequest().authenticated()
                 .and().exceptionHandling()
 //                .authenticationEntryPoint(authenticationEntryPoint)

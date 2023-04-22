@@ -1,8 +1,10 @@
 package com.mock.qlgiaohangback.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mock.qlgiaohangback.common.Constans;
 import com.mock.qlgiaohangback.dto.cod.CODByDateAndShopId;
 import com.mock.qlgiaohangback.dto.order.*;
+import com.mock.qlgiaohangback.entity.AccountEntity;
 import com.mock.qlgiaohangback.entity.OrderEntity;
 
 import java.util.List;
@@ -21,9 +23,14 @@ public interface IOrderService {
 
     List<OrderRespDTO> getAllByShipperId();
 
+    List<OrderRespDTO> getAllByShipperId(Long shipperId);
+
+
     OrderRespDTO getOrderByIdAndShipperId(Long id);
 
     List<OrderRespDTO> getOrderByStatusAndShipperId(Constans.OrderStatus status);
+
+    List<OrderRespDTO> getOrderByStatusAndShipperId(Constans.OrderStatus status, Long shipperId);
 
     List<OrderRespDTO> getOrderByCustomerNameAndShipperId(String name);
 
@@ -39,9 +46,9 @@ public interface IOrderService {
 
     Integer getRevenueToday();
 
-    Integer changeStatus(String id, String status);
+    Integer changeStatus(String id, Constans.OrderStatus status) throws JsonProcessingException;
 
-    Boolean createOrder(OrderCreateDTO orderCreateDTO);
+    Boolean createOrder(OrderCreateDTO orderCreateDTO) throws JsonProcessingException;
 
     OrderRespWithPagingDTO getOrderWithPaging(int page);
 
@@ -49,9 +56,9 @@ public interface IOrderService {
     Map<Constans.OrderStatus, Long> countByStatus();
 
     // Trả về các đơn hàng theo mọi trạng thái
-    OrderRespoDPhoiWithPagingDTO findAllOrder(String pageIndex, String pageSize) throws Exception;
+    OrderRespoDPhoiWithPagingDTO findAllOrder(int pageIndex) throws Exception;
 
-    OrderRespoDPhoiWithPagingDTO findAllOrderStatus(String pageIndex, String pageSize, Constans.OrderStatus status) throws Exception;
+    OrderRespoDPhoiWithPagingDTO findAllOrderStatus(int pageIndex, Constans.OrderStatus status) throws Exception;
 
     OrderRespInfDetailDTO findOrderRespInfDetailById(Long orderId);
 
@@ -73,4 +80,6 @@ public interface IOrderService {
     Integer assignCarrier(Long orderId, String carrierId) throws Exception;
 
     OrderRespProductDetailInfDTO findAllProductOrderById(Long orderId) throws Exception;
+
+    Integer countByCarrierAndStatus(AccountEntity account, Constans.OrderStatus status);
 }

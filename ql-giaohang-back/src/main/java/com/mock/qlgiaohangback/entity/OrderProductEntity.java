@@ -1,6 +1,7 @@
 package com.mock.qlgiaohangback.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mock.qlgiaohangback.helpers.db.OrderProductId;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +27,13 @@ public class OrderProductEntity {
     @MapsId("orderId")
     @JsonBackReference
     @ToString.Exclude
+    @JsonIgnore
     private OrderEntity order;
 
     @ManyToOne()
     @MapsId("productId")
     @ToString.Exclude
+    @JsonIgnore
     private ProductEntity product;
 
     @Column(name = "product_quantity")

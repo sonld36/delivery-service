@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Box } from "@mui/material";
 import CssBaseline from '@mui/material/CssBaseline';
-import { MainLogo } from '@Helpers/export.image';
+import { Logo } from '@Helpers/export.image';
 
 
 function Header() {
@@ -17,7 +17,7 @@ function Header() {
                 marginTop: "20px",
             }}>
                 <Link to="/shipper">
-                    <img alt="Sapo" src={MainLogo} style={{ height: "60px" }} />
+                    <img alt="Logo" src={Logo} style={{ height: "60px" }} />
                 </Link>
             </Box>
         </Box>

@@ -6,6 +6,8 @@ import {
   OrderDPResponse,
   OrderInfDetailResponse,
   ProductInfInOrderByDP,
+  OrderLogType,
+  OrderlogTypePaging,
 } from "@Common/types";
 import httpCommon from "@Services/http-common";
 
@@ -77,34 +79,24 @@ class OrderService {
   };
 
   getOrdersByDateAndCarrierId = (body: Object) => {
-    return httpCommon.post(
-      "/order/get-by-date-and-carrier-id", body
-    )
-  }
+    return httpCommon.post("/order/get-by-date-and-carrier-id", body);
+  };
 
   getOrdersByDateAndListId = (body: Object) => {
-    return httpCommon.post(
-      "/order/get-by-date-and-list-id", body
-    )
-  }
+    return httpCommon.post("/order/get-by-date-and-list-id", body);
+  };
 
   getOrdersByDateAndShopId = (body: Object) => {
-    return httpCommon.post(
-      "/order/get-by-date-and-shop-id", body
-    )
-  }
+    return httpCommon.post("/order/get-by-date-and-shop-id", body);
+  };
 
   getOrdersByShopId = (id: Number) => {
-    return httpCommon.get(
-      "/order/get-by-shop-id/" + id
-    )
-  }
+    return httpCommon.get("/order/get-by-shop-id/" + id);
+  };
 
   getAll = () => {
-    return httpCommon.get(
-      "/order"
-    )
-  }
+    return httpCommon.get("/order");
+  };
 
   async createOrder(data: any): Promise<ResponseReceived<boolean>> {
     return httpCommon.post("/order", data).then();
@@ -126,54 +118,67 @@ class OrderService {
     return httpCommon.get("order/dieu-phoi/count-by-status");
   };
   // Lấy toàn bộ đơn hàng với phân trang
-  getAllOrderByDPWithPagination = (pageIndex: String, pageSize: String): Promise<ResponseReceived<OrderDPResponse>> => {
-    return httpCommon.get("/order/dieu-phoi/get-all-order", {
-      params: {
-        pageIndex,
-        pageSize,
-      }
-    })
+  async getAllOrderByDPWithPagination(
+    page: number
+  ): Promise<ResponseReceived<OrderDPResponse>> {
+    return httpCommon
+      .get("/order/dieu-phoi/get-all-order", {
+        params: {
+          page,
+        },
+      })
+      .then();
   }
 
   // Lấy toàn bộ đơn hàng theo trạng thái với phân trang
-  getAllOrderStatusByDPWithPagination = (status: String, pageIndex?: String, pageSize?: String): Promise<ResponseReceived<OrderDPResponse>> => {
-    return httpCommon.get("/order/dieu-phoi/get-all-order-by-status", {
-      params: {
-        status,
-        pageIndex,
-        pageSize,
-      }
-    })
+  async getAllOrderStatusByDPWithPagination(
+    status: String,
+    page: number
+  ): Promise<ResponseReceived<OrderDPResponse>> {
+    console.log("page", page);
+
+    return httpCommon
+      .get("/order/dieu-phoi/get-all-order-by-status", {
+        params: {
+          status,
+          page,
+        },
+      })
+      .then();
   }
 
   //Lấy thông tin về gửi nhận vận chuyển cho chi tiết đơn hàng
-  getOrderInfDetail = (orderId: Number): Promise<ResponseReceived<OrderInfDetailResponse>> => {
+  getOrderInfDetail = (
+    orderId: Number
+  ): Promise<ResponseReceived<OrderInfDetailResponse>> => {
     return httpCommon.get("/order/dieu-phoi/order-info-detail", {
       params: {
-        orderId
-      }
-    })
-  }
+        orderId,
+      },
+    });
+  };
 
   //Lấy chi tiết sản phẩm cho đơn hàng
-  getProductInfDetail = (orderId: number): Promise<ResponseReceived<ProductInfInOrderByDP>> => {
+  getProductInfDetail = (
+    orderId: number
+  ): Promise<ResponseReceived<ProductInfInOrderByDP>> => {
     return httpCommon.get("order/dieu-phoi/get-product-list-by-orderId", {
       params: {
-        orderId
-      }
-    })
-  }
+        orderId,
+      },
+    });
+  };
 
   //Gán đơn hàng cho shippper
   assignCarrier = (orderId: Number, carrierId: String) => {
-    return httpCommon.put(`/order/dieu-phoi/assign-carrier?orderId=${orderId}&carrierId=${carrierId}`)
-  }
-
+    return httpCommon.put(
+      `/order/dieu-phoi/assign-carrier?orderId=${orderId}&carrierId=${carrierId}`
+    );
+  };
 
   async cancelOrder(orderId: number): Promise<ResponseReceived<number>> {
     return httpCommon.delete(`/order/${orderId}`).then();
   }
-
 
   async countOrderInThirtyDays(
     startDate: string,
@@ -203,6 +208,18 @@ class OrderService {
 
   async getNotDoneYet(): Promise<ResponseReceived<OrderDisplayType[]>> {
     return httpCommon.get("/order/not-done-yet").then();
+  }
+
+  async getOrderLog(
+    page: number
+  ): Promise<ResponseReceived<OrderlogTypePaging>> {
+    return httpCommon
+      .get("/order-log", {
+        params: {
+          page,
+        },
+      })
+      .then();
   }
 }
 

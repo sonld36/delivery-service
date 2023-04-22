@@ -1,5 +1,6 @@
 package com.mock.qlgiaohangback.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mock.qlgiaohangback.common.Constans;
 import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -35,17 +36,21 @@ public class ShopEntity implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "shop", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @JsonIgnore
     private List<ProductEntity> products;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "shop", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @JsonIgnore
     private List<CustomerEntity> customers;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "shop", cascade = CascadeType.ALL)
     @ToString.Exclude
+    @JsonIgnore
     private List<OrderEntity> orders;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "shop", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<AddressEntity> addresses;
 
     @Temporal(TemporalType.TIMESTAMP)

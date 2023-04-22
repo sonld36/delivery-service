@@ -90,3 +90,8 @@ export const convertNumberToCurrency = (price: number) =>
     decimalScale: 2,
     suffix: " VNĐ",
   });
+
+export const getCurrentPath = (path: string) => {
+  const splitPath: string[] = path.split("/");
+  return splitPath[splitPath.length - 1];
+};

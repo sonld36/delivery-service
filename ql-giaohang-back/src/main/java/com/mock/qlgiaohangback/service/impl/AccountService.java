@@ -6,6 +6,7 @@ import com.mock.qlgiaohangback.dto.user.AccountRespDTO;
 import com.mock.qlgiaohangback.dto.user.AccountUpdateDTO;
 import com.mock.qlgiaohangback.dto.user.DeliveryRespDTO;
 import com.mock.qlgiaohangback.entity.AccountEntity;
+import com.mock.qlgiaohangback.entity.RoleEntity;
 import com.mock.qlgiaohangback.exception.ResponseException;
 import com.mock.qlgiaohangback.helpers.FileHelpers;
 import com.mock.qlgiaohangback.helpers.ObjectHelpers;
@@ -13,7 +14,10 @@ import com.mock.qlgiaohangback.mapper.IAccountMapper;
 import com.mock.qlgiaohangback.mapper.IShopMapper;
 import com.mock.qlgiaohangback.repository.AccountRepository;
 import com.mock.qlgiaohangback.service.IAccountService;
+import com.mock.qlgiaohangback.service.IRoleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,6 +39,7 @@ import java.util.stream.Collectors;
 public class AccountService implements IAccountService {
 
     private final AccountRepository accountRepository;
+    private final IRoleService roleService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -91,7 +96,6 @@ public class AccountService implements IAccountService {
          * */
 
         String imagePath = FileHelpers.saveImage(accountUpdateDTO.getImage(), "avatar");
-        System.out.println("imagePath: " + imagePath);
         AccountEntity account = IAccountMapper.INSTANCE.toEntity(accountUpdateDTO);
         account.setPathAvatar(imagePath);
 
@@ -128,6 +132,30 @@ public class AccountService implements IAccountService {
     public List<AccountRespDTO> getAll() {
         return this.accountRepository.findAll().stream().map(IAccountMapper.INSTANCE::toResponseDTO).collect(Collectors.toList());
 
+    }
+
+    @Override
+    public AccountEntity getCurrentAccount() {
+        /** Lấy ra tên tài khoản đang đăng nhập trong hệ thống */
+        Authentication user = SecurityContextHolder.getContext().getAuthentication();
+        String username = user.getName();
+
+        /** Lấy ra account tương ứng với tên đăng nhập, */
+        return this.getAccountByUsername(username);
+    }
+
+    @Override
+    public Page<AccountEntity> getAccountsByRole(Constans.Roles role, Integer page) {
+        if (page < 1) {
+            throw new ResponseException(MessageResponse.VALUE_PASSED_INCORRECT, HttpStatus.BAD_REQUEST, Constans.Code.INVALID.getCode());
+        }
+        RoleEntity roleEntity = this.roleService.getByName(role.name());
+        return this.accountRepository
+                .findAllByRoleOrderByCreatedAt(roleEntity,
+                        PageRequest
+                                .of(page - 1,
+                                        Integer
+                                                .parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())));
     }
 
 

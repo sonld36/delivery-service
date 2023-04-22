@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -37,7 +38,7 @@ public class AccountEntity implements Serializable {
     private RoleEntity role;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JsonIgnore
+    @JsonIgnore
     private ShopEntity shop;
 
     //    @OneToOne(mappedBy = "account")
@@ -50,11 +51,17 @@ public class AccountEntity implements Serializable {
 
     @Column
     private String name;
-    @OneToMany(mappedBy = "carrier")
+    @OneToMany(mappedBy = "carrier", fetch = FetchType.LAZY)
     private List<OrderEntity> order;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<OrderProcessLogEntity> orderProcessLogEntities;
+
+    @OneToMany(mappedBy = "destination", fetch = FetchType.LAZY)
+    private List<NotificationEntity> notifyDestination;
+
+    @OneToMany(mappedBy = "from", fetch = FetchType.LAZY)
+    private List<NotificationEntity> notifyFrom;
 
 
     @CreatedDate

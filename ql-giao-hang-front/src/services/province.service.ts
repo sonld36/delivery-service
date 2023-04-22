@@ -7,9 +7,7 @@ class ProvinceService {
   }
 
   async getProvince(code: number): Promise<ProvinceCommonType> {
-    return provinceApi
-      .get<ProvinceCommonType>(`/p/${code}`)
-      .then();
+    return provinceApi.get<ProvinceCommonType>(`/p/${code}`).then();
   }
 
   async getDistrictByProvinceCode(code: number): Promise<ProvinceCommonType[]> {
@@ -23,9 +21,7 @@ class ProvinceService {
   }
 
   async getDistrict(code: number): Promise<ProvinceCommonType> {
-    return provinceApi
-      .get<ProvinceCommonType>(`/d/${code}`)
-      .then();
+    return provinceApi.get<ProvinceCommonType>(`/d/${code}`).then();
   }
 
   async getWardByDistrictCode(code: number): Promise<ProvinceCommonType[]> {
@@ -39,17 +35,21 @@ class ProvinceService {
   }
 
   async getWard(code: number): Promise<ProvinceCommonType> {
-    return provinceApi
-      .get<ProvinceCommonType>(`/w/${code}`)
-      .then();
+    return provinceApi.get<ProvinceCommonType>(`/w/${code}`).then();
   }
 
   async getAddress(data: AddressToSave): Promise<string> {
-    let detail = data.addressDetail;
     let province = await this.getProvince(data.provinceCode);
     let district = await this.getDistrict(data.districtCode);
     let ward = await this.getWard(data.wardCode);
-    let address = data.addressDetail + " , " + ward.name + " , " + district.name + " , " + province.name;
+    let address =
+      data.addressDetail +
+      " , " +
+      ward.name +
+      " , " +
+      district.name +
+      " , " +
+      province.name;
     return address;
   }
 }

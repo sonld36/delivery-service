@@ -1,24 +1,20 @@
-import { isNumber } from "lodash";
 import {
   AddressCode,
-  ProvinceCommonType,
-  CustomerType,
-  OrderCreateType,
-  ProductType,
   AddressToSave,
+  CustomerType,
   ProductInOrder,
 } from "@Common/types";
+import { isNumber } from "lodash";
 import {
+  ZodSchema,
   any,
   boolean,
+  lazy,
+  nativeEnum,
   number,
   object,
-  string,
   preprocess,
-  ZodSchema,
-  lazy,
-  date,
-  nativeEnum,
+  string,
 } from "zod";
 import { convertAddressToCode } from "./list.handle";
 
@@ -141,10 +137,6 @@ export const saveProductSchema = object({
     .min(1, "Vui lòng nhập tên sản phẩm")
     .max(256, "Sản phẩm không được quá 256 kí tự"),
   salePrice: preprocess(
-    (a) => (isNumber(a) ? a : parseInt(string().parse(a), 10)),
-    number().positive()
-  ),
-  entryPrice: preprocess(
     (a) => (isNumber(a) ? a : parseInt(string().parse(a), 10)),
     number().positive()
   ),

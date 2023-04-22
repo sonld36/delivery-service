@@ -9,6 +9,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public interface IAccountMapper {
 
@@ -23,5 +25,11 @@ public interface IAccountMapper {
     AccountEntity toEntity(AccountUpdateDTO accountUpdateDTO);
 
     AccountEntity toRegisterEntity(AccountRegisterDTO accountRegisterDTO);
+
+    List<AccountRespDTO> toListRespDTO(List<AccountEntity> accounts);
+
+    @Mapping(source = "role", target = "role.name")
+    AccountEntity fromRespDTOToEntity(AccountRespDTO accountRespDTO);
+    List<AccountEntity> fromListRespDTOsToEntities(List<AccountRespDTO> accountRespDTOS);
 
 }

@@ -26,13 +26,11 @@ public class OrderProcessLogEntity {
     @JoinColumn(name = "account_modified_id")
     private AccountEntity account;
 
-    @ManyToMany
-    @JoinTable(
-            name = "log_order",
-            joinColumns = @JoinColumn(name = "log_id"),
-            inverseJoinColumns = @JoinColumn(name = "order_id")
-    )
-    private List<OrderEntity> orderEntities;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private OrderEntity order;
+
+    private Constans.OrderLogAction action;
 
     @Column(name = "from_status")
     private Constans.OrderStatus fromStatus;

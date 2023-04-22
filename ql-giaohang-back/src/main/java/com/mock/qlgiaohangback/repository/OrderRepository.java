@@ -1,6 +1,7 @@
 package com.mock.qlgiaohangback.repository;
 
 import com.mock.qlgiaohangback.common.Constans;
+import com.mock.qlgiaohangback.entity.AccountEntity;
 import com.mock.qlgiaohangback.entity.OrderEntity;
 import com.mock.qlgiaohangback.entity.OrderProductEntity;
 import com.mock.qlgiaohangback.helpers.db.ICountOrderInThirtyDays;
@@ -95,5 +96,9 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long>, Order
 
     @Query(value="SELECT * FROM _orders o WHERE o.shop_id LIKE :id",nativeQuery = true)
     List<OrderEntity> findOrderEntytyByShopId(@Param("id") Long id);
+
+    Integer countByCarrierAndStatus(AccountEntity account, Constans.OrderStatus status);
+
+    Long countByCarrier(AccountEntity account);
 
 }

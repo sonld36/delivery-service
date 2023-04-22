@@ -172,7 +172,8 @@ function CreateNewOrder() {
     event.preventDefault();
     const dataNotOptimize: OrderCreateForm = getValues();
 
-    let address = dataNotOptimize.customer.addresses.at(addressChoosen);
+    const address: any = dataNotOptimize.customer.addresses.at(addressChoosen);
+    const addressText = await provinceService.getAddress(address);
 
     let products = dataNotOptimize.products.map((item) => (
       {
@@ -184,7 +185,7 @@ function CreateNewOrder() {
     const dataToRequest: any = {
       ...dataNotOptimize,
       products,
-      address: address,
+      address: addressText,
       shipFee: totalPay.shipFee,
       paymentTotal: totalPay.restPaid,
       type: dataNotOptimize.orderType

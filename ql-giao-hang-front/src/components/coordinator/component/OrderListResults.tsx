@@ -16,9 +16,13 @@ import * as React from 'react';
 import OrderDetail from './OrderDetail';
 //Import API
 import { orderShopStatus, orderShopStatusColor } from '@Common/const';
-import { Order } from '@Common/types';
+import { Order, OrderDisplayType } from '@Common/types';
 import orderService from '@Services/order.service';
 import PaginationCustom from './Pagination';
+import { orderManageLinks } from '../CoordinatorSidebar/CoordinatorSidebar';
+import { useAppDispatch, useAppSelector } from '@App/hook';
+import { OrderStateType, fetchAllOrderByDPWithPagination, fetchAllOrderByStatusDPWithPagination, selectOrder } from '@Features/order/orderSlice';
+import { useLocation } from 'react-router-dom';
 
 
 const TableCellCus = styled(TableCell)({
@@ -27,6 +31,18 @@ const TableCellCus = styled(TableCell)({
 // const TableBodyCus = styled(TableBody)({
 //   backgroundColor: "#F4F6F8",
 // });
+
+const statuses: {
+  [key: string]: string
+} = {
+  [orderManageLinks.ALL]: "all",
+  [orderManageLinks.PENDING]: "WAITING_FOR_ACCEPT_NEW_ORDER",
+  [orderManageLinks.REQUEST]: "REQUEST_SHIPPING",
+  [orderManageLinks.PICKING]: "PICKING_UP_GOODS",
+  [orderManageLinks.DELIVERING]: "BEING_TRANSPORTED",
+  [orderManageLinks.SUCCESS]: "DELIVERY_SUCCESSFUL",
+  [orderManageLinks.DONE]: "REFUNDS",
+}
 
 interface StyledTableRowChosen {
   open: boolean;
@@ -86,65 +102,73 @@ function Row(props: { row: Order, setReload: (params: any) => any, key: number, 
 //   setSuccessAssign(value)
 // }
 
-type OrderListResults = {
+type OrderListResultsProps = {
   status: string;
 }
-export default function OrderListResults(props: OrderListResults) {
+export default function OrderListResults(props: OrderListResultsProps) {
   const [keyChooseDetail, setKeyChooseDetail] = React.useState<number>(0)
   const [reload, setReload] = React.useState(false)
   const { status } = props;
   //Phan trang
   const [pageIndex, setPageIndex] = React.useState<number>(1);
-  const [pageSize, setPageSize] = React.useState<number>(10);
-  const [orders, setOrders] = React.useState<Order[]>([]);
-  const [totalRecord, setSetTotalRecord] = React.useState<number>(0);
+  const [pageSize, setPageSize] = React.useState<number>(5);
+  const ordersState: OrderStateType = useAppSelector(selectOrder);
+
+  const [orders, setOrders] = React.useState<Order[] | any>([]);
+  const [totalRecord, setTotalRecord] = React.useState<number>(0);
+  const location = useLocation();
+  const dispatch = useAppDispatch();
 
 
   //Co thay doi thong tin don hang
 
-
-  // //Hàm lấy toàn bộ đơn hàng
-  const fetchgetAllOrderByDPWithPagination = async () => {
-    try {
-      let resp: any = await orderService.getAllOrderByDPWithPagination(`${pageIndex}`, `${pageSize}`);
-      if (resp && resp.code === 2000) {
-        setOrders(resp.data.orders);
-        setSetTotalRecord(resp.data.totalRecord);
-      }
-    }
-    catch (e) {
-      console.log(e)
-    }
-  }
-  // //Hàm lấy đơn hàng theo trạng thái
-  const getAllOrderStatusByDPWithPagination = async (status: string) => {
-    try {
-      let resp: any = await orderService.getAllOrderStatusByDPWithPagination(status, `${pageIndex}`, `${pageSize}`);
-      if (resp && resp.code === 2000) {
-        setOrders(resp.data.orders);
-        setSetTotalRecord(resp.data.totalRecord);
-      }
-    }
-    catch (e) {
-      console.log(e)
-    }
-  }
+  React.useEffect(() => {
+    setPageIndex(1);
+  }, [location]);
 
   React.useEffect(() => {
-    if (status == "all")
-      fetchgetAllOrderByDPWithPagination();
+    setOrders(ordersState.orderDisplayType);
+    setTotalRecord(ordersState.totalPage);
+  }, [ordersState])
+
+
+  React.useEffect(() => {
+    // //Hàm lấy toàn bộ đơn hàng
+    const getAllOrderByDPWithPagination = async () => {
+      try {
+        const args = {
+          page: pageIndex,
+        }
+        dispatch(fetchAllOrderByDPWithPagination(args))
+      }
+      catch (e) {
+        console.log(e)
+      }
+    }
+    // //Hàm lấy đơn hàng theo trạng thái
+    const getAllOrderStatusByDPWithPagination = async (status: string) => {
+      try {
+        const args = {
+          status,
+          page: pageIndex,
+        }
+        dispatch(fetchAllOrderByStatusDPWithPagination(args));
+      }
+      catch (e) {
+        console.log(e)
+      }
+    }
+    if (statuses[status] === "all")
+      getAllOrderByDPWithPagination();
     else
-      getAllOrderStatusByDPWithPagination(status);
-  }, [pageSize, pageIndex])
+      getAllOrderStatusByDPWithPagination(statuses[status]);
+  }, [pageSize, pageIndex, status, dispatch]);
   //Reload lai trang khi gan/thay doi shipper cho don hang
-  React.useEffect(() => {
-    if (reload) {
-      if (status == "all")
-        fetchgetAllOrderByDPWithPagination();
-      else
-        getAllOrderStatusByDPWithPagination(status);
-    }
-  }, [reload])
+  // React.useEffect(() => {
+  //   if (reload) {
+
+  //   }
+  // }, [reload])
 
   return (
     <TableContainer component={Paper} >
@@ -167,11 +191,11 @@ export default function OrderListResults(props: OrderListResults) {
               <Typography>Không có dữ liệu</Typography>
             </TableCell>)
             :
-            orders.map((row) => (
+            orders.map((row: Order) => (
               <Row key={row.maVanDon} row={row} setReload={setReload} keyChooseDetail={keyChooseDetail} setKeyChooseDetail={setKeyChooseDetail} />
             ))}
         </TableBody>
-        {totalRecord != 0 &&
+        {totalRecord !== 0 &&
           <TableFooter >
             <TableCell colSpan={8} >
 

@@ -35,8 +35,8 @@ public class AddressEntity {
     @JsonBackReference
     private CustomerEntity customer;
 
-    @OneToMany(mappedBy = "address")
-    private List<OrderEntity> orders;
+//    @OneToMany(mappedBy = "address")
+//    private List<OrderEntity> orders;
 
     @ManyToOne
     @JoinColumn(name = "shop_id", referencedColumnName = "id")

@@ -25,7 +25,6 @@ function CreateNewProduct() {
     defaultValues: ({
       name: "",
       active: true,
-      entryPrice: 0,
       productCode: "",
       salePrice: 0,
       weight: 0,

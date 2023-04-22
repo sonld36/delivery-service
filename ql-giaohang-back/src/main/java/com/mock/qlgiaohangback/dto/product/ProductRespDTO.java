@@ -16,8 +16,6 @@ public class ProductRespDTO {
 
     private Integer salePrice;
 
-    private Integer entryPrice;
-
 
     private Double weight;
 

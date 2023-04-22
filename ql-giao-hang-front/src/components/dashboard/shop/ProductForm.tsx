@@ -127,20 +127,6 @@ function ProductForm(props: Props) {
 
             <CardContent>
               <Grid container direction={"column"} spacing={2}>
-                <Grid item xs={12}>
-                  <FormHelperText>Giá nhập vào*</FormHelperText>
-                  <TextField
-                    // label="Tên sản phẩm"
-                    id="product-entry-price"
-                    size="small"
-                    placeholder='Nhập giá nhập vào'
-                    fullWidth
-                    type='number'
-                    error={!!methods.formState.errors["entryPrice"]}
-                    helperText={methods.formState.errors["entryPrice"] ? methods.formState.errors["entryPrice"].message?.toString() : ""}
-                    {...register("entryPrice")}
-                  />
-                </Grid>
                 <Grid item xs>
                   <Divider />
                 </Grid>

@@ -51,6 +51,12 @@ public class Constans {
         PAID
     }
 
+    public enum SocketTopic {
+        NOTIFY,
+        STATUS_UPDATE,
+        LOG
+    }
+
     public enum Code {
 
         OK(2000),
@@ -72,7 +78,6 @@ public class Constans {
         EMAIL_EXISTED(4003),
 
         ACCOUNT_NOT_EXISTED(4004),
-        PARTNERS_REGISTRATION_EXIST(4005),
 
         EXISTED(4008),
 
@@ -111,6 +116,36 @@ public class Constans {
 
         public Object getSomeThing() {
             return someThing;
+        }
+    }
+
+    public enum OrderLogAction {
+        ORDER_LOG_ACTION_CREATED("OrderLogActionCreate"),
+        ORDER_LOG_ACTION_UPDATED("OrderLogActionUpdate"),
+        ORDER_LOG_ACTION_DELETE("OrderLogActionDelete");
+
+        private String action;
+
+        OrderLogAction(String action) {
+            this.action = action;
+        }
+
+        public String getAction() {
+            return action;
+        }
+    }
+
+    public enum OrderLogTopic {
+        ALL("/order/all");
+
+        private String topic;
+
+        OrderLogTopic(String topic) {
+            this.topic = topic;
+        }
+
+        public String getTopic() {
+            return topic;
         }
     }
 

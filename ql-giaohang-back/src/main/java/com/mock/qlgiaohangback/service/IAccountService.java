@@ -1,9 +1,11 @@
 package com.mock.qlgiaohangback.service;
 
+import com.mock.qlgiaohangback.common.Constans;
 import com.mock.qlgiaohangback.dto.user.AccountRespDTO;
 import com.mock.qlgiaohangback.dto.user.AccountUpdateDTO;
 import com.mock.qlgiaohangback.dto.user.DeliveryRespDTO;
 import com.mock.qlgiaohangback.entity.AccountEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.io.IOException;
@@ -26,4 +28,7 @@ public interface IAccountService extends UserDetailsService {
 
     List<AccountRespDTO> getAll();
 
+    AccountEntity getCurrentAccount();
+
+    Page<AccountEntity> getAccountsByRole(Constans.Roles role, Integer page);
 }

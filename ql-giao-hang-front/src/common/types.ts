@@ -1,6 +1,6 @@
 // import { ProductList } from '@Components/dashboard/shop/ProductList';
 import { AlertColor } from "@mui/material";
-import { shopStatus } from "./const";
+import { OrderLogAction, shopStatus } from "./const";
 import { number } from "zod";
 import { type } from "os";
 
@@ -23,7 +23,6 @@ export type ProductType = {
   productCode: string;
   name: string;
   salePrice: number;
-  entryPrice: number;
   weight: number;
   active: boolean;
   pathImage: string;
@@ -102,7 +101,6 @@ export type ProductSaveType = {
   name: string;
   productCode: string;
   salePrice: number;
-  entryPrice: number;
   weight: number;
   active: boolean;
   image: File;
@@ -275,26 +273,46 @@ export type OrderInfDetailResponse = {
 };
 
 export type Deliverier = {
-  deliveryId: string,
-  deliveryName: string,
-  deliveryPhone: string
-}
+  deliveryId: string;
+  deliveryName: string;
+  deliveryPhone: string;
+};
 
 export type ProductInOrderByDP = {
-  name: string
-  pathImage: string
-  productQuantity: number
-  productPrice: number
-  weight: number
-}
+  name: string;
+  pathImage: string;
+  productQuantity: number;
+  productPrice: number;
+  weight: number;
+};
 export type ConvertProductInOrderByDP = {
-  product: ProductInOrderByDP
-  image: UploadImageType
-  totalPrice: number
-}
+  product: ProductInOrderByDP;
+  image: UploadImageType;
+  totalPrice: number;
+};
 
 export type ProductInfInOrderByDP = {
-  products: ProductInOrderByDP[]
-  type: PaymentType
+  products: ProductInOrderByDP[];
+  type: PaymentType;
   deliveryFee: number;
-}
+};
+
+export type SocketMessageFormat<Type> = {
+  message: string;
+  data: Type;
+};
+
+export type OrderLogType = {
+  id: number;
+  account: AccountType;
+  order: OrderDisplayType;
+  action: OrderLogAction;
+  fromStatus: OrderStatus;
+  toStatus: OrderStatus;
+  createdAt: Date;
+};
+
+export type OrderlogTypePaging = {
+  totalPage: number;
+  orderLogs: OrderLogType[];
+};

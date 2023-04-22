@@ -8,21 +8,19 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Logout from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import PersonAdd from '@mui/icons-material/PersonAdd';
-import Settings from '@mui/icons-material/Settings';
 import { Avatar, ListItemIcon, Menu, MenuItem } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import { green } from '@mui/material/colors';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import MuiDrawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
-import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import { green } from '@mui/material/colors';
+import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 import * as React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
@@ -61,14 +59,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     '& .MuiDrawer-paper': {
       position: 'relative',
       whiteSpace: 'nowrap',
-      backgroundColor: '#182238',
+      backgroundColor: '#3a4657',
       color: '#A3A8AF',
       width: drawerWidth,
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      lineHeight: theme.spacing(3),
+      lineHeight: theme.spacing(4),
       boxSizing: 'border-box',
       ...(!open && {
         overflowX: 'hidden',
@@ -104,6 +102,7 @@ function DashboardContent(props: Props) {
   const location = useLocation();
   const title = usePageTitle(location.pathname);
   const navigate = useNavigate();
+
 
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -259,11 +258,9 @@ function DashboardContent(props: Props) {
               alignItems: "end"
             }}>
               <img src={MainLogo} alt="logo_sapo" style={{
-                width: "100px"
+                width: "100px",
+
               }} />
-              <Typography sx={{
-                fontSize: "10px",
-              }}>delivery</Typography>
             </Box>
             <IconButton onClick={toggleDrawer} sx={{ color: 'inherit' }}>
               <ChevronLeftIcon />

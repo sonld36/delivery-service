@@ -1,7 +1,6 @@
 // import { UserLogged } from "@Common/types";
 import { store } from "@App/store";
 import axios from "axios";
-import { redirect } from "react-router-dom";
 
 const api = axios.create({
   baseURL: "http://localhost:8080/api",

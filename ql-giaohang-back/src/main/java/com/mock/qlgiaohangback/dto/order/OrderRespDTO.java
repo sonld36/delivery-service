@@ -29,7 +29,7 @@ public class OrderRespDTO {
 
     private List<OrderProductRespDTO> products;
 
-    private AddressDTO address;
+    private String address;
 
     private ShopInfoRespDTO shop;
 

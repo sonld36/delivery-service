@@ -14,7 +14,7 @@ public class OrderRespInfDetailDTO {
     private AddressDTO shopAdd;
     private String shopPhone;
     private String receiverName;
-    private AddressDTO receiverAdd;
+    private String receiverAdd;
     private String receiverPhone;
     private String deliveryName;
     private String deliveryId;

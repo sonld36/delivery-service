@@ -70,15 +70,7 @@ public class ShopService implements IShopService {
 
     @Override
     public ShopEntity getShopLoggedIn() {
-        /** Lấy ra tên tài khoản đang đăng nhập trong hệ thống */
-        Authentication user = SecurityContextHolder.getContext().getAuthentication();
-        String username = user.getName();
-
-        /** Lấy ra account tương ứng với tên đăng nhập, mục đích là sử dụng id của account để
-         * lấy thông tin của shop*/
-        AccountEntity account = this.accountService.getAccountByUsername(username);
-
-        return this.getShopByAccountId(account.getId());
+        return this.getShopByAccountId(this.accountService.getCurrentAccount().getId());
     }
 
     public List<ShopDetailRespDTO> getShopByStatus(Constans.ShopStatus status) {

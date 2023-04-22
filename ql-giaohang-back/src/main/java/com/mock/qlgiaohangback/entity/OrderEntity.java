@@ -47,7 +47,7 @@ public class OrderEntity implements Serializable {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JsonManagedReference
-//    @JsonIgnore
+    @JsonIgnore
     @ToString.Exclude
     private List<OrderProductEntity> orderProductEntities;
 
@@ -56,24 +56,29 @@ public class OrderEntity implements Serializable {
     private ShopEntity shop;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "COD_id", referencedColumnName = "id")
     private CODEntity cod;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "carrier_id", referencedColumnName = "id")
     private AccountEntity carrier;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    @JsonIgnore
     private CustomerEntity customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_address_id", referencedColumnName = "id")
-    private AddressEntity address;
-
-    @ManyToMany(mappedBy = "orderEntities", fetch = FetchType.LAZY)
+    @Column(name = "address_customer")
     @JsonIgnore
-    private List<OrderProcessLogEntity> orderProcessLogEntities;
+    private String address;
+
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @JsonIgnore
+    private List<OrderProcessLogEntity> orderProcessLogEntity;
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)

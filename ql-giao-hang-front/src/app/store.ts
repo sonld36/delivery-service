@@ -10,7 +10,7 @@ import thunk from "redux-thunk";
 const persistConfig = {
   key: "root",
   storage: storage, //add file path node_modules in file tsconfig.ts
-  blacklist: ["toast", "order"],
+  blacklist: ["toast", "order", "log"],
 };
 
 export const rootReducers = combineReducers({

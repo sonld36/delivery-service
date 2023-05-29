@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import GroupIcon from '@mui/icons-material/Group';
+import Groups3Icon from '@mui/icons-material/Groups3';
+import { List } from '@mui/material';
+import Collapse from '@mui/material/Collapse';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import HomeIcon from '@mui/icons-material/Home';
-import { List } from '@mui/material';
 import { Box } from '@mui/system';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import Collapse from '@mui/material/Collapse';
-import Groups3Icon from '@mui/icons-material/Groups3';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import GroupIcon from '@mui/icons-material/Group';
-import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 
 const enum key {
   ORDER = 'order',
   PROD = 'product',
   CUS = 'customer',
-  STAFF = 'staff'
+  STAFF = 'staff',
+  INVENTORY = "inventory"
 }
 
 const prefix = "";
@@ -76,6 +74,15 @@ function Sidebar() {
 
           </List>
         </Collapse>
+      </Box>
+
+      <Box>
+        <ListItemButton onClick={() => navigate("quan-ly-kho")} id={key.INVENTORY}>
+          <ListItemIcon>
+            <GroupIcon sx={{ color: '#ffffff' }} />
+          </ListItemIcon>
+          <ListItemText primary="Quản lý kho" />
+        </ListItemButton>
       </Box>
     </List>
 

@@ -285,10 +285,9 @@ function DashboardContent(props: Props) {
           }}
         >
           <Toolbar />
-          <Container maxWidth="xl" sx={{ mt: 2, mb: 2, ml: 0, padding: 0 }}>
-            {/* nội dung chính */}
+          <Box margin={3}>
             {mainContent ? mainContent : <Outlet />}
-          </Container>
+          </Box>
         </Box>
       </Box>
     </ThemeProvider >

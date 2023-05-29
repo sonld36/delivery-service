@@ -22,7 +22,8 @@ import PaginationCustom from './Pagination';
 import { orderManageLinks } from '../CoordinatorSidebar/CoordinatorSidebar';
 import { useAppDispatch, useAppSelector } from '@App/hook';
 import { OrderStateType, fetchAllOrderByDPWithPagination, fetchAllOrderByStatusDPWithPagination, selectOrder } from '@Features/order/orderSlice';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { toInteger } from 'lodash';
 
 
 const TableCellCus = styled(TableCell)({
@@ -58,12 +59,20 @@ const TableRowChosen = styled(TableRow,
   }),
 }))
 
-function Row(props: { row: Order, setReload: (params: any) => any, key: number, keyChooseDetail: number, setKeyChooseDetail: (params: any) => any, }) {
-  const { row, keyChooseDetail, key } = props;
+function Row(props: { row: Order, setReload: (params: any) => any }) {
+  const { row } = props;
   const [open, setOpen] = React.useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
   React.useEffect(() => {
-    open ? props.setKeyChooseDetail(key) : props.setKeyChooseDetail(0)
-  }, [open])
+    const id = toInteger(searchParams.get("order"));
+
+    if (id === toInteger(row.maVanDon)) {
+      setOpen(true);
+    }
+    else setOpen(false);
+  }, [searchParams, row]);
+
   return (
     <React.Fragment>
       <TableRowChosen open={open} >
@@ -71,7 +80,12 @@ function Row(props: { row: Order, setReload: (params: any) => any, key: number, 
           <IconButton
             size="small"
             onClick={() => {
-              setOpen(!open);
+              if (open) {
+                setOpen(!open);
+                setSearchParams({});
+                return;
+              }
+              setSearchParams({ order: `${row.maVanDon}` });
             }}>
             {open ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
           </IconButton>
@@ -87,7 +101,7 @@ function Row(props: { row: Order, setReload: (params: any) => any, key: number, 
       <TableRowChosen open={open}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={12}>
           <Collapse sx={{ margin: 1 }} in={open} timeout="auto" unmountOnExit >
-            {keyChooseDetail === key ? <OrderDetail maVanDon={row.maVanDon} setReload={props.setReload} /> : null}
+            {open ? <OrderDetail maVanDon={row.maVanDon} setReload={props.setReload} /> : null}
           </Collapse>
         </TableCell>
 
@@ -106,17 +120,25 @@ type OrderListResultsProps = {
   status: string;
 }
 export default function OrderListResults(props: OrderListResultsProps) {
-  const [keyChooseDetail, setKeyChooseDetail] = React.useState<number>(0)
   const [reload, setReload] = React.useState(false)
   const { status } = props;
   //Phan trang
   const [pageIndex, setPageIndex] = React.useState<number>(1);
   const [pageSize, setPageSize] = React.useState<number>(5);
   const ordersState: OrderStateType = useAppSelector(selectOrder);
-
   const [orders, setOrders] = React.useState<Order[] | any>([]);
   const [totalRecord, setTotalRecord] = React.useState<number>(0);
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams({});
+
+  React.useEffect(() => {
+    const idOrder = toInteger(searchParams.get("order"));
+    if (idOrder !== 0) {
+
+    }
+  }, [searchParams, pageSize]);
+
+
   const dispatch = useAppDispatch();
 
 
@@ -192,7 +214,7 @@ export default function OrderListResults(props: OrderListResultsProps) {
             </TableCell>)
             :
             orders.map((row: Order) => (
-              <Row key={row.maVanDon} row={row} setReload={setReload} keyChooseDetail={keyChooseDetail} setKeyChooseDetail={setKeyChooseDetail} />
+              <Row row={row} setReload={setReload} />
             ))}
         </TableBody>
         {totalRecord !== 0 &&

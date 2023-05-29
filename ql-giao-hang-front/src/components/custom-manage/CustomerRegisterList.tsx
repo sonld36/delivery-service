@@ -273,7 +273,7 @@ function a11yProps(index: number) {
   };
 }
 
-function BasicTabs() {
+export function BasicTabs() {
   const [originData, setOriginData] = React.useState<Data[]>([]);
   const [originData2, setOriginData2] = React.useState<Data[]>([]);
   const [data, setData] = React.useState<Data[]>([]);

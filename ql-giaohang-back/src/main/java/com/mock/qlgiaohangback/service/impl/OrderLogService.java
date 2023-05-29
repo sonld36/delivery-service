@@ -33,13 +33,12 @@ public class OrderLogService implements IOrderLogService {
     private final INotificationService notificationService;
 
     @Override
-    public int save(OrderRespDTO oldOrder, OrderRespDTO newOrder, Constans.OrderLogAction action) throws JsonProcessingException {
+    public int save(OrderRespDTO newOrder, Constans.OrderLogAction action) throws JsonProcessingException {
         AccountEntity currAccount = this.accountService.getCurrentAccount();
 
         OrderProcessLogEntity orderProcessLogEntity = new OrderProcessLogEntity();
         orderProcessLogEntity.setOrder(IOrderMapper.INSTANCE.fromRespDtoToEntity(newOrder));
         orderProcessLogEntity.setAction(action);
-        orderProcessLogEntity.setFromStatus(oldOrder.getStatus());
         orderProcessLogEntity.setToStatus(newOrder.getStatus());
         orderProcessLogEntity.setAccount(currAccount);
 
@@ -54,7 +53,17 @@ public class OrderLogService implements IOrderLogService {
     @Override
     public OrderLogPaging findOrderLog(Integer page) {
         if (page < 1) throw new ResponseException(MessageResponse.VALUE_PASSED_INCORRECT, HttpStatus.BAD_REQUEST, Constans.Code.INVALID.getCode());
-        Page<OrderProcessLogEntity> orderLogs = this.orderProcessLogRepository.findAllByOrderByCreatedAt(PageRequest.of(page - 1, 10));
+        Page<OrderProcessLogEntity> orderLogs = this.orderProcessLogRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(page - 1, 10));
+        return OrderLogPaging.builder()
+                .orderLogs(IOrderLogMapper.INSTANCE.toListDTO(orderLogs.getContent()))
+                .totalPage(orderLogs.getTotalPages()).build();
+    }
+
+    @Override
+    public OrderLogPaging findOrderLogByShop(Integer page) {
+        if (page < 1) throw new ResponseException(MessageResponse.VALUE_PASSED_INCORRECT, HttpStatus.BAD_REQUEST, Constans.Code.INVALID.getCode());
+        AccountEntity shop = this.accountService.getCurrentAccount();
+        Page<OrderProcessLogEntity> orderLogs = this.orderProcessLogRepository.findAllByOrder_ShopAccountOrderByCreatedAtDesc(shop, PageRequest.of(page - 1, 10));
         return OrderLogPaging.builder()
                 .orderLogs(IOrderLogMapper.INSTANCE.toListDTO(orderLogs.getContent()))
                 .totalPage(orderLogs.getTotalPages()).build();

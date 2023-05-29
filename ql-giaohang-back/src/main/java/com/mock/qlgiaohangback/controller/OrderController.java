@@ -236,7 +236,7 @@ public class OrderController  {
     }
     @PutMapping("/dieu-phoi/assign-carrier")
     //    http://localhost:8080/api/order/dieu-phoi/assign-carrier?orderId=&carrierId=
-    public ResponseEntity assignCarrier(@RequestParam Long orderId, @RequestParam String carrierId) throws Exception {
+    public ResponseEntity assignCarrier(@RequestParam Long orderId, @RequestParam Long carrierId) throws Exception {
         return ResponseHandler.generateResponse(MessageResponse.UPDATE_SUCCESS,
                 Constans.Code.OK.getCode(),
                 HttpStatus.OK,

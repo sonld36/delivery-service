@@ -48,7 +48,6 @@ export const getTodayTime = (data?: Date): string => {
   } else {
     date = new Date();
   }
-
   return (
     date.getFullYear() +
     "-" +
@@ -59,6 +58,24 @@ export const getTodayTime = (data?: Date): string => {
     (date.getDate().toString().length > 1
       ? date.getDate()
       : `0${date.getDate()}`)
+  );
+};
+
+export const getDateTime = (data?: Date): string => {
+  let date: Date | null = null;
+
+  if (data) {
+    date = data;
+  } else {
+    date = new Date();
+  }
+
+  return (
+    date.getHours() +
+    ":" +
+    (date.getMinutes().toString().length === 1
+      ? `0${date.getMinutes()}`
+      : date.getMinutes())
   );
 };
 

@@ -18,8 +18,6 @@ public class OrderLogRespDTO {
 
     private Constans.OrderLogAction action;
 
-    private Constans.OrderStatus fromStatus;
-
     private Constans.OrderStatus toStatus;
 
     private Date createdAt;

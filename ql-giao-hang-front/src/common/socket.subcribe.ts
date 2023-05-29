@@ -5,6 +5,7 @@ import { OrderLogTopic, SocketTopic } from "./const";
 import { status } from "./toast.const";
 import { OrderDisplayType, OrderLogType, SocketMessageFormat } from "./types";
 import { addOrder } from "@Features/order/orderSlice";
+import { addNewLog } from "@Features/log/logSlice";
 
 export const roles = {
   ROLE_SHOP: "ROLE_SHOP",
@@ -36,10 +37,8 @@ export const SocketSubcribe: {
     stompClient.subscribe(
       `/${SocketTopic.LOG}${OrderLogTopic.ALL}`,
       (message) => {
-        const resp: SocketMessageFormat<OrderLogType> = JSON.parse(
-          message.body
-        );
-        console.log(resp);
+        const resp: OrderLogType = JSON.parse(message.body);
+        dispatch(addNewLog(resp));
       }
     );
   },

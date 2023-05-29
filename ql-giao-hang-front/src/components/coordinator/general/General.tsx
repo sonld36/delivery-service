@@ -18,7 +18,10 @@ import { useEffect, useState } from 'react';
 import orderService from '@Services/order.service';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { orderManageLinks } from '../CoordinatorSidebar/CoordinatorSidebar';
-import LogActivity from '@Components/LogActivity';
+import LogActivity from '@Components/log-activity/LogActivity';
+import { useAppDispatch, useAppSelector } from '@App/hook';
+import { fetchAllOrderLog, selectLog } from '@Features/log/logSlice';
+import ItemLog from '@Components/log-activity/ItemLog';
 
 const theme = createTheme();
 const heightCard = 500;
@@ -65,6 +68,14 @@ function General() {
     }
   );
 
+  const logs = useAppSelector(selectLog);
+  const [page, setPage] = useState(1);
+
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(fetchAllOrderLog(page));
+  }, [dispatch, page]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -84,13 +95,13 @@ function General() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Grid container spacing={2}>
-        <Grid item>
-          <Box sx={{ padding: 0, margin: 0 }} >
-            < Typography sx={{ fontWeight: 'bold', mb: '15px', ml: "23px" }} variant='h6'>Tình hình giao hàng và đối soát</Typography>
-            <Box sx={{
-              ml: "17px"
-            }} >
+      <Box sx={{ padding: 0, margin: 0 }} >
+        < Typography sx={{ fontWeight: 'bold', mb: '15px', ml: "23px" }} variant='h6'>Tình hình giao hàng và đối soát</Typography>
+        <Box sx={{
+          ml: "17px"
+        }} >
+          <Grid container spacing={2}>
+            <Grid item xs={8}>
               <CardStyled >
                 <CardHeader sx={{ paddingTop: "12px", paddingBottom: "0" }} title={
                   <Box>
@@ -179,14 +190,14 @@ function General() {
 
 
               </CardStyled>
-            </Box>
+            </Grid>
+            <Grid item xs={4}>
+              <LogActivity key={1} childrend={<ItemLog logs={logs.logs} />} />
+            </Grid>
+          </Grid>
+        </Box>
 
-          </Box >
-        </Grid>
-        <Grid item>
-          <LogActivity />
-        </Grid>
-      </Grid>
+      </Box >
     </ThemeProvider >
   )
 }

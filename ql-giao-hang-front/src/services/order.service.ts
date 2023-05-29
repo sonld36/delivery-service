@@ -170,7 +170,7 @@ class OrderService {
   };
 
   //Gán đơn hàng cho shippper
-  assignCarrier = (orderId: Number, carrierId: String) => {
+  assignCarrier = (orderId: number, carrierId: number) => {
     return httpCommon.put(
       `/order/dieu-phoi/assign-carrier?orderId=${orderId}&carrierId=${carrierId}`
     );
@@ -215,6 +215,18 @@ class OrderService {
   ): Promise<ResponseReceived<OrderlogTypePaging>> {
     return httpCommon
       .get("/order-log", {
+        params: {
+          page,
+        },
+      })
+      .then();
+  }
+
+  async getOrderLogForShop(
+    page: number
+  ): Promise<ResponseReceived<OrderlogTypePaging>> {
+    return httpCommon
+      .get("/order-log/forshop", {
         params: {
           page,
         },

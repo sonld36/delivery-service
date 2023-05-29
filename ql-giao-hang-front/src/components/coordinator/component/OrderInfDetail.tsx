@@ -13,11 +13,6 @@ const GridCustom = styled(Grid)({
 
 function OrderInfDetail(props: { maVanDon: number, orderInfDetail?: OrderInfDetailResponse }) {
     const { maVanDon, orderInfDetail } = props;
-    const [deliver_name, setDeliver_name] = React.useState("Nguyễn Văn C");
-    const [deliver_id, setDeliver_id] = React.useState("GH00001");
-
-    const [COD, setCOD] = React.useState(1234567);
-    const [ship_fee, setShip_fee] = React.useState(35000);
 
     return (
         <React.Fragment>

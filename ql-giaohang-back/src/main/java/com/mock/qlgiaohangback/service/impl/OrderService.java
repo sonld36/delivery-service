@@ -227,17 +227,11 @@ public class OrderService implements IOrderService {
     public Integer changeStatus(String id, Constans.OrderStatus status) throws JsonProcessingException {
 
         OrderEntity oldOrder = this.orderRepository.findOrderEntityById(Long.parseLong(id));
-        OrderRespDTO oldOrderResp = IOrderMapper.INSTANCE.toOrderRespDTO(oldOrder);
         oldOrder.setStatus(status);
         if (status.equals(Constans.OrderStatus.DELIVERY_SUCCESSFUL) || status.equals(Constans.OrderStatus.REFUNDS)) {
             oldOrder.setCompletedAt(new Date());
         }
         this.orderRepository.save(oldOrder);
-
-        OrderRespDTO newOrderResp = IOrderMapper.INSTANCE.toOrderRespDTO(oldOrder);
-
-        this.orderLogService.save(oldOrderResp, newOrderResp, Constans.OrderLogAction.ORDER_LOG_ACTION_UPDATED);
-
 
 
         return 1;
@@ -264,7 +258,7 @@ public class OrderService implements IOrderService {
                 "/3";
         String message = MessageResponse.JUST_CREATED_ORDER + shop.getAccount().getName();
         AccountEntity destination = this.accountService.getAccountsByRole(Constans.Roles.ROLE_COORDINATOR, 1).getContent().get(0);
-
+        this.orderLogService.save(orderRespDTO, Constans.OrderLogAction.ORDER_LOG_ACTION_CREATED);
 
         /*
         * Gửi tin đến topic thông báo
@@ -401,32 +395,31 @@ public class OrderService implements IOrderService {
     }
 
     //Gán nhân viên vận chuyển đơn hàng
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public Integer assignCarrier(Long orderId, String carrierId) throws Exception {
+    public Integer assignCarrier(Long orderId, Long carrierId) throws Exception {
         //Check input
-        if (orderId == null || !StringUtils.isEmpty(carrierId)) {
+        if (orderId == null || carrierId == null) {
             throw new Exception("INPUT INVALID - orderId=" + orderId + "&carrierId=" + carrierId);
         }
         //Check loi convert tu String sang Int/Long
-        Long carrierIdLong = -1L;
-        try {
-            carrierIdLong = Long.parseLong(carrierId);
-        } catch (NumberFormatException e) {
-//            System.out.println("-------NumberFormatException assignCarrier------");
-            throw new Exception(e.getMessage());
-        }
+
         //Check orderId ton tai
         OrderEntity orderEntity = orderRepository.findOrderEntityById(orderId);
         if (orderEntity == null) {
             throw new Exception("Order Id is not existed!");
         }
         //Check carrierId ton tai
-        AccountEntity accountEntity = accountRepository.findAccById(carrierIdLong);
+        AccountEntity accountEntity = accountRepository.findAccById(carrierId);
         if (accountEntity == null) {
             throw new Exception("Carrier Id is not existed!");
         }
-        int id = orderRepository.updateCarrierIdAndStatus(String.valueOf(Constans.OrderStatus.PICKING_UP_GOODS), carrierIdLong, orderId, new Date());
-        return id;
+        orderEntity.setStatus(Constans.OrderStatus.REQUEST_SHIPPING);
+        orderEntity.setCarrier(accountEntity);
+        this.orderRepository.save(orderEntity);
+//        int id = orderRepository.updateCarrierIdAndStatus(String.valueOf(Constans.OrderStatus.PICKING_UP_GOODS), carrierId, orderId, new Date());
+
+        return 1;
     }
 
     @Override

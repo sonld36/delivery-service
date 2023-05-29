@@ -316,3 +316,10 @@ export type OrderlogTypePaging = {
   totalPage: number;
   orderLogs: OrderLogType[];
 };
+
+export type Inventory = {
+  id: number;
+  name: string;
+  address: string;
+  active: string;
+};

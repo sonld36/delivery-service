@@ -32,8 +32,6 @@ public class OrderProcessLogEntity {
 
     private Constans.OrderLogAction action;
 
-    @Column(name = "from_status")
-    private Constans.OrderStatus fromStatus;
 
     @Column(name = "to_status")
     private Constans.OrderStatus toStatus;

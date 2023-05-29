@@ -77,7 +77,7 @@ public interface IOrderService {
 
     List<OrderRespDTO> getOrderNotDoneYet();
 
-    Integer assignCarrier(Long orderId, String carrierId) throws Exception;
+    Integer assignCarrier(Long orderId, Long carrierId) throws Exception;
 
     OrderRespProductDetailInfDTO findAllProductOrderById(Long orderId) throws Exception;
 

@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import * as React from 'react';
 import OrderInfDetail from './OrderInfDetail';
 import OrderProdcutDetail from './OrderProdcutDetail';
+import { toInteger } from 'lodash';
 // interface deltailInf
 
 
@@ -78,7 +79,7 @@ function OrderDetail(props: { maVanDon: number, setReload: any }) {
         }
     }
     //Gán nhân viên giao và đổi trạng thái
-    const assignCarrier = async (orderId: Number, carrierId: String) => {
+    const assignCarrier = async (orderId: number, carrierId: number) => {
         try {
             let resp: ResponseReceived<any> = await orderService.assignCarrier(orderId, carrierId)
             if (resp && resp.code === 2000) {
@@ -104,9 +105,9 @@ function OrderDetail(props: { maVanDon: number, setReload: any }) {
     }, [deliverierInfTemp])
 
     //Check lưu gán nhân viên
-    const checkAssignCarrier = (orderId: Number, carrierNew: Deliverier | null | undefined) => {
+    const checkAssignCarrier = (orderId: number, carrierNew: Deliverier | null | undefined) => {
         if (carrierNew || carrierNew != null)
-            assignCarrier(orderId, carrierNew.deliveryId)
+            assignCarrier(toInteger(orderId), toInteger(carrierNew.deliveryId))
     }
 
     //Lay danh sach nhan vien van chuyen

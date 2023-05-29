@@ -11,6 +11,10 @@ import shopService from '@Services/shop.service';
 import { useEffect, useState } from 'react';
 import ReactApexChart, { Props } from 'react-apexcharts';
 import { TypeOf } from 'zod';
+import { useAppDispatch, useAppSelector } from '@App/hook';
+import { fetchAllOrderLogForShop, selectLog } from '@Features/log/logSlice';
+import LogActivity from '@Components/log-activity/LogActivity';
+import ItemLog from '@Components/log-activity/ItemLog';
 
 export type PartnersRegisterForm = TypeOf<typeof partnersRegistrationSchema>
 
@@ -26,6 +30,13 @@ function OverviewPage({ task }: Props) {
   const [totalOrderInDayData, setTotalOrderInDayData] = useState<number[]>([]);
   const [doneOrderInDayData, setDoneOrderInDayDate] = useState<number[]>([]);
   const [dateCategoriesChart, setDateCategoriesChart] = useState<string[]>([]);
+  const [pageForLog, setPageForLog] = useState(1);
+
+  const logs = useAppSelector(selectLog);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(fetchAllOrderLogForShop(pageForLog));
+  }, [pageForLog, dispatch])
 
   const data = {
 
@@ -171,117 +182,126 @@ function OverviewPage({ task }: Props) {
 
   return (
     <Box>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8} lg={9}>
-          <CardStyled>
-            <CardHeaderStyled
-              title={<Title title='Số đơn hàng hoàn thành theo thời gian được đặt trong 30 ngày' />}
-            />
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                // height: 280,
-              }}
-            >
-              <ReactApexChart options={{
-                chart: {
-                  height: 350,
-                  type: 'line',
-                  zoom: {
-                    enabled: false
-                  },
-                },
-                dataLabels: {
-                  enabled: false
-                },
-                stroke: {
-                  width: [5, 7, 5],
-                  curve: 'straight',
-                  dashArray: [0, 8, 5]
-                },
-                legend: {
-                  tooltipHoverFormatter: function (val: any, opts: any) {
-                    return val + ' - ' + opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] + ''
-                  }
-                },
-                markers: {
-                  size: 0,
-                  hover: {
-                    sizeOffset: 6
-                  }
-                },
-                xaxis: {
-                  categories: dateCategoriesChart,
-                },
-                tooltip: {
-                  y: [
-                    {
-                      title: {
-                        formatter: function (val: any) {
-                          return val + " (mins)"
-                        }
+      <Grid container spacing={2} direction={"row"}>
+        <Grid item xs={12} md={8} lg={8}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={12} lg={12}>
+              <CardStyled>
+                <CardHeaderStyled
+                  title={<Title title='Số đơn hàng hoàn thành theo thời gian được đặt trong 30 ngày' />}
+                />
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    // height: 280,
+                  }}
+                >
+                  <ReactApexChart options={{
+                    chart: {
+                      height: 350,
+                      type: 'line',
+                      zoom: {
+                        enabled: false
+                      },
+                    },
+                    dataLabels: {
+                      enabled: false
+                    },
+                    stroke: {
+                      width: [5, 7, 5],
+                      curve: 'straight',
+                      dashArray: [0, 8, 5]
+                    },
+                    legend: {
+                      tooltipHoverFormatter: function (val: any, opts: any) {
+                        return val + ' - ' + opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] + ''
                       }
                     },
-                    {
-                      title: {
-                        formatter: function (val: any) {
-                          return val + " "
-                        }
+                    markers: {
+                      size: 0,
+                      hover: {
+                        sizeOffset: 6
                       }
                     },
-                    {
-                      title: {
-                        formatter: function (val: any) {
-                          return val;
+                    xaxis: {
+                      categories: dateCategoriesChart,
+                    },
+                    tooltip: {
+                      y: [
+                        {
+                          title: {
+                            formatter: function (val: any) {
+                              return val + " (mins)"
+                            }
+                          }
+                        },
+                        {
+                          title: {
+                            formatter: function (val: any) {
+                              return val + " "
+                            }
+                          }
+                        },
+                        {
+                          title: {
+                            formatter: function (val: any) {
+                              return val;
+                            }
+                          }
                         }
-                      }
+                      ]
+                    },
+                    grid: {
+                      borderColor: '#f1f1f1',
                     }
-                  ]
-                },
-                grid: {
-                  borderColor: '#f1f1f1',
-                }
-              }} series={dataForOrder.series} type="line" height={350} />
-            </Paper>
-          </CardStyled>
+                  }} series={dataForOrder.series} type="line" height={350} />
+                </Paper>
+              </CardStyled>
+            </Grid>
+
+
+            <Grid item xs={12} md={12} lg={12}>
+              <CardStyled>
+                <CardHeaderStyled
+                  title={<Title title='Top 10 sản phẩm được đặt nhiều nhất trong 30 ngày gần nhất' />}
+                />
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    // height: 280,
+                  }}
+                >
+                  <ReactApexChart options={data.options} series={data.series} type="bar" height={350} />
+                </Paper>
+              </CardStyled>
+            </Grid>
+            <Grid item xs={12} md={12} lg={12}>
+              <RecentOrder />
+            </Grid>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={4} lg={3}>
+        <Grid item xs={12} md={4} lg={4}>
+          <Grid container spacing={2} direction={"column"}>
+            <Grid item xs={12} md={12} lg={12}>
+              <Paper
+                sx={{
+                  p: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
 
-          <Paper
-            sx={{
-              p: 2,
-              display: 'flex',
-              flexDirection: 'column',
-
-            }}
-          >
-            <Statistic />
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={12} lg={12}>
-          <CardStyled>
-            <CardHeaderStyled
-              title={<Title title='Top 10 sản phẩm được đặt nhiều nhất trong 30 ngày gần nhất' />}
-            />
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                // height: 280,
-              }}
-            >
-              <ReactApexChart options={data.options} series={data.series} type="bar" height={350} />
-            </Paper>
-          </CardStyled>
-
-        </Grid>
-
-        <Grid item xs={12} md={12} lg={12}>
-          <RecentOrder />
+                }}
+              >
+                <Statistic />
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={12} lg={12}>
+              <LogActivity childrend={<ItemLog logs={logs.logs} />} />
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Box>

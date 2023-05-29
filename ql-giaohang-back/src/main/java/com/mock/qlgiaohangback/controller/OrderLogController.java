@@ -24,4 +24,11 @@ public class OrderLogController {
                 Constans.Code.OK.getCode(), HttpStatus.OK,
                 this.orderLogService.findOrderLog(page));
     }
+
+    @GetMapping(params = {"page"}, path = "/forshop")
+    public ResponseEntity getOrderLogForShop(@RequestParam("page") Integer page) {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND,
+                Constans.Code.OK.getCode(), HttpStatus.OK,
+                this.orderLogService.findOrderLogByShop(page));
+    }
 }

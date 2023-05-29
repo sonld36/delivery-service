@@ -48,9 +48,10 @@ function Quanlydonhang() {
   const [showClearIcon, setShowClearIcon] = useState("none");
 
   const location = useLocation();
+  const currentStatus = getCurrentPath(location.pathname);
 
   const [currentKey, setCurrentKey] = useState<number>(0);
-  const [status, setStatus] = useState<string>(orderManageLinks.ALL);
+  const [status, setStatus] = useState<string>(currentStatus);
   const handleChangeInputSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setShowClearIcon(event.target.value === "" ? "none" : "flex");
     setValueInputSearch(event.target.value);
@@ -58,10 +59,9 @@ function Quanlydonhang() {
   };
 
   useEffect(() => {
-    const currentStatus = getCurrentPath(location.pathname);
     setStatus(currentStatus);
     setCurrentKey(Object.values(orderManageLinks).indexOf(currentStatus));
-  }, [location])
+  }, [currentStatus])
 
   const handleClickSearchBar = (): void => {
     setValueInputSearch("");

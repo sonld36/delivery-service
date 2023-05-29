@@ -19,7 +19,7 @@ import java.util.List;
 @Table(name = "_orders")
 @Data
 @RequiredArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class})
 public class OrderEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

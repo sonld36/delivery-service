@@ -134,10 +134,10 @@ function ListOrderByStatus() {
             getAllOrderByShipperId();
         }
         else if (selectValue.toString() === "10") {
-            getOrderByStatusAndShipperId("PICKING_UP_GOODS")
+            getOrderByStatusAndShipperId("REQUEST_SHIPPING")
         }
         else if (selectValue.toString() === "20") {
-            getOrderByStatusAndShipperId("BEING_TRANSPORTED")
+            getOrderByStatusAndShipperId("PICKING_UP_GOODS")
         }
         else if (selectValue.toString() === "30") {
             getOrderByStatusAndShipperId("DELIVERY_SUCCESSFUL")

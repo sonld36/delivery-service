@@ -130,6 +130,10 @@ class OrderService {
       .then();
   }
 
+  async getByOrderId(id: number): Promise<ResponseReceived<OrderDisplayType>> {
+    return httpCommon.get(`/order/${id}`).then();
+  }
+
   // Lấy toàn bộ đơn hàng theo trạng thái với phân trang
   async getAllOrderStatusByDPWithPagination(
     status: String,
@@ -229,6 +233,16 @@ class OrderService {
       .get("/order-log/forshop", {
         params: {
           page,
+        },
+      })
+      .then();
+  }
+
+  async getPageByOrderId(id: number): Promise<ResponseReceived<number>> {
+    return httpCommon
+      .get("/order/page-by-order", {
+        params: {
+          id,
         },
       })
       .then();

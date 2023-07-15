@@ -3,6 +3,8 @@ package com.mock.qlgiaohangback.dto.inventory;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.persistence.Column;
+
 @Data
 @Builder
 public class InventoryDTO {
@@ -10,6 +12,10 @@ public class InventoryDTO {
 
     private String name;
     private String address;
+
+    private Double longtitude;
+
+    private Double latitude;
 
     private boolean active;
 }

@@ -1,49 +1,49 @@
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, MenuItem, Select, Typography, styled } from '@mui/material';
-import React from "react";
+import { toInteger } from 'lodash';
+import React, { useMemo } from "react";
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 const ButtonCustom = styled(IconButton)({
 
 
 });
 
-function PaginationCustom(props: { totalRecord: number, pageSize: number, pageIndex: number, setPageIndex: (params: any) => any, setPageSize: (params: any) => any }) {
-    const { totalRecord, pageIndex, pageSize } = props;
+function PaginationCustom(props: { totalRecord: number, pageSize: number, pageIndex: number, setPageSize: (params: any) => any }) {
+    const { totalRecord, pageSize } = props;
     const [statusPrevButton, setStatusPreButton] = React.useState<boolean>(false)
-    const [statusNextButton, setStatusNextButton] = React.useState<boolean>(true)
+    const [statusNextButton, setStatusNextButton] = React.useState<boolean>(true);
+    const [searchParams, setSearchParams] = useSearchParams({});
+
+    const pageIndex = useMemo(() => toInteger(searchParams.get("page")), [searchParams])
     React.useEffect(() => {
         setStatusPreButton(false)
         setStatusNextButton(false)
         if (pageIndex === 1) setStatusPreButton(true)
-        if ((pageIndex) > (totalRecord / pageSize)) setStatusNextButton(true)
-    }, [pageIndex, pageSize])
+        if ((pageIndex) >= (totalRecord / 5)) setStatusNextButton(true)
+    }, [pageIndex, pageSize, totalRecord])
     React.useEffect(() => {
-        props.setPageIndex(1)
-    }, [pageSize])
+        searchParams.set("page", `1`);
+    }, [searchParams])
+
     const handleChangeValueDown = () => {
-        props.setPageIndex(pageIndex - 1);
+        setSearchParams((prev) => ({
+            ...prev,
+            page: `${pageIndex - 1}`
+        }))
     }
     const handleChangeValueUp = () => {
-        props.setPageIndex(pageIndex + 1);
-
+        setSearchParams((prev) => ({
+            ...prev,
+            page: `${pageIndex + 1}`
+        }))
     }
+
+
     return (
         <React.Fragment>
             <Box sx={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "right" }}>
-                <Select sx={{ width: "74px", height: "35px", display: "flex" }}
-                    value={pageSize}
-                    onChange={(event: any) => {
-                        event.preventDefault();
-                        props.setPageSize(event.target.value)
-                    }}
-                >
-                    <MenuItem value={5}>5</MenuItem>
-                    <MenuItem value={10}>10</MenuItem>
-                    <MenuItem value={15}>15</MenuItem>
-                    <MenuItem value={20}>20</MenuItem>
-                </Select>
-                <Typography sx={{ display: "flex", paddingLeft: "12px", color: "black" }}>kết quả</Typography>
                 <Typography sx={{ display: "flex", paddingLeft: "16px", color: "black" }}>Từ {(pageIndex - 1) * pageSize + 1} đến {(pageIndex * pageSize) > totalRecord ? totalRecord : (pageIndex * pageSize)} trên tổng {totalRecord}  </Typography>
 
                 <IconButton size="medium" disabled={statusPrevButton} onClick={() => handleChangeValueDown()}>

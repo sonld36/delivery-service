@@ -116,7 +116,7 @@ function General() {
                     <Grid xs={4} item >
                       <CarDetail onClick={(event) => {
                         event.preventDefault();
-                        navigate(prefixOrderManager + orderManageLinks.PENDING)
+                        navigate(prefixOrderManager + orderManageLinks.PENDING + "?page=1")
                       }}>
                         <CreateIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đang chờ xử lý </Typography>
@@ -128,7 +128,7 @@ function General() {
                     <GridDetail item xs={4}>
                       <CarDetail onClick={(event) => {
                         event.preventDefault();
-                        navigate(prefixOrderManager + orderManageLinks.REQUEST)
+                        navigate(prefixOrderManager + orderManageLinks.REQUEST + "?page=1")
                       }} >
                         <InventoryIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đơn yêu cầu vận chuyển</Typography>
@@ -140,7 +140,7 @@ function General() {
                     <GridDetail item xs={4}>
                       <CarDetail onClick={(event) => {
                         event.preventDefault();
-                        navigate(prefixOrderManager + orderManageLinks.PICKING)
+                        navigate(prefixOrderManager + orderManageLinks.PICKING + "?page=1")
                       }}>
                         <DirectionsRunIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đang đi lấy hàng</Typography>
@@ -152,7 +152,7 @@ function General() {
                     <GridDetail item xs={4} >
                       <CarDetail onClick={(event) => {
                         event.preventDefault();
-                        navigate(prefixOrderManager + orderManageLinks.DELIVERING)
+                        navigate(prefixOrderManager + orderManageLinks.DELIVERING + "?page=1")
                       }}>
                         <LocalShippingIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đang vận chuyển</Typography>
@@ -164,7 +164,7 @@ function General() {
                     <GridDetail xs={4} item >
                       <CarDetail onClick={(event) => {
                         event.preventDefault();
-                        navigate(prefixOrderManager + orderManageLinks.SUCCESS)
+                        navigate(prefixOrderManager + orderManageLinks.SUCCESS + "?page=1")
                       }}>
                         <TaskAltIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Giao thành công</Typography>
@@ -176,7 +176,7 @@ function General() {
                     <GridDetail item xs={4} >
                       <CarDetail onClick={(event) => {
                         event.preventDefault();
-                        navigate(prefixOrderManager + orderManageLinks.DONE)
+                        navigate(prefixOrderManager + orderManageLinks.DONE + "?page=1")
                       }}>
                         <ReplyIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đơn hoàn</Typography>

@@ -16,13 +16,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker(StringHelper.getSocketTopic(Constans.SocketTopic.NOTIFY),
                 StringHelper.getSocketTopic(Constans.SocketTopic.LOG),
-                StringHelper.getSocketTopic(Constans.SocketTopic.STATUS_UPDATE));
+                StringHelper.getSocketTopic(Constans.SocketTopic.STATUS_UPDATE),
+                StringHelper.getSocketTopic(Constans.SocketTopic.LOCATION),
+                StringHelper.getSocketTopic(Constans.SocketTopic.REQUEST_SHIPPING));
         config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/socket").setAllowedOriginPatterns("http://localhost:3000/").withSockJS();
+        registry.addEndpoint("/socket").setAllowedOriginPatterns("http://localhost:3000/", "*").withSockJS();
     }
 
 }

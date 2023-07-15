@@ -34,6 +34,7 @@ import { TypeOf } from 'zod';
 import CustomerDisplay from './CustomerDisplay';
 import ProductDisplay from './ProductDisplay';
 import { orderType } from '@Common/const';
+import mapService from '@Services/map.service';
 
 
 const theme = createTheme();
@@ -90,6 +91,12 @@ function CreateNewOrder() {
       orderType: PaymentType.COD,
       note: "",
       shipFee: 0,
+      destinationAddress: "",
+      fromAddress: "",
+      destinationLat: 0,
+      destinationLongitude: 0,
+      fromLat: 0,
+      fromLongitude: 0,
     }
   });
 
@@ -175,6 +182,8 @@ function CreateNewOrder() {
     const address: any = dataNotOptimize.customer.addresses.at(addressChoosen);
     const addressText = await provinceService.getAddress(address);
 
+    const coordinate = await mapService.getCoordinate(addressText);
+
     let products = dataNotOptimize.products.map((item) => (
       {
         ...item,
@@ -185,10 +194,14 @@ function CreateNewOrder() {
     const dataToRequest: any = {
       ...dataNotOptimize,
       products,
-      address: addressText,
       shipFee: totalPay.shipFee,
       paymentTotal: totalPay.restPaid,
-      type: dataNotOptimize.orderType
+      type: dataNotOptimize.orderType,
+      fromAddress: shopAddress,
+      destinationAddress: addressText,
+
+      destinationLongitude: coordinate[0],
+      destinationLat: coordinate[1],
     }
 
     const resp = await orderService.createOrder(dataToRequest);
@@ -199,8 +212,6 @@ function CreateNewOrder() {
       reset();
       return navigate(`/shop/${shopLink.ORDER_LIST}`);
     }
-
-
   }
 
 

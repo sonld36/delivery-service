@@ -51,7 +51,6 @@ import { openToast } from "@Features/toast/toastSlice";
 import { status } from "@Common/toast.const";
 import { fetchOrderWithPaging, selectOrder } from "@Features/order/orderSlice";
 import Overview from "@Components/custom-manage/Overview";
-import InventoryManager from "@Components/inventory/InventoryManager";
 
 export default function MainRouter() {
   const auth = useAppSelector(selectUser);
@@ -165,7 +164,6 @@ export default function MainRouter() {
             <Route path="ds-khach-hang-dang-ky" element={<CustomerRegisterList />} />
             <Route path="thong-tin-khach-hang/:id" element={<CustomerInfo />} />
             <Route path="hach-toan-COD" element={<CODBill />} />
-            <Route path="quan-ly-kho" element={<InventoryManager />} />
           </Route>
 
           <Route path="/shipper" element={<ProtectedRoute

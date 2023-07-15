@@ -101,4 +101,14 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long>, Order
 
     Long countByCarrier(AccountEntity account);
 
+    @Query(value = "select count(*) from _orders o where o.id < :entityId", nativeQuery = true)
+    Integer getIndexOfEntity(@Param("entityId") Long entityId);
+
+
+    List<OrderEntity> findByCarrierIdAndStatusIn(long carrierId, List<Constans.OrderStatus> statuses);
+
+    @Query(value = "select count(*) from _orders o where o.carrier_id = :carrierId and o.time_receive_expected >= o.completed_at ", nativeQuery = true)
+    int countOrderCompletedAtBeforeTimeReceiveExpected(long carrierId);
+
+    int countOrderEntitiesByStatusInAndCarrierId(List<Constans.OrderStatus> statuses, long carrierId);
 }

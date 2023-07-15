@@ -159,6 +159,12 @@ export const orderCreateSchema = object({
   orderType: nativeEnum(PaymentType),
   note: string(),
   shipFee: number(),
+  fromAddress: string(),
+  destinationAddress: string(),
+  fromLongitude: number(),
+  fromLat: number(),
+  destinationLongitude: number(),
+  destinationLat: number(),
 });
 export const saveAvatarSchema = object({
   image: any(),

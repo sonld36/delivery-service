@@ -2,6 +2,7 @@ package com.mock.qlgiaohangback.dto.order;
 
 import com.mock.qlgiaohangback.common.Constans;
 import com.mock.qlgiaohangback.dto.address.AddressDTO;
+import com.mock.qlgiaohangback.dto.carrier.CarrierRespDTO;
 import com.mock.qlgiaohangback.dto.customer.CustomerRespDTO;
 import com.mock.qlgiaohangback.dto.order_product.OrderProductRespDTO;
 import com.mock.qlgiaohangback.dto.shop.ShopInfoRespDTO;
@@ -29,12 +30,17 @@ public class OrderRespDTO {
 
     private List<OrderProductRespDTO> products;
 
-    private String address;
+    private String fromAddress;
+    private String destinationAddress;
+    private Double destinationLongitude;
+    private Double destinationLat;
+
+    private Double currentLong;
+    private Double currentLat;
 
     private ShopInfoRespDTO shop;
 
-    private AccountRespDTO carrier;
-
+    private Long carrierId;
 
     private CustomerRespDTO customer;
 

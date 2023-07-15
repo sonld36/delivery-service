@@ -25,6 +25,7 @@ export const orderManageLinks = {
 function Sidebar() {
     const navigate = useNavigate();
 
+
     return (
         <List>
             <ListItemButton onClick={() => navigate("/dieu-phoi")}>
@@ -34,7 +35,7 @@ function Sidebar() {
                 <ListItemText primary="Tổng quan" />
             </ListItemButton>
 
-            <ListItemButton onClick={() => navigate("/dieu-phoi/quan-ly-don-hang")}>
+            <ListItemButton onClick={() => navigate("/dieu-phoi/quan-ly-don-hang/tat-ca?page=1")}>
                 <ListItemIcon>
                     <ReceiptIcon sx={{ color: '#ffffff' }} />
                 </ListItemIcon>

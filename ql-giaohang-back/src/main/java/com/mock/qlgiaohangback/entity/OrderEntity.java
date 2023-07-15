@@ -55,6 +55,17 @@ public class OrderEntity implements Serializable {
     @JoinColumn(name = "shop_id", referencedColumnName = "id")
     private ShopEntity shop;
 
+    @Column(name = "from_address")
+    private String fromAddress;
+
+    @Column(name = "des_address")
+    private String destinationAddress;
+
+    @Column(name = "des_long")
+    private Double destinationLongitude;
+    @Column(name = "des_lat")
+    private Double destinationLat;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinColumn(name = "COD_id", referencedColumnName = "id")
@@ -63,7 +74,7 @@ public class OrderEntity implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinColumn(name = "carrier_id", referencedColumnName = "id")
-    private AccountEntity carrier;
+    private CarrierEntity carrier;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude

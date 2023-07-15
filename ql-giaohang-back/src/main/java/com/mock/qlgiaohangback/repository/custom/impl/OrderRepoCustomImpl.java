@@ -19,7 +19,7 @@ public class OrderRepoCustomImpl implements com.mock.qlgiaohangback.repository.c
     @Override
     public List<OrderEntity> getAllNotDoneYet(Long shopId) {
         TypedQuery<OrderEntity> query = em.createQuery("SELECT o FROM OrderEntity o WHERE o.status IN (?1) and o.shop.id = (?2)", OrderEntity.class);
-        List<Constans.OrderStatus> processingStatus = Arrays.asList(Constans.OrderStatus.WAITING_FOR_ACCEPT_NEW_ORDER, Constans.OrderStatus.PICKING_UP_GOODS, Constans.OrderStatus.BEING_TRANSPORTED, Constans.OrderStatus.REQUEST_SHIPPING);
+        List<Constans.OrderStatus> processingStatus = Arrays.asList(Constans.OrderStatus.PICKING_UP_GOODS, Constans.OrderStatus.BEING_TRANSPORTED, Constans.OrderStatus.REQUEST_SHIPPING);
         return query.setParameter(1, processingStatus).setParameter(2, shopId).getResultList();
     }
 }

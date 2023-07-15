@@ -3,7 +3,6 @@ import { shopLink } from "@Components/dashboard/shop/Sidebar";
 export const orderStatus: {
   [key: string]: string;
 } = {
-  WAITING_FOR_ACCEPT_NEW_ORDER: "Chờ tiếp nhận đơn",
   REQUEST_SHIPPING: "Yêu cầu vận chuyển",
   PICKING_UP_GOODS: "Đang lấy hàng",
   BEING_TRANSPORTED: "Đang vận chuyển",
@@ -16,25 +15,21 @@ export const orderStatus: {
 export const orderShopStatus: {
   [key: string]: string;
 } = {
-  WAITING_FOR_ACCEPT_NEW_ORDER: "Chờ tiếp nhận đơn",
   REQUEST_SHIPPING: "Yêu cầu vận chuyển",
   PICKING_UP_GOODS: "Đang lấy hàng",
   BEING_TRANSPORTED: "Đang vận chuyển",
   DELIVERY_SUCCESSFUL: "Giao hàng thành công",
   REFUNDS: "Hoàn đơn",
-  DONE: "Giao hàng thành công",
   CANCEL: "Hủy đơn",
 };
 export const orderShopStatusColor: {
   [key: string]: any;
 } = {
-  WAITING_FOR_ACCEPT_NEW_ORDER: "primary",
   REQUEST_SHIPPING: "secondary",
   PICKING_UP_GOODS: "info",
   BEING_TRANSPORTED: "warning",
   DELIVERY_SUCCESSFUL: "success",
   REFUNDS: "error",
-  DONE: "success",
   CANCEL: "default",
 };
 
@@ -103,6 +98,7 @@ export enum SocketTopic {
   NOTIFY = "notify",
   STATUS_UPDATE = "status_update",
   LOG = "log",
+  LOCATION = "location",
 }
 
 export enum OrderLogTopic {

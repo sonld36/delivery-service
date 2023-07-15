@@ -32,6 +32,12 @@ public class OrderProcessLogEntity {
 
     private Constans.OrderLogAction action;
 
+    @Column(name = "previous_inventory")
+    private Long previousInventory;
+
+    @Column(name = "current_inventory")
+    private Long currentInventory;
+
 
     @Column(name = "to_status")
     private Constans.OrderStatus toStatus;

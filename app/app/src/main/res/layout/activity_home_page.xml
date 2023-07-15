@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F6F6F6"
+    android:backgroundTint="#F6F6F6"
+    android:orientation="vertical"
+    tools:context=".HomePage">
+
+    <LinearLayout
+        android:id="@+id/main_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="53dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="15sp"
+                android:text="Orders"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/home_page"
+            android:layout_width="match_parent"
+            android:layout_height="631dp"
+            android:padding="10sp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="10sp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/pickup_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:onClick="onClickReceiveOrder"
+                        android:text="Đơn nhận"
+                        app:backgroundTint="#4CAF50" />
+
+                    <Button
+                        android:id="@+id/delivery_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:onClick="onClickDeliveringOrder"
+                        android:text="Đơn giao"
+                        app:backgroundTint="#4CAF50" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/order_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10sp"
+                        android:background="@drawable/round_white"
+                        android:minHeight="48dp"
+                        android:padding="10sp"
+                        android:spinnerMode="dropdown" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/orders_contains"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="47dp"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0">
+
+            <ImageButton
+                android:id="@+id/noti_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:onClick="handleClickNotiButton"
+                app:srcCompat="@drawable/baseline_notifications_active_24"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+            <TextView
+                android:id="@+id/count_notify"
+                android:layout_width="20dp"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@+id/noti_button"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="1dp"
+                android:background="@drawable/round_yellow"
+                android:text="3"
+                android:textAlignment="center"
+                android:translationZ="1dp" />
+
+        </RelativeLayout>
+
+        <ImageButton
+            android:id="@+id/profile_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/baseline_person_24"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck"
+            android:onClick="handleClickProfileButton"
+            />
+    </LinearLayout>
+
+</LinearLayout>

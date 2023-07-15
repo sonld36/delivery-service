@@ -1,11 +1,14 @@
 package com.mock.qlgiaohangback.dto.shop;
 
 import com.mock.qlgiaohangback.common.Constans;
+import com.mock.qlgiaohangback.dto.address.AddressDTO;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Data
@@ -21,6 +24,8 @@ public class ShopInfoRespDTO implements Serializable {
 
     private Constans.ShopStatus status;
 
+    private List<AddressDTO> addresses;
+
 
 //    @OneToMany(fetch = FetchType.LAZY, mappedBy = "shop", cascade = CascadeType.ALL)
 //    private List<ProductEntity> products;
@@ -33,6 +38,10 @@ public class ShopInfoRespDTO implements Serializable {
 //
 //    @OneToMany(fetch = FetchType.LAZY, mappedBy = "shop")
 //    private List<AddressEntity> addresses;
+
+    private Double longitude;
+
+    private Double latitude;
 
 
     private Date joinedAt;

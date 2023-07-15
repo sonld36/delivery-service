@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ShippingApp</string>
+    <string name="input_password">Nhập mật khẩu</string>
+    <string name="text_login_button">Đăng nhập</string>
+    <string name="delivery_service">Delivery Service</string>
+    <string name="username_input">Nhập tên tài khoản</string>
+    <string name="google_map_api_token">AIzaSyC8MxVTaIKHbjmJ9-sfQ-lT7Vs4Lm-xk7s</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_maps2">MapsActivity2</string>
+</resources>

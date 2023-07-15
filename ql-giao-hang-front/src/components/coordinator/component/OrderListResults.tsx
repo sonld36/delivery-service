@@ -82,10 +82,15 @@ function Row(props: { row: Order, setReload: (params: any) => any }) {
             onClick={() => {
               if (open) {
                 setOpen(!open);
-                setSearchParams({});
+                setSearchParams((prev) => ({
+                  page: prev.get("page") || `1`,
+                }));
                 return;
               }
-              setSearchParams({ order: `${row.maVanDon}` });
+              setSearchParams((prev) => ({
+                page: prev.get("page") || `1`,
+                order: `${row.maVanDon}`
+              }));
             }}>
             {open ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
           </IconButton>
@@ -123,7 +128,6 @@ export default function OrderListResults(props: OrderListResultsProps) {
   const [reload, setReload] = React.useState(false)
   const { status } = props;
   //Phan trang
-  const [pageIndex, setPageIndex] = React.useState<number>(1);
   const [pageSize, setPageSize] = React.useState<number>(5);
   const ordersState: OrderStateType = useAppSelector(selectOrder);
   const [orders, setOrders] = React.useState<Order[] | any>([]);
@@ -131,12 +135,23 @@ export default function OrderListResults(props: OrderListResultsProps) {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams({});
 
-  React.useEffect(() => {
-    const idOrder = toInteger(searchParams.get("order"));
-    if (idOrder !== 0) {
+  const pageIndex = React.useMemo(() => toInteger(searchParams.get("page")), [searchParams]);
 
+  React.useEffect(() => {
+    const handleChangeParams = async () => {
+      const idOrder = toInteger(searchParams.get("order"));
+      if (idOrder !== 0 && statuses[status] === "all") {
+        const resp = await orderService.getPageByOrderId(idOrder);
+        setSearchParams({
+          order: `${searchParams.get("order")}`,
+          page: `${resp.data}`
+        })
+      }
     }
-  }, [searchParams, pageSize]);
+
+    handleChangeParams();
+  }, [searchParams, setSearchParams]);
+
 
 
   const dispatch = useAppDispatch();
@@ -144,9 +159,9 @@ export default function OrderListResults(props: OrderListResultsProps) {
 
   //Co thay doi thong tin don hang
 
-  React.useEffect(() => {
-    setPageIndex(1);
-  }, [location]);
+  // React.useEffect(() => {
+  //   setPageIndex(1);
+  // }, [location]);
 
   React.useEffect(() => {
     setOrders(ordersState.orderDisplayType);
@@ -221,7 +236,7 @@ export default function OrderListResults(props: OrderListResultsProps) {
           <TableFooter >
             <TableCell colSpan={8} >
 
-              <PaginationCustom totalRecord={totalRecord} pageSize={pageSize} pageIndex={pageIndex} setPageIndex={setPageIndex} setPageSize={setPageSize} ></PaginationCustom>
+              <PaginationCustom totalRecord={totalRecord} pageSize={pageSize} pageIndex={pageIndex} setPageSize={setPageSize} ></PaginationCustom>
 
             </TableCell>
           </TableFooter>}

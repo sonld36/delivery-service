@@ -49,9 +49,16 @@ public class AccountEntity implements Serializable {
     @Column(name = "path_avatar")
     private String pathAvatar;
 
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private CarrierEntity carrier;
+
     @Column
     private String name;
+
+
     @OneToMany(mappedBy = "carrier", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<OrderEntity> order;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
@@ -81,7 +88,6 @@ public class AccountEntity implements Serializable {
                 .append("- username: ").append(username)
                 .append("- password: ").append(password)
                 .append("- phoneNumber: ").append(phoneNumber)
-                .append("- name: ").append(name)
                 .append("- createdAt: ").append(createdAt)
                 .append("- modifiedAt: ").append(modifiedAt);
 

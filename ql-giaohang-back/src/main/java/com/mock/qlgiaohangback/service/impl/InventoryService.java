@@ -31,6 +31,8 @@ public class InventoryService implements IInventoryService {
         InventoryEntity inventory = new InventoryEntity();
         inventory.setName(inventoryDTO.getName());
         inventory.setAddress(inventoryDTO.getAddress());
+        inventory.setLatitude(inventoryDTO.getLatitude());
+        inventory.setLongtitude(inventoryDTO.getLongtitude());
         return this.inventoryRepository.save(inventory);
     }
 }

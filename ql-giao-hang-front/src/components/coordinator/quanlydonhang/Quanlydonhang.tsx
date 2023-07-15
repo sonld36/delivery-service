@@ -6,7 +6,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import React, { useEffect, useState } from 'react';
 import OrderListResults from '../component/OrderListResults';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getCurrentPath } from '@Helpers/data.optimize';
 import { orderManageLinks } from '../CoordinatorSidebar/CoordinatorSidebar';
 
@@ -49,6 +49,7 @@ function Quanlydonhang() {
 
   const location = useLocation();
   const currentStatus = getCurrentPath(location.pathname);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [currentKey, setCurrentKey] = useState<number>(0);
   const [status, setStatus] = useState<string>(currentStatus);
@@ -63,6 +64,12 @@ function Quanlydonhang() {
     setCurrentKey(Object.values(orderManageLinks).indexOf(currentStatus));
   }, [currentStatus])
 
+  useEffect(() => {
+    setSearchParams({
+      page: `1`
+    });
+  }, []);
+
   const handleClickSearchBar = (): void => {
     setValueInputSearch("");
     setShowClearIcon("none");
@@ -74,13 +81,13 @@ function Quanlydonhang() {
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={currentKey}>
-              <TabDetail label="Tất cả các đơn" href={orderManageLinks.ALL} key={orderManageLinks.ALL} />
-              <TabDetail label="Hàng chờ" href={orderManageLinks.PENDING} key={orderManageLinks.PENDING} />
-              <TabDetail label="Yêu cầu vận chuyển" href={orderManageLinks.REQUEST} key={orderManageLinks.REQUEST} />
-              <TabDetail label="Đang lấy hàng" href={orderManageLinks.PICKING} key={orderManageLinks.PICKING} />
-              <TabDetail label="Đang vận chuyển" href={orderManageLinks.DELIVERING} key={orderManageLinks.DELIVERING} />
-              <TabDetail label="Giao thành công" href={orderManageLinks.SUCCESS} key={orderManageLinks.SUCCESS} />
-              <TabDetail label="Hàng hoàn" href={orderManageLinks.DONE} key={orderManageLinks.DONE} />
+              <TabDetail label="Tất cả các đơn" href={orderManageLinks.ALL + "?page=1"} key={orderManageLinks.ALL} />
+              <TabDetail label="Hàng chờ" href={orderManageLinks.PENDING + "?page=1"} key={orderManageLinks.PENDING} />
+              <TabDetail label="Yêu cầu vận chuyển" href={orderManageLinks.REQUEST + "?page=1"} key={orderManageLinks.REQUEST} />
+              <TabDetail label="Đang lấy hàng" href={orderManageLinks.PICKING + "?page=1"} key={orderManageLinks.PICKING} />
+              <TabDetail label="Đang vận chuyển" href={orderManageLinks.DELIVERING + "?page=1"} key={orderManageLinks.DELIVERING} />
+              <TabDetail label="Giao thành công" href={orderManageLinks.SUCCESS + "?page=1"} key={orderManageLinks.SUCCESS} />
+              <TabDetail label="Hàng hoàn" href={orderManageLinks.DONE + "?page=1"} key={orderManageLinks.DONE} />
             </Tabs >
           </Box>
           <Container sx={{ mt: '16px', padding: "10px 0" }}>

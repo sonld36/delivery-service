@@ -33,6 +33,15 @@ public class OrderController  {
                 this.orderService.createOrder(orderCreateDTO));
     }
 
+    @PutMapping(value = "/take-order/{id}")
+    public ResponseEntity carrierTakeOrder(@PathVariable("id") long orderId) {
+        return ResponseHandler.generateResponse(MessageResponse.UPDATE_SUCCESS,
+                Constans.Code.TAKE_A_ORDER_SUCCESSFUL.getCode(),
+                HttpStatus.OK,
+                this.orderService.takeOrder(orderId)
+                );
+    }
+
     //  API order chung
     @GetMapping("")
     public ResponseEntity getAll() {
@@ -187,8 +196,8 @@ public class OrderController  {
     //             HttpStatus.OK,
     //             this.orderService.changeStatus(id,status));
     // }
-    @PutMapping("/shipper/change-status/id={id}/status={status}")
-    public ResponseEntity changeStatus(@PathVariable String id, @PathVariable Constans.OrderStatus status) throws JsonProcessingException {
+    @PutMapping(value = "/shipper/change-status", params = {"id", "status"})
+    public ResponseEntity changeStatus(@RequestParam("id") String id, @RequestParam("status") Constans.OrderStatus status) throws JsonProcessingException {
         return ResponseHandler.generateResponse(MessageResponse.FOUND,
                 Constans.Code.OK.getCode(),
                 HttpStatus.OK,
@@ -290,6 +299,11 @@ public class OrderController  {
                 Constans.Code.OK.getCode(),
                 HttpStatus.OK,
                 this.orderService.getOrderByShopId(id));
+    }
+
+    @GetMapping(value = "/page-by-order", params = {"id"})
+    public ResponseEntity getPageByOrderId(@RequestParam int id) {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND, Constans.Code.OK.getCode(), HttpStatus.OK, this.orderService.getPageByOrderId(id));
     }
 
 }

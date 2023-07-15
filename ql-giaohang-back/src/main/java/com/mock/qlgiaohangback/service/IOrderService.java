@@ -82,4 +82,11 @@ public interface IOrderService {
     OrderRespProductDetailInfDTO findAllProductOrderById(Long orderId) throws Exception;
 
     Integer countByCarrierAndStatus(AccountEntity account, Constans.OrderStatus status);
+
+    Integer getPageByOrderId(long orderId);
+
+    List<OrderEntity> getByCarrierIdAndListStatus(long carrierId, List<Constans.OrderStatus> statuses);
+
+    int takeOrder(long orderId);
+
 }

@@ -137,6 +137,11 @@ export type OrderCreateType = {
   orderType: PaymentType;
   note: string;
   shipFee: number;
+  fromAddress: string;
+  destinationAddress: string;
+
+  destinationLongitude: number;
+  destinationLat: number;
 };
 
 export type ProductOrderDisplayType = {
@@ -158,10 +163,15 @@ export type OrderDisplayType = {
   paymentTotal: number;
   note: string;
   products: ProductOrderDisplayType[];
-  address: AddressToSave | any;
   customer: CustomerType<null>;
   carrier: any;
   completedAt: Date;
+  fromAddress: String;
+  destinationAddress: String;
+  destinationLongitude: number;
+  destinationLat: number;
+  currentLong: number;
+  currentLat: number;
 };
 
 export type OrderDisplayPagingType = {
@@ -257,6 +267,18 @@ export type Order = {
   status: string;
 };
 
+export type OrderResp = {
+  id: number;
+  type: string;
+  status: string;
+  shipFee: number;
+  paymentTotal: number;
+  note: string;
+  products: ProductInOrder;
+  address: string;
+  shop: ShopProfile;
+};
+
 export type OrderInfDetailResponse = {
   shopName: string;
   shopAdd: AddressToSave | any;
@@ -322,4 +344,70 @@ export type Inventory = {
   name: string;
   address: string;
   active: string;
+  longtitude: number;
+  latitude: number;
+};
+
+export type CarrierRespType = {
+  id: number;
+  accountId: number;
+  orders: OrderDisplayType;
+  name: string;
+  longtitudeNewest: number;
+  latitudeNewest: number;
+  phoneNumber: string;
+  isActive: boolean;
+  available: boolean;
+  pathAvatar: string;
+};
+
+export type PagingResp<T> = {
+  listData: T[];
+  totalPage: number;
+};
+
+export const CarrierActiveObject: {
+  [key: string]: {
+    label: string;
+    color:
+      | "default"
+      | "success"
+      | "warning"
+      | "primary"
+      | "secondary"
+      | "error"
+      | "info";
+  };
+} = {
+  active: {
+    label: "Đang hoạt động",
+    color: "success",
+  },
+  inactive: {
+    label: "Không hoạt động",
+    color: "warning",
+  },
+};
+
+export const CarrierAvailableObject: {
+  [key: string]: {
+    label: string;
+    color:
+      | "default"
+      | "success"
+      | "warning"
+      | "primary"
+      | "secondary"
+      | "error"
+      | "info";
+  };
+} = {
+  available: {
+    label: "Đang giao hàng",
+    color: "success",
+  },
+  inavailable: {
+    label: "Rảnh",
+    color: "primary",
+  },
 };

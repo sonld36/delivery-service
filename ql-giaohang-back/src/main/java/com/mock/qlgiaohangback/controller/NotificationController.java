@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -25,6 +26,17 @@ public class NotificationController {
                 Constans.Code.OK.getCode(),
                 HttpStatus.OK,
                 this.notificationService.getNotificationByTitle(title));
+    }
+
+
+    @GetMapping(params = {"page"})
+    public ResponseEntity getNotifyByAccount(@RequestParam("page") int page) {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND, Constans.Code.OK.getCode(), HttpStatus.OK, this.notificationService.getNotificationByAccount(page));
+    }
+
+    @GetMapping("/count-not-seen")
+    public ResponseEntity seenNotification() {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND, Constans.Code.OK.getCode(), HttpStatus.OK, this.notificationService.seenNotification());
     }
 
 

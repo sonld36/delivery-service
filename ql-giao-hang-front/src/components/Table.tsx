@@ -4,6 +4,7 @@ import * as React from 'react';
 import Title from './Title';
 import { CardHeaderStyled, CardStyled } from './Utils';
 import EditIcon from '@mui/icons-material/Edit';
+import { useSearchParams } from 'react-router-dom';
 
 
 
@@ -22,6 +23,7 @@ type Props = {
 export default function Table(props: Props) {
   const { header, data, title, totalPage, setPage, onCellClick, hiddeFooter = false, loading } = props;
   const [pageDisplay, setPageDisplay] = React.useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
     setPageDisplay(value);
@@ -72,7 +74,13 @@ export default function Table(props: Props) {
             }}
             hideFooter={hiddeFooter}
 
-            onCellClick={onCellClick != null ? (params) => onCellClick(params) : undefined}
+            onCellClick={onCellClick != null ? (params) => {
+              onCellClick(params);
+              setSearchParams({
+                id: `${params.id}`,
+              })
+
+            } : undefined}
           />
         </Box>
       </CardStyled>

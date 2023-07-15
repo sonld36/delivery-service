@@ -15,7 +15,6 @@ public class Constans {
     }
 
     public enum OrderStatus {
-        WAITING_FOR_ACCEPT_NEW_ORDER("Chờ tiếp nhận đơn"),
         REQUEST_SHIPPING("Yêu cầu vận chuyển"),
         PICKING_UP_GOODS("Đang lấy hàng"),
         BEING_TRANSPORTED("Đang vận chuyển"),
@@ -54,7 +53,10 @@ public class Constans {
     public enum SocketTopic {
         NOTIFY,
         STATUS_UPDATE,
-        LOG
+        LOG,
+
+        LOCATION,
+        REQUEST_SHIPPING,
     }
 
     public enum Code {
@@ -72,6 +74,8 @@ public class Constans {
         CREATE_ADDRESS_SUCCESSFUL(2007),
         UPDATE_ACCOUNT_SUCCESSFULL(2008),
 
+        TAKE_A_ORDER_SUCCESSFUL(2009),
+
 
         INVALID(4001),
         PASSWORD_NOT_MATCHES(4002),
@@ -86,6 +90,10 @@ public class Constans {
         CUSTOMER_NOT_EXISTED(4006),
 
         USER_NOT_EXISTED(4011),
+
+        ORDER_WAS_ASSIGNED(4009),
+
+
 
 
         ;

@@ -15,12 +15,9 @@ public class AccountRespDTO {
 
     private String username;
 
-    private String phoneNumber;
-
     private String name;
 
     private Date createdAt;
-    private String pathAvatar;
 
     @NotEmpty
     private String role;

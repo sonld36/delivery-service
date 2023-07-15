@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mock.qlgiaohangback.common.Constans;
 import com.mock.qlgiaohangback.common.MessageResponse;
+import com.mock.qlgiaohangback.common.ResponseHandler;
 import com.mock.qlgiaohangback.dto.notification.NotificationRespDTO;
+import com.mock.qlgiaohangback.dto.order.OrderRespDTO;
 import com.mock.qlgiaohangback.entity.AccountEntity;
 import com.mock.qlgiaohangback.entity.NotificationEntity;
 import com.mock.qlgiaohangback.mapper.INotificationMapper;
@@ -20,8 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,8 @@ public class NotificationService implements INotificationService {
     private final NotificationRepository notificationRepository;
 
     private final SimpMessagingTemplate simpMessagingTemplate;
+
+    private final AccountService accountService;
 
     private final ObjectMapper objectMapper;
 
@@ -53,5 +57,34 @@ public class NotificationService implements INotificationService {
         Page<NotificationEntity> notificationEntities = this.notificationRepository.getByTitleOrderByCreatedAt(title, PageRequest.of(1, 10));
         return INotificationMapper.INSTANCE.toListDTO(notificationEntities.getContent());
     }
+
+    @Override
+    public Map<String, Object> getNotificationByAccount(int page) {
+        AccountEntity account = this.accountService.getCurrentAccount();
+        Page<NotificationEntity> notificationEntities = this.notificationRepository.getNotificationEntitiesByDestinationOrderByCreatedAt(account, PageRequest.of(page, 10));
+        List<NotificationEntity> notificationSeen = notificationEntities.getContent().stream().peek((item) -> item.setSeen(true)).collect(Collectors.toList());
+        this.notificationRepository.saveAll(notificationSeen);
+
+        return ResponseHandler.generateForPaging(notificationEntities.getTotalPages(), List.of(INotificationMapper.INSTANCE.toListDTO(notificationEntities.getContent()).toArray()));
+    }
+
+    @Override
+    public int seenNotification() {
+        AccountEntity account = this.accountService.getCurrentAccount();
+        return this.notificationRepository.countNotificationEntitiesBySeenIsFalseAndDestination_Id(account.getId());
+    }
+
+    @Override
+    public int sendRequestShipping(List<String> topics, OrderRespDTO orderRespDTO) {
+        try {
+            topics.forEach((topic) -> {
+                this.simpMessagingTemplate.convertAndSend(topic, orderRespDTO);
+            });
+            return 1;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
 
 }

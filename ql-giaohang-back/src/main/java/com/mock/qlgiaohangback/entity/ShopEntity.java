@@ -53,6 +53,12 @@ public class ShopEntity implements Serializable {
     @JsonIgnore
     private List<AddressEntity> addresses;
 
+    @Column
+    private Double longitude;
+
+    @Column
+    private Double latitude;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "joined_at")
     private Date joinedAt;

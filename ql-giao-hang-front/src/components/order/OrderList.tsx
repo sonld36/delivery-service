@@ -7,7 +7,7 @@ import { openToast } from '@Features/toast/toastSlice';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import DoneIcon from '@mui/icons-material/Done';
-import { Backdrop, Divider, Grid, Typography } from '@mui/material';
+import { Backdrop, Box, Divider, Grid, Typography, css } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import ListItemIcon from '@mui/material/ListItemIcon/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText/ListItemText';
@@ -23,6 +23,9 @@ import orderService from '@Services/order.service';
 import provinceService from '@Services/province.service';
 import React, { useEffect, useState } from 'react';
 import CancelIcon from '@mui/icons-material/Cancel';
+import styled from '@emotion/styled';
+import { useSearchParams } from 'react-router-dom';
+import { toInteger } from 'lodash';
 
 
 
@@ -48,6 +51,7 @@ function OrderList() {
   const [orderIdToHandleAction, setOrderIdToHandleAction] = useState();
   const [reload, setReload] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -99,12 +103,35 @@ function OrderList() {
     fetchDataOrder();
   }, [page, reload]);
 
-  const handleOpenDrawer = (params: any) => {
-    if (params.field !== "actions") {
-      setOpenDrawer(true);
-      setMasterDetailOrder(params.row);
+
+  const toggleDrawer =
+    (open: boolean) =>
+      (event: React.KeyboardEvent | React.MouseEvent) => {
+        if (
+          event &&
+          event.type === 'keydown' &&
+          ((event as React.KeyboardEvent).key === 'Tab' ||
+            (event as React.KeyboardEvent).key === 'Shift')
+        ) {
+          return;
+        }
+
+        if (open === false) setSearchParams({});
+
+        setOpenDrawer(open);
+      };
+
+  useEffect(() => {
+    const getOrderById = async () => {
+      const orderId = toInteger(searchParams.get("id"));
+      if (orderId) {
+        const resp = await orderService.getByOrderId(orderId);
+        setMasterDetailOrder(resp.data);
+      }
     }
-  }
+
+    getOrderById();
+  }, [searchParams]);
 
   const colums: GridColumns = [
     { field: "id", headerName: "ID", width: 60, editable: false, headerAlign: "center", align: "center" },
@@ -183,29 +210,21 @@ function OrderList() {
   ]
   return (
     <>
-      <Orders header={colums} title={"Danh sách đơn hàng"} data={data} totalPage={totalPage} setPage={setPage} onCellClick={handleOpenDrawer}
+      <Orders header={colums} title={"Danh sách đơn hàng"} data={data} totalPage={totalPage} setPage={setPage} onCellClick={toggleDrawer(true)}
         loading={loading}
       />
-      <Backdrop
-        sx={{
-          color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1,
-          "& .MuiDrawer-paper": {
-            width: "50%"
-          }
-        }}
+
+      <SwipeableDrawerStyled
+        anchor={"right"}
         open={openDrawer}
-        onClick={() => setOpenDrawer(false)}
+        onClose={toggleDrawer(false)}
+        onOpen={toggleDrawer(true)}
       >
-        <SwipeableDrawer
-          anchor={"right"}
-          open={openDrawer}
-          onClose={() => setOpenDrawer(false)}
-          onOpen={() => setOpenDrawer(true)}
-          // sx={{ w: "64px" }}
-          variant="permanent"
-          sx={{
-            zIndex: (theme) => theme.zIndex.drawer + 1,
-          }}
+        <Box
+          sx={{ width: 500 }}
+          role="presentation"
+          onClick={toggleDrawer(false)}
+          onKeyDown={toggleDrawer(false)}
         >
           <Stack
             sx={{ py: 2, height: '100%', boxSizing: 'border-box' }}
@@ -227,7 +246,7 @@ function OrderList() {
                       Địa chỉ giao hàng
                     </Typography>
                     <Typography variant="body1" align="right">
-                      {masterDetailOrder?.address}
+                      {masterDetailOrder?.destinationAddress}
                     </Typography>
                   </Grid>
                   <Grid item md={12}>
@@ -260,11 +279,20 @@ function OrderList() {
               </Stack>
             </Paper>
           </Stack>
-        </SwipeableDrawer>
-      </Backdrop>
+        </Box>
+
+      </SwipeableDrawerStyled>
+
+
 
     </>
   )
 }
+
+const SwipeableDrawerStyled = styled(SwipeableDrawer)`
+  .MuiDrawer-paper {
+    top: 63px;
+  }
+`
 
 export default OrderList

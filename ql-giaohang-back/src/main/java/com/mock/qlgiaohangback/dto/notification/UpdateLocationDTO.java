@@ -1,0 +1,17 @@
+package com.mock.qlgiaohangback.dto.notification;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class UpdateLocationDTO {
+    private long userId;
+    private double latitude;
+
+    private double longitude;
+}

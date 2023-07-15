@@ -7,6 +7,7 @@ import com.mock.qlgiaohangback.dto.product.ProductInOrderCreateDTO;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -31,8 +32,11 @@ public class OrderCreateDTO {
     @NotNull
     private CustomerRespDTO customer;
 
-    @NotEmpty
-    private String address;
+    private String fromAddress;
+    private String destinationAddress;
+
+    private Double destinationLongitude;
+    private Double destinationLat;
 
     @NotEmpty
     private List<ProductInOrderCreateDTO> products;

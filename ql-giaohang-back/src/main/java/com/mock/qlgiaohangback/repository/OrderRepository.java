@@ -43,6 +43,9 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long>, Order
     @Query(value = "SELECT COUNT(*) as countOrder, DATE(o.created_at) as dateCreate,  o.status as Status FROM `_orders` as o WHERE o.shop_id=:shopId AND o.created_at BETWEEN :startDate AND :endDate GROUP BY DATE(o.created_at), o.status ORDER BY DATE(o.created_at);", nativeQuery = true)
     List<ICountOrderInThirtyDays> countOrderInThirtyDays(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("shopId") Long shopId);
 
+    @Query(value = "SELECT COUNT(*) as countOrder, DATE(o.created_at) as dateCreate,  o.status as Status FROM `_orders` as o WHERE o.carrier_id=:carrierId AND o.created_at BETWEEN :startDate AND :endDate GROUP BY DATE(o.created_at), o.status ORDER BY DATE(o.created_at);", nativeQuery = true)
+    List<ICountOrderInThirtyDays> countOrderInAWeek(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("carrierId") Long carrierId);
+
     @Query(value = "SELECT SUM(payment_total) FROM _orders WHERE status LIKE:status AND carrier_id =:shipper_id", nativeQuery = true)
     Integer statisticCODByStatus(@Param("status") String status, @Param("shipper_id") Long shipper_id);
 

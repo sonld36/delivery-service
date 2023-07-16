@@ -165,6 +165,7 @@ export type OrderDisplayType = {
   products: ProductOrderDisplayType[];
   customer: CustomerType<null>;
   carrier: any;
+  shop: ShopProfile;
   completedAt: Date;
   fromAddress: String;
   destinationAddress: String;
@@ -203,6 +204,8 @@ export type ShopProfile = {
   status: shopStatus;
   account: AccountType;
   addresses: AddressToSave[];
+  longitude: number;
+  latitude: number;
 };
 
 export type AccountType = {

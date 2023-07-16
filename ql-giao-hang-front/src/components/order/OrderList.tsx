@@ -26,6 +26,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import styled from '@emotion/styled';
 import { useSearchParams } from 'react-router-dom';
 import { toInteger } from 'lodash';
+import MapToFollowOrder from '@Components/MapToFollowOrder';
 
 
 
@@ -275,6 +276,20 @@ function OrderList() {
                   }
                   hideFooter
                   autoHeight={true}
+                />
+
+                <MapToFollowOrder currentLocation={{
+                  latitude: masterDetailOrder?.currentLat || 0,
+                  longtitude: masterDetailOrder?.currentLong || 0
+                }}
+                  fromLocation={{
+                    latitude: masterDetailOrder?.shop.latitude || 0,
+                    longtitude: masterDetailOrder?.shop.longitude || 0
+                  }}
+                  toLocation={{
+                    latitude: masterDetailOrder?.destinationLat || 0,
+                    longtitude: masterDetailOrder?.destinationLongitude || 0
+                  }}
                 />
               </Stack>
             </Paper>

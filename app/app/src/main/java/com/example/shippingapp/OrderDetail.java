@@ -37,6 +37,7 @@ public class OrderDetail extends AppCompatActivity {
     private OrderRespDTO order;
     Constant.OrderStatus statusNext;
     private String token;
+
     private static final List<Constant.OrderStatus> STATUS_LIST = new ArrayList<>(EnumSet.allOf(Constant.OrderStatus.class));
 
 

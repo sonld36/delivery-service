@@ -89,4 +89,6 @@ public interface IOrderService {
 
     int takeOrder(long orderId);
 
+    List<CountOrderByRangeDateDTO> getInAWeekByCarrier();
+
 }

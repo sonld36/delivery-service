@@ -1,6 +1,8 @@
 package com.example.shippingapp.services;
 
 import com.example.shippingapp.common.Constant;
+import com.example.shippingapp.dto.CarrierRespDTO;
+import com.example.shippingapp.dto.CountOrderByRangeDateDTO;
 import com.example.shippingapp.dto.LoginRequest;
 import com.example.shippingapp.dto.LoginRespDTO;
 import com.example.shippingapp.dto.NotificationRespDTO;
@@ -40,15 +42,21 @@ public interface AuthService {
     @GET("notify/count-not-seen")
     Call<ResponseTemplateDTO<Integer>> getCountNotification(@Header("Authorization") String authorization);
 
+    @GET("carrier")
+    Call<ResponseTemplateDTO<CarrierRespDTO>> getCarrierProfile(@Header("Authorization") String authorization);
+
     @GET("order/{id}")
     Call<ResponseTemplateDTO<OrderRespDTO>> getOrderById(@Header("Authorization") String authorization, @Path("id") long id);
 
-    @PUT("carrier/${id}")
-    Call<ResponseTemplateDTO<Integer>> changeCarrierActive(@Header("Authorization") String authorization, @Path("id") long id, @Path("geometric") String geometric);
+    @PUT("carrier/{id}")
+    Call<ResponseTemplateDTO<Integer>> changeCarrierActive(@Header("Authorization") String authorization, @Path("id") long id, @Query("geometric") String geometric, @Query("active") boolean active);
 
     @PUT("order/take-order/{id}")
     Call<ResponseTemplateDTO<Integer>> acceptOrder(@Header("Authorization") String authorization, @Path("id") long orderId);
 
     @PUT("carrier/reject-order/{id}")
     Call<ResponseTemplateDTO<Integer>> rejectOrder(@Header("Authorization") String authorization, @Path("id") long orderId);
+
+    @GET("order/week-recent")
+    Call<ResponseTemplateDTO<List<CountOrderByRangeDateDTO>>> getNumberOfOrderInWeekRecent(@Header("Authorization") String authorization);
 }

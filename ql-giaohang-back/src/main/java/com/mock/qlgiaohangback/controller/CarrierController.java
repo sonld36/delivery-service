@@ -18,6 +18,11 @@ public class CarrierController {
 
     private final ICarrierService carrierService;
 
+    @GetMapping
+    public ResponseEntity getCurrentCarrier() {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND, Constans.Code.OK.getCode(), HttpStatus.OK, this.carrierService.getCurrentCarrier());
+    }
+
 
     @GetMapping(params = {"page"})
     public ResponseEntity getAll(@RequestParam("page") int page) {

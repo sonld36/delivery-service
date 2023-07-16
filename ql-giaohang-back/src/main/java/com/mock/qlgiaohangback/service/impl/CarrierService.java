@@ -44,6 +44,13 @@ public class CarrierService implements ICarrierService {
     }
 
     @Override
+    public CarrierRespDTO getCurrentCarrier() {
+        AccountEntity account = this.accountService.getCurrentAccount();
+        CarrierEntity carrier = this.carrierRepository.findByAccount_Id(account.getId()).orElse(null);
+        return ICarrierMapper.INSTANCE.entityToRespDTO(carrier);
+    }
+
+    @Override
     public CarrierEntity getCarrierById(long id) {
         return this.carrierRepository.findById(id).orElse(null);
     }
@@ -59,7 +66,8 @@ public class CarrierService implements ICarrierService {
 
     @Override
     public int updateCarrierActiveById(long id, boolean active, String geometric) {
-        CarrierEntity carrierEntity = this.getCarrierById(id);
+        AccountEntity account = this.accountService.getAccountById(id);
+        CarrierEntity carrierEntity = this.carrierRepository.findByAccount_Id(account.getId()).orElse(null);
         if (carrierEntity == null) {
             throw new ResponseException(MessageResponse.NOT_EXISTED, HttpStatus.BAD_REQUEST, Constans.Code.NOT_EXITED.getCode());
         }

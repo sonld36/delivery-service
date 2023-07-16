@@ -1,13 +1,9 @@
-package com.mock.qlgiaohangback.dto.carrier;
+package com.example.shippingapp.dto;
 
-import com.mock.qlgiaohangback.dto.order.OrderRespDTO;
-import com.mock.qlgiaohangback.dto.user.AccountRespDTO;
-import com.mock.qlgiaohangback.entity.AccountEntity;
-import com.mock.qlgiaohangback.entity.OrderEntity;
-import lombok.*;
-
-import javax.persistence.*;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor

@@ -12,6 +12,8 @@ import java.util.List;
 public interface ICarrierService {
     CarrierEntity createCarrier(CarrierCreateDTO carrierCreateDTO);
 
+    CarrierRespDTO getCurrentCarrier();
+
     CarrierEntity getCarrierById(long id);
 
     PagingResp<CarrierRespDTO> getAll(int page);

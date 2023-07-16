@@ -18,6 +18,7 @@ import com.mock.qlgiaohangback.mapper.ICarrierMapper;
 import com.mock.qlgiaohangback.mapper.IOrderMapper;
 import com.mock.qlgiaohangback.repository.*;
 import com.mock.qlgiaohangback.service.*;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +33,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -516,6 +519,29 @@ public class OrderService implements IOrderService {
         this.orderRepository.save(orderEntity);
 
         return 1;
+    }
+
+    @Override
+    public List<CountOrderByRangeDateDTO> getInAWeekByCarrier() {
+        AccountEntity account = this.accountService.getCurrentAccount();
+        CarrierEntity carrier = this.carrierService.getCarrierByAccountId(account.getId());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+        Date date = new Date();
+        String toDate = dateFormat.format(date);
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -7);
+        Date toDate1 = cal.getTime();
+        String fromDate = dateFormat.format(toDate1);
+
+        List<ICountOrderInThirtyDays> countOrderByRangeDateDTOS = this.orderRepository.countOrderInAWeek(fromDate, toDate, carrier.getId());
+        return countOrderByRangeDateDTOS.stream()
+                .map((item) ->
+                        CountOrderByRangeDateDTO.builder()
+                                .countOrder(item.getCountOrder()).dateCreate(item.getDateCreate()).status(item.getStatus())
+                                .build())
+                .collect(Collectors.toList());
     }
 
 

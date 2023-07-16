@@ -59,6 +59,14 @@ public class OrderController  {
                 this.orderService.getOrderInThirtyDays(startDate, endDate));
     }
 
+    @GetMapping("/week-recent")
+    public ResponseEntity getNumberOfOrderInWeekRecent() {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND,
+                Constans.Code.OK.getCode(),
+                HttpStatus.OK,
+                this.orderService.getInAWeekByCarrier());
+    }
+
     @GetMapping("sort")
     public ResponseEntity getOrderNewest(@RequestParam int page) {
         return ResponseHandler.generateResponse(MessageResponse.FOUND,

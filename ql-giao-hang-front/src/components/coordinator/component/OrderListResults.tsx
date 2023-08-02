@@ -37,7 +37,6 @@ const statuses: {
   [key: string]: string
 } = {
   [orderManageLinks.ALL]: "all",
-  [orderManageLinks.PENDING]: "WAITING_FOR_ACCEPT_NEW_ORDER",
   [orderManageLinks.REQUEST]: "REQUEST_SHIPPING",
   [orderManageLinks.PICKING]: "PICKING_UP_GOODS",
   [orderManageLinks.DELIVERING]: "BEING_TRANSPORTED",

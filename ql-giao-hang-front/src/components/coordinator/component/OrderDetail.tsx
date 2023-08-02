@@ -13,6 +13,7 @@ import * as React from 'react';
 import OrderInfDetail from './OrderInfDetail';
 import OrderProdcutDetail from './OrderProdcutDetail';
 import { toInteger } from 'lodash';
+import carrierService from '@Services/carrier.service';
 // interface deltailInf
 
 
@@ -95,8 +96,7 @@ function OrderDetail(props: { maVanDon: number, setReload: any }) {
     }
     React.useEffect(() => {
         fetchOrderInfDetail(maVanDon);
-        fetchDeliverierList();
-    }, [])
+    }, [maVanDon])
 
     //Check deliverier gan moi khac voi deliverier cu thi moi cho luu
     React.useEffect(() => {
@@ -112,18 +112,29 @@ function OrderDetail(props: { maVanDon: number, setReload: any }) {
 
     //Lay danh sach nhan vien van chuyen
     const [deliverierList, setDeliverierList] = React.useState<Deliverier[]>([]);
-    const fetchDeliverierList = async () => {
-        try {
-            let resp: ResponseReceived<Deliverier[]> = await accountService.getDeliverierList();
-            if (resp && resp.code === 2000) {
-                setDeliverierList(resp.data)
+    React.useEffect(() => {
+        const fetchDeliverierList = async () => {
+            try {
+                if (orderInfDetail?.shopId) {
+                    let resp = await carrierService.getByShopId(orderInfDetail?.shopId);
+                    if (resp && resp.code === 2000) {
+                        const data = resp.data;
+                        const optimize = data.map((item) => ({
+                            deliveryId: item.id,
+                            deliveryName: item.name,
+                            deliveryPhone: item.phoneNumber,
+                        }) as Deliverier);
+
+                        setDeliverierList(optimize)
+                    }
+                }
+            }
+            catch (e) {
+                console.log(e)
             }
         }
-        catch (e) {
-            console.log(e)
-        }
-    }
-
+        fetchDeliverierList();
+    }, [orderInfDetail?.shopId])
     return (
         <React.Fragment>
             <Box sx={{ padding: "15px 0" }}>

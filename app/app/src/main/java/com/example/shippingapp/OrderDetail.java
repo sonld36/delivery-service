@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +45,9 @@ public class OrderDetail extends AppCompatActivity {
     private Button changeStatusButton;
 
     private Button backToHomeButton;
+
+    private ImageButton directionFrom;
+    private ImageButton directionDes;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,33 +67,64 @@ public class OrderDetail extends AppCompatActivity {
         typeOrder = findViewById(R.id.type_order);
         noteOrder = findViewById(R.id.note_order);
         changeStatusButton = findViewById(R.id.change_status);
-
+        directionFrom = findViewById(R.id.detail_address_from);
+        directionDes = findViewById(R.id.detail_address_des);
     }
 
     private void setStatusForButton() {
-        String status = order.getStatus();
-        Constant.OrderStatus statusCurrent = STATUS_LIST.stream().filter((item) -> item.name().equals(status)).findFirst().orElse(null);
-        int statusNextIndex = STATUS_LIST.indexOf(statusCurrent) + 1;
-        statusNext = STATUS_LIST.get(statusNextIndex);
-        changeStatusButton.setText(statusCurrent.getStatus() + " >> " + statusNext.getStatus());
+        if (order.getStatus().equals(Constant.OrderStatus.REQUEST_SHIPPING.name()) && order.getCarrierId() == null) {
+            changeStatusButton.setText("Nhận đơn");
+            changeStatusButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AuthService.authService.acceptOrder(token, order.getId()).enqueue(new Callback<ResponseTemplateDTO<Integer>>() {
+                        @Override
+                        public void onResponse(Call<ResponseTemplateDTO<Integer>> call, Response<ResponseTemplateDTO<Integer>> response) {
+                            assert response.body() != null;
+                            if (response.body().getCode().intValue() == 4009) {
+                                Toast.makeText(OrderDetail.this, "Đơn hàng đã được nhận bởi người khác", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(OrderDetail.this, "Nhận đơn thành công", Toast.LENGTH_SHORT).show();
+                            }
+                            finish();
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseTemplateDTO<Integer>> call, Throwable t) {
+
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            String status = order.getStatus();
+            Constant.OrderStatus statusCurrent = STATUS_LIST.stream().filter((item) -> item.name().equals(status)).findFirst().orElse(null);
+            int statusNextIndex = STATUS_LIST.indexOf(statusCurrent) + 1;
+            statusNext = STATUS_LIST.get(statusNextIndex);
+            changeStatusButton.setText(statusCurrent.getStatus() + " >> " + statusNext.getStatus());
+            changeStatusButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AuthService.authService.changeStatus(token, order.getId(), statusNext).enqueue(new Callback<ResponseTemplateDTO<Integer>>() {
+                        @Override
+                        public void onResponse(Call<ResponseTemplateDTO<Integer>> call, Response<ResponseTemplateDTO<Integer>> response) {
+                            Toast.makeText(OrderDetail.this, "Thay đổi trạng thái đơn thành công", Toast.LENGTH_SHORT).show();
+                            order.setStatus(statusNext.name());
+                            setStatusForButton();
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseTemplateDTO<Integer>> call, Throwable t) {
+                            Toast.makeText(OrderDetail.this, "Thay đổi trạng thái đơn thất bại", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+                }
+            });
+        }
     }
 
-    public void changeStatusOrder(View view) {
-        AuthService.authService.changeStatus(token, order.getId(), statusNext).enqueue(new Callback<ResponseTemplateDTO<Integer>>() {
-            @Override
-            public void onResponse(Call<ResponseTemplateDTO<Integer>> call, Response<ResponseTemplateDTO<Integer>> response) {
-                Toast.makeText(OrderDetail.this, "Thay đổi trạng thái đơn thành công", Toast.LENGTH_SHORT).show();
-                order.setStatus(statusNext.name());
-                setStatusForButton();
-            }
-
-            @Override
-            public void onFailure(Call<ResponseTemplateDTO<Integer>> call, Throwable t) {
-                Toast.makeText(OrderDetail.this, "Thay đổi trạng thái đơn thất bại", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-    }
 
     private void getOrderById(long id) {
         AuthService.authService.getOrderById(token, id).enqueue(new Callback<ResponseTemplateDTO<OrderRespDTO>>() {
@@ -105,6 +140,25 @@ public class OrderDetail extends AppCompatActivity {
                 typeOrder.setText(order.getType());
                 noteOrder.setText(order.getNote());
 
+                directionDes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(OrderDetail.this, MapsActivity.class);
+                        intent.putExtra("longitude", order.getDestinationLongitude());
+                        intent.putExtra("latitude", order.getDestinationLat());
+                        startActivity(intent);
+                    }
+                });
+
+                directionFrom.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(OrderDetail.this, MapsActivity.class);
+                        intent.putExtra("longitude", order.getShop().getLongitude());
+                        intent.putExtra("latitude", order.getShop().getLatitude());
+                        startActivity(intent);
+                    }
+                });
                 setStatusForButton();
             }
 
@@ -116,7 +170,6 @@ public class OrderDetail extends AppCompatActivity {
     }
 
     public void handleBackToHome(View view) {
-        Intent intent = new Intent(this, HomePage.class);
-        startActivity(intent);
+        finish();
     }
 }

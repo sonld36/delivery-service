@@ -1,0 +1,140 @@
+Date : 2023-07-28 14:15:53
+Directory : d:\School\ProjectFinal\mock-project\app
+Total : 75 files,  2669 codes, 146 comments, 631 blanks, all 3446 lines
+
+Languages
++-----------------+------------+------------+------------+------------+------------+
+| language        | files      | code       | comment    | blank      | total      |
++-----------------+------------+------------+------------+------------+------------+
+| Java            |         32 |      1,406 |         84 |        442 |      1,932 |
+| XML             |         37 |      1,105 |         41 |        151 |      1,297 |
+| Groovy          |          3 |         81 |          2 |         15 |         98 |
+| Batch           |          1 |         68 |          0 |         22 |         90 |
+| Java Properties |          2 |          9 |         19 |          1 |         29 |
++-----------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                  | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                     |         75 |      2,669 |        146 |        631 |      3,446 |
+| . (Files)                                                                                                             |          4 |         94 |         19 |         23 |        136 |
+| .idea                                                                                                                 |          5 |         55 |          0 |          0 |         55 |
+| .idea (Files)                                                                                                         |          4 |         47 |          0 |          0 |         47 |
+| .idea\inspectionProfiles                                                                                              |          1 |          8 |          0 |          0 |          8 |
+| app                                                                                                                   |         65 |      2,515 |        126 |        607 |      3,248 |
+| app (Files)                                                                                                           |          1 |         59 |          1 |         14 |         74 |
+| app\src                                                                                                               |         64 |      2,456 |        125 |        593 |      3,174 |
+| app\src\androidTest                                                                                                   |          1 |         15 |          6 |          5 |         26 |
+| app\src\androidTest\java                                                                                              |          1 |         15 |          6 |          5 |         26 |
+| app\src\androidTest\java\com                                                                                          |          1 |         15 |          6 |          5 |         26 |
+| app\src\androidTest\java\com\example                                                                                  |          1 |         15 |          6 |          5 |         26 |
+| app\src\androidTest\java\com\example\shippingapp                                                                      |          1 |         15 |          6 |          5 |         26 |
+| app\src\main                                                                                                          |         62 |      2,432 |        114 |        585 |      3,131 |
+| app\src\main (Files)                                                                                                  |          1 |         50 |         11 |          6 |         67 |
+| app\src\main\java                                                                                                     |         30 |      1,382 |         73 |        434 |      1,889 |
+| app\src\main\java\com                                                                                                 |         30 |      1,382 |         73 |        434 |      1,889 |
+| app\src\main\java\com\example                                                                                         |         30 |      1,382 |         73 |        434 |      1,889 |
+| app\src\main\java\com\example\shippingapp                                                                             |         30 |      1,382 |         73 |        434 |      1,889 |
+| app\src\main\java\com\example\shippingapp (Files)                                                                     |          6 |        815 |         39 |        184 |      1,038 |
+| app\src\main\java\com\example\shippingapp\common                                                                      |          2 |         81 |          0 |         40 |        121 |
+| app\src\main\java\com\example\shippingapp\dto                                                                         |         17 |        329 |          2 |        157 |        488 |
+| app\src\main\java\com\example\shippingapp\model                                                                       |          1 |         29 |          0 |          6 |         35 |
+| app\src\main\java\com\example\shippingapp\services                                                                    |          4 |        128 |         32 |         47 |        207 |
+| app\src\main\res                                                                                                      |         31 |      1,000 |         30 |        145 |      1,175 |
+| app\src\main\res\drawable                                                                                             |         13 |         98 |          0 |         12 |        110 |
+| app\src\main\res\layout                                                                                               |         10 |        862 |          0 |        132 |        994 |
+| app\src\main\res\mipmap-anydpi-v26                                                                                    |          2 |          8 |          0 |          0 |          8 |
+| app\src\main\res\values                                                                                               |          3 |         20 |          3 |          1 |         24 |
+| app\src\main\res\values-night                                                                                         |          1 |          4 |          3 |          0 |          7 |
+| app\src\main\res\xml                                                                                                  |          2 |          8 |         24 |          0 |         32 |
+| app\src\test                                                                                                          |          1 |          9 |          5 |          3 |         17 |
+| app\src\test\java                                                                                                     |          1 |          9 |          5 |          3 |         17 |
+| app\src\test\java\com                                                                                                 |          1 |          9 |          5 |          3 |         17 |
+| app\src\test\java\com\example                                                                                         |          1 |          9 |          5 |          3 |         17 |
+| app\src\test\java\com\example\shippingapp                                                                             |          1 |          9 |          5 |          3 |         17 |
+| gradle                                                                                                                |          1 |          5 |          1 |          1 |          7 |
+| gradle\wrapper                                                                                                        |          1 |          5 |          1 |          1 |          7 |
++-----------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------------------------------+-----------------+------------+------------+------------+------------+
+| filename                                                                                                              | language        | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------+-----------------+------------+------------+------------+------------+
+| d:\School\ProjectFinal\mock-project\app\.idea\compiler.xml                                                            | XML             |          6 |          0 |          0 |          6 |
+| d:\School\ProjectFinal\mock-project\app\.idea\gradle.xml                                                              | XML             |         19 |          0 |          0 |         19 |
+| d:\School\ProjectFinal\mock-project\app\.idea\inspectionProfiles\Project_Default.xml                                  | XML             |          8 |          0 |          0 |          8 |
+| d:\School\ProjectFinal\mock-project\app\.idea\misc.xml                                                                | XML             |         16 |          0 |          0 |         16 |
+| d:\School\ProjectFinal\mock-project\app\.idea\vcs.xml                                                                 | XML             |          6 |          0 |          0 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\build.gradle                                                              | Groovy          |         59 |          1 |         14 |         74 |
+| d:\School\ProjectFinal\mock-project\app\app\src\androidTest\java\com\example\shippingapp\ExampleInstrumentedTest.java | Java            |         15 |          6 |          5 |         26 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\AndroidManifest.xml                                              | XML             |         50 |         11 |          6 |         67 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\HomePage.java                       | Java            |        270 |         21 |         67 |        358 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\MainActivity.java                   | Java            |         53 |          1 |         10 |         64 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\MapsActivity.java                   | Java            |        132 |         11 |         27 |        170 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\NotifyPage.java                     | Java            |        115 |          4 |         24 |        143 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\OrderDetail.java                    | Java            |        147 |          0 |         28 |        175 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\Profile.java                        | Java            |         98 |          2 |         28 |        128 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\common\Constant.java                | Java            |         54 |          0 |         30 |         84 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\common\IBaseGPS.java                | Java            |         27 |          0 |         10 |         37 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\AccountRespDTO.java             | Java            |         66 |          0 |         28 |         94 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\AddressDTO.java                 | Java            |         13 |          0 |          8 |         21 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\CarrierRespDTO.java             | Java            |         20 |          0 |         11 |         31 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\CountOrderByRangeDateDTO.java   | Java            |         11 |          0 |          3 |         14 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\CustomerRespDTO.java            | Java            |         14 |          0 |          8 |         22 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\LoginRequest.java               | Java            |          9 |          0 |          3 |         12 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\LoginRespDTO.java               | Java            |         29 |          0 |         12 |         41 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\MessageDTO.java                 | Java            |          9 |          0 |          3 |         12 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\NotificationRespDTO.java        | Java            |         21 |          0 |          6 |         27 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\OrderProductRespDTO.java        | Java            |         11 |          0 |          6 |         17 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\OrderRespDTO.java               | Java            |         33 |          0 |         20 |         53 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\ProductRespDTO.java             | Java            |         19 |          2 |         17 |         38 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\ResponseTemplateDTO.java        | Java            |         20 |          0 |          6 |         26 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\ResponseWithPagingDTO.java      | Java            |         10 |          0 |          4 |         14 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\ShopInfoRespDTO.java            | Java            |         20 |          0 |         14 |         34 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\SocketResponse.java             | Java            |          9 |          0 |          3 |         12 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\dto\UpdateLocationDTO.java          | Java            |         15 |          0 |          5 |         20 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\model\RequestOrderDialog.java       | Java            |         29 |          0 |          6 |         35 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\services\AuthService.java           | Java            |         46 |          0 |         17 |         63 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\services\HttpCommon.java            | Java            |          6 |          0 |          3 |          9 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\services\MapService.java            | Java            |         53 |         13 |         14 |         80 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\java\com\example\shippingapp\services\SocketService.java         | Java            |         23 |         19 |         13 |         55 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\baseline_arrow_back_24.xml                          | XML             |          5 |          0 |          1 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\baseline_chat_bubble_24.xml                         | XML             |          5 |          0 |          1 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\baseline_home_24.xml                                | XML             |          5 |          0 |          1 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\baseline_location_on_24.xml                         | XML             |          5 |          0 |          1 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\baseline_more_vert_24.xml                           | XML             |          5 |          0 |          1 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\baseline_my_location_24.xml                         | XML             |          5 |          0 |          1 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\baseline_notifications_active_24.xml                | XML             |          5 |          0 |          1 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\baseline_person_24.xml                              | XML             |          5 |          0 |          1 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\edittext_background.xml                             | XML             |         12 |          0 |          3 |         15 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\ic_launcher_foreground.xml                          | XML             |         31 |          0 |          0 |         31 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\location_from.xml                                   | XML             |          5 |          0 |          1 |          6 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\round_white.xml                                     | XML             |          5 |          0 |          0 |          5 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\drawable\round_yellow.xml                                    | XML             |          5 |          0 |          0 |          5 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\activity_home_page.xml                                | XML             |        123 |          0 |         22 |        145 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\activity_main.xml                                     | XML             |         76 |          0 |          5 |         81 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\activity_maps.xml                                     | XML             |         23 |          0 |          2 |         25 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\activity_notify_page.xml                              | XML             |         38 |          0 |          5 |         43 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\activity_order_detail.xml                             | XML             |        234 |          0 |         42 |        276 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\activity_profile.xml                                  | XML             |         51 |          0 |          8 |         59 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\bottom_sheet_dialog.xml                               | XML             |         95 |          0 |         13 |        108 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\component_item_order.xml                              | XML             |        120 |          0 |         21 |        141 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\dialog_map.xml                                        | XML             |         66 |          0 |         10 |         76 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\layout\item_notify.xml                                       | XML             |         36 |          0 |          4 |         40 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\mipmap-anydpi-v26\ic_launcher.xml                            | XML             |          4 |          0 |          0 |          4 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\mipmap-anydpi-v26\ic_launcher_round.xml                      | XML             |          4 |          0 |          0 |          4 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\values-night\themes.xml                                      | XML             |          4 |          3 |          0 |          7 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\values\colors.xml                                            | XML             |          5 |          0 |          0 |          5 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\values\strings.xml                                           | XML             |         10 |          0 |          0 |         10 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\values\themes.xml                                            | XML             |          5 |          3 |          1 |          9 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\xml\backup_rules.xml                                         | XML             |          3 |         10 |          0 |         13 |
+| d:\School\ProjectFinal\mock-project\app\app\src\main\res\xml\data_extraction_rules.xml                                | XML             |          5 |         14 |          0 |         19 |
+| d:\School\ProjectFinal\mock-project\app\app\src\test\java\com\example\shippingapp\ExampleUnitTest.java                | Java            |          9 |          5 |          3 |         17 |
+| d:\School\ProjectFinal\mock-project\app\build.gradle                                                                  | Groovy          |          5 |          1 |          0 |          6 |
+| d:\School\ProjectFinal\mock-project\app\gradle.properties                                                             | Java Properties |          4 |         18 |          0 |         22 |
+| d:\School\ProjectFinal\mock-project\app\gradle\wrapper\gradle-wrapper.properties                                      | Java Properties |          5 |          1 |          1 |          7 |
+| d:\School\ProjectFinal\mock-project\app\gradlew.bat                                                                   | Batch           |         68 |          0 |         22 |         90 |
+| d:\School\ProjectFinal\mock-project\app\settings.gradle                                                               | Groovy          |         17 |          0 |          1 |         18 |
+| Total                                                                                                                 |                 |      2,669 |        146 |        631 |      3,446 |
++-----------------------------------------------------------------------------------------------------------------------+-----------------+------------+------------+------------+------------+

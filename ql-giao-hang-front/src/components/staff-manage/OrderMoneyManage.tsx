@@ -18,6 +18,7 @@ import Chip from '@mui/material/Chip';
 import { ProvinceCommonType, AddressToSave } from "@Common/types";
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
+import carrierService from '@Services/carrier.service';
 
 interface Data {
   orderCode: String;
@@ -98,7 +99,7 @@ export default function OrderMoneyManagement() {
 
   useEffect(() => {
     const getData = async () => {
-      let res = await accountService.getAccById(Number(params.id));
+      let res = await carrierService.getById(Number(params.id));
       setStaff(res.data.name);
     };
     getData();
@@ -117,10 +118,7 @@ export default function OrderMoneyManagement() {
   const changeDate = async (newValue: Dayjs | null) => {
     setOpen(true)
     setDate(newValue);
-    let res = await orderService.getOrdersByDateAndCarrierId({
-      carrierId: Number(params.id),
-      createdAt: newValue
-    })
+    let res = await orderService.getOrdersByDateAndCarrierId(newValue?.toDate().toISOString().split("T")[0], Number(params.id))
     console.log(res)
 
     let data: Data[];

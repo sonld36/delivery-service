@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import com.example.shippingapp.dto.ResponseTemplateDTO;
 import com.example.shippingapp.dto.SocketResponse;
 import com.example.shippingapp.dto.UpdateLocationDTO;
 import com.example.shippingapp.services.AuthService;
+import com.example.shippingapp.services.SocketService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -46,7 +48,6 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
 
 
@@ -68,7 +69,7 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
 
     private TextView countNotificationsText;
 
-    private UpdateLocationDTO updateLocationDTO;
+    public static UpdateLocationDTO updateLocationDTO;
 
 
 
@@ -83,6 +84,14 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
     protected void onResume() {
         super.onResume();
         getOrdersByStatus();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        if (user != null) {
+            outState.putString("user", String.valueOf(user));
+        }
+        super.onSaveInstanceState(outState, outPersistentState);
     }
 
     @SuppressLint("CheckResult")
@@ -101,19 +110,19 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         user = new Gson().fromJson(message, AccountRespDTO.class);
         countNotificationsText = findViewById(R.id.count_notify);
         getCountNotification();
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, ip);
-        mStompClient.connect();
-        mStompClient.topic("/notify/order-request/" + user.getId()).subscribe(topicMess -> {
+        new SocketService(user).execute();
+
+        SocketService.stompClient.topic("/notify/order-request/" + user.getId()).subscribe(topicMess -> {
             SocketResponse<OrderRespDTO> orderRequest = new Gson().fromJson(topicMess.getPayload(), SocketResponse.class);
             toast(orderRequest.getMessage());
 //            notifications.add(NotificationRespDTO.builder().message(orderRequest.getMessage()).seen(false).build());
         }, throwable -> {
             Log.d("socket", throwable.getMessage());
         });
-
-        mStompClient.topic("/request_shipping/" + user.getId()).subscribe(topicMess -> {
-            Type type = new TypeToken<SocketResponse<OrderRespDTO>>() {}.getType();
-            SocketResponse<OrderRespDTO> orderResp = new Gson().fromJson(topicMess.getPayload(), type);
+//
+        SocketService.stompClient.topic("/request_shipping/" + user.getId()).subscribe(topicMess -> {
+            Type type = new TypeToken<SocketResponse<Integer>>() {}.getType();
+            SocketResponse<Integer> orderResp = new Gson().fromJson(topicMess.getPayload(), type);
             displayAlertDialog(orderResp.getData(), orderResp.getMessage());
         }, throwable -> {
             Log.d("socket", throwable.getMessage());
@@ -126,7 +135,19 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         updateDropdown();
     }
 
-//    @Override
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        Log.d("test", "onPostResume: ");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("test", "onRestart: ");
+    }
+
+    //    @Override
 //    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 //        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 //        if (requestCode == 1000) {
@@ -284,7 +305,7 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         updateLocationDTO = UpdateLocationDTO.builder().userId(user.getId()).latitude(location.getLatitude()).longitude(location.getLongitude()).build();
         Gson gson = new Gson();
         String message = gson.toJson(updateLocationDTO);
-        mStompClient.send("/app/location", message).subscribe();
+        SocketService.stompClient.send("/app/location", message).subscribe();
     }
 
     public void handleClickProfileButton(View view) {
@@ -294,71 +315,67 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         startActivity(intent);
     }
 
+
+
     @WorkerThread
-    public void displayAlertDialog(OrderRespDTO order, String message) {
+    public void displayAlertDialog(Integer orderId, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final View dialog = getLayoutInflater().inflate(R.layout.dialog_map, null, false);
+
+        AuthService.authService.getOrderById(token, orderId).enqueue(new Callback<ResponseTemplateDTO<OrderRespDTO>>() {
+            @Override
+            public void onResponse(Call<ResponseTemplateDTO<OrderRespDTO>> call, Response<ResponseTemplateDTO<OrderRespDTO>> response) {
+                OrderRespDTO order = response.body().getData();
+
+                TextView fromAddress = dialog.findViewById(R.id.from_address_bottom);
+                TextView destinationAddress = dialog.findViewById(R.id.destination_address_bottom);
+                TextView shipFee = dialog.findViewById(R.id.ship_fee_dialog_bottom);
+                fromAddress.setText(order.getFromAddress());
+                destinationAddress.setText(order.getDestinationAddress());
+                shipFee.setText(order.getShipFee().toString());
+
+                ContextCompat.getMainExecutor(HomePage.this).execute(() -> {
+                    builder.setTitle(message);
+                    builder.setView(dialog);
+                    builder.setPositiveButton("Nhận đơn", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+
+                    builder.setNeutralButton("Xem chi tiết", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(HomePage.this, MapsActivity.class);
+                            intent.putExtra("order", order);
+                            intent.putExtra("longitude", order.getShop().getLongitude());
+                            intent.putExtra("latitude", order.getShop().getLatitude());
+                            startActivity(intent);
+                        }
+                    });
+
+                    builder.setNegativeButton("Từ chối", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.d("Dialog", "onClick: " + "Từ chối");
+                        }
+                    });
+
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                });
+            }
+
+            @Override
+            public void onFailure(Call<ResponseTemplateDTO<OrderRespDTO>> call, Throwable t) {
+
+            }
+        });
 
 //        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById();
-        final View dialog = getLayoutInflater().inflate(R.layout.dialog_map, null, false);
-        TextView fromAddress = dialog.findViewById(R.id.from_address_bottom);
-        TextView destinationAddress = dialog.findViewById(R.id.destination_address_bottom);
-        TextView shipFee = dialog.findViewById(R.id.ship_fee_dialog_bottom);
-        fromAddress.setText(order.getFromAddress());
-        destinationAddress.setText(order.getDestinationAddress());
-        shipFee.setText(order.getShipFee().toString());
 
-        ContextCompat.getMainExecutor(this).execute(() -> {
-            builder.setTitle(message);
-            builder.setView(dialog);
-            builder.setPositiveButton("Nhận đơn", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-//                    AuthService.authService.getOrderByStatus(token, currentStatus).enqueue(new Callback<ResponseTemplateDTO<List<OrderRespDTO>>>() {
-//                        @Override
-//                        public void onResponse(Call<ResponseTemplateDTO<List<OrderRespDTO>>> call, Response<ResponseTemplateDTO<List<OrderRespDTO>>> response) {
-//                            assert response.body() != null;
-//
-//                            orders = response.body().getData();
-//                            addOrderView();
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Call<ResponseTemplateDTO<List<OrderRespDTO>>> call, Throwable t) {
-//
-//                        }
-//                    AuthService.authService.acceptOrder(token, order.getId()).enqueue(new Callback<ResponseTemplateDTO<Integer>>() {
-//                        @Override
-//                        public void onResponse(Call<ResponseTemplateDTO<Integer>> call, Response<ResponseTemplateDTO<Integer>> response) {
-//                            Log.d("acceptOrder", "onResponse: " + response.body().getCode());
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Call<ResponseTemplateDTO<Integer>> call, Throwable t) {
-//                            Log.d("acceptOrder", "onFail" + t);
-//                        }
-//                    });
-                }
-            });
 
-            builder.setNeutralButton("Xem chi tiết", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(HomePage.this, MapsActivity.class);
-                    intent.putExtra("order", order);
-                    startActivity(intent);
-                }
-            });
-
-            builder.setNegativeButton("Từ chối", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Log.d("Dialog", "onClick: " + "Từ chối");
-                }
-            });
-
-            AlertDialog alertDialog = builder.create();
-            alertDialog.show();
-        });
     }
 
 }

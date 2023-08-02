@@ -61,7 +61,7 @@ public class NotificationService implements INotificationService {
     @Override
     public Map<String, Object> getNotificationByAccount(int page) {
         AccountEntity account = this.accountService.getCurrentAccount();
-        Page<NotificationEntity> notificationEntities = this.notificationRepository.getNotificationEntitiesByDestinationOrderByCreatedAt(account, PageRequest.of(page, 10));
+        Page<NotificationEntity> notificationEntities = this.notificationRepository.getNotificationEntitiesByDestinationOrderByCreatedAtDesc(account, PageRequest.of(page - 1, 10));
         List<NotificationEntity> notificationSeen = notificationEntities.getContent().stream().peek((item) -> item.setSeen(true)).collect(Collectors.toList());
         this.notificationRepository.saveAll(notificationSeen);
 

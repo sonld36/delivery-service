@@ -21,6 +21,20 @@ class CarrierService {
   async getDetail(id: number): Promise<ResponseReceived<CarrierDetailType>> {
     return httpCommon.get(`carrier/detail/${id}`);
   }
+
+  async getByShopId(
+    shopId?: number
+  ): Promise<ResponseReceived<CarrierRespType[]>> {
+    return httpCommon.get(`carrier/recommend/${shopId}`);
+  }
+
+  async getAllWithoutPaging(): Promise<ResponseReceived<CarrierRespType[]>> {
+    return httpCommon.get("carrier/all");
+  }
+
+  async getById(id: number): Promise<ResponseReceived<CarrierRespType>> {
+    return httpCommon.get(`carrier/${id}`);
+  }
 }
 
 export default new CarrierService();

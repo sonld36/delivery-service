@@ -139,7 +139,6 @@ export default function MainRouter() {
             <Route index path="" element={<General />} />
             <Route path="quan-ly-don-hang" element={<Quanlydonhang />} >
               <Route index path={orderManageLinks.ALL} />
-              <Route path={orderManageLinks.PENDING} />
               <Route path={orderManageLinks.REQUEST} />
               <Route path={orderManageLinks.PICKING} />
               <Route path={orderManageLinks.DELIVERING} />

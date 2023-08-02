@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
     Page<NotificationEntity> getByTitleOrderByCreatedAt(String title, Pageable page);
 
-    Page<NotificationEntity> getNotificationEntitiesByDestinationOrderByCreatedAt(AccountEntity account, Pageable page);
+    Page<NotificationEntity> getNotificationEntitiesByDestinationOrderByCreatedAtDesc(AccountEntity account, Pageable page);
 
     int countNotificationEntitiesBySeenIsFalseAndDestination_Id(Long id);
 }

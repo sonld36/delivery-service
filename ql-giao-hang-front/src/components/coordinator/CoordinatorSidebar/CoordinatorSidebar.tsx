@@ -13,7 +13,6 @@ import { useNavigate } from 'react-router-dom';
 
 export const orderManageLinks = {
     ALL: "tat-ca",
-    PENDING: "hang-cho",
     REQUEST: "yeu-cau-van-chuyen",
     PICKING: "lay-hang",
     DELIVERING: "van-chuyen",

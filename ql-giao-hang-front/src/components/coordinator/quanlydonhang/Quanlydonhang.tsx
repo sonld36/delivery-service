@@ -82,7 +82,6 @@ function Quanlydonhang() {
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={currentKey}>
               <TabDetail label="Tất cả các đơn" href={orderManageLinks.ALL + "?page=1"} key={orderManageLinks.ALL} />
-              <TabDetail label="Hàng chờ" href={orderManageLinks.PENDING + "?page=1"} key={orderManageLinks.PENDING} />
               <TabDetail label="Yêu cầu vận chuyển" href={orderManageLinks.REQUEST + "?page=1"} key={orderManageLinks.REQUEST} />
               <TabDetail label="Đang lấy hàng" href={orderManageLinks.PICKING + "?page=1"} key={orderManageLinks.PICKING} />
               <TabDetail label="Đang vận chuyển" href={orderManageLinks.DELIVERING + "?page=1"} key={orderManageLinks.DELIVERING} />

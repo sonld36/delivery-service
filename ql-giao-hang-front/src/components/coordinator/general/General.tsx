@@ -116,7 +116,7 @@ function General() {
                     <Grid xs={4} item >
                       <CarDetail onClick={(event) => {
                         event.preventDefault();
-                        navigate(prefixOrderManager + orderManageLinks.PENDING + "?page=1")
+                        navigate(prefixOrderManager + orderManageLinks.REQUEST + "?page=1")
                       }}>
                         <CreateIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đang chờ xử lý </Typography>

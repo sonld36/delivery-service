@@ -1,7 +1,5 @@
 package com.example.shippingapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,10 +7,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.shippingapp.dto.LoginRequest;
 import com.example.shippingapp.dto.LoginRespDTO;
 import com.example.shippingapp.dto.ResponseTemplateDTO;
 import com.example.shippingapp.services.AuthService;
+import com.example.shippingapp.services.SocketService;
 import com.google.gson.Gson;
 
 import retrofit2.Call;
@@ -44,7 +45,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("response info", "onResponse: " + new Gson().toJson(response.body()));
                 ResponseTemplateDTO<LoginRespDTO> resp = response.body();
                 Intent intent = new Intent(MainActivity.this, HomePage.class);
+                Intent socketService = new Intent(MainActivity.this, SocketService.class);
                 assert resp != null;
+                socketService.putExtra("user", new Gson().toJson(resp.getData().getUser()));
+                startService(socketService);
                 intent.putExtra("user", new Gson().toJson(resp.getData().getUser()));
                 intent.putExtra("token", resp.getData().getToken());
                 startActivity(intent);

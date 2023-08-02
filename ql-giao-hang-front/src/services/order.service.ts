@@ -78,9 +78,14 @@ class OrderService {
     );
   };
 
-  getOrdersByDateAndCarrierId = (body: Object) => {
-    return httpCommon.post("/order/get-by-date-and-carrier-id", body);
-  };
+  async getOrdersByDateAndCarrierId(date?: String, carrierId?: number) {
+    return httpCommon.get("/order", {
+      params: {
+        date,
+        carrierId,
+      },
+    });
+  }
 
   getOrdersByDateAndListId = (body: Object) => {
     return httpCommon.post("/order/get-by-date-and-list-id", body);

@@ -18,6 +18,8 @@ public interface ICarrierService {
 
     PagingResp<CarrierRespDTO> getAll(int page);
 
+    List<CarrierRespDTO> getAllWithoutPaging();
+
     int updateCarrierActiveById(long id, boolean active, String geometric);
 
     CarrierDetailDTO getDetailFollowOrder(long id);
@@ -32,4 +34,6 @@ public interface ICarrierService {
     CarrierEntity updateCarrier(CarrierEntity carrier);
 
     int rejectOrder(long orderId);
+
+    List<CarrierToRecommendDTO> getByShopId(long shopId);
 }

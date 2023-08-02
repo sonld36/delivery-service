@@ -26,4 +26,7 @@ public class ShopDetailRespDTO {
     private List<ProductRespDTO> products;
 
     private List<CustomerRespDTO> customers;
+
+    private Double latitude;
+    private Double longitude;
 }

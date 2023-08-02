@@ -11,6 +11,7 @@ import java.util.Date;
 public class OrderRespInfDetailDTO {
     private Date createdAt;
     private String shopName;
+    private Long shopId;
     private AddressDTO shopAdd;
     private String shopPhone;
     private String receiverName;

@@ -15,5 +15,6 @@ public class OrderRespodieuphoiGeneralDTO {
     private String receiverPhone;
     private String carrierName;
     private String carrierPhone;
+    private String destinationAddress;
     private Constans.OrderStatus status;
 }

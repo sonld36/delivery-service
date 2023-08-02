@@ -7,6 +7,8 @@ import com.mock.qlgiaohangback.dto.order.*;
 import com.mock.qlgiaohangback.entity.AccountEntity;
 import com.mock.qlgiaohangback.entity.OrderEntity;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +67,7 @@ public interface IOrderService {
 
     Integer cancelOrder(Long orderId);
 
-    List<OrderRespDTO> getOrderByDateAndCarrierId(OrderByDateAndCarrierId order);
+    List<OrderRespDTO> getOrderByDateAndCarrierId(String date, Long id) throws ParseException;
 
     List<OrderRespDTO> getOrderByDateAndShopId(CODByDateAndShopId cod);
 

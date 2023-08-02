@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -278,7 +279,7 @@ public class OrderService implements IOrderService {
             String topic = StringHelper.getSocketTopic(Constans.SocketTopic.REQUEST_SHIPPING).concat("/" + item.getAccountId());
             try {
                 this.notificationService.createNotify(topic,
-                        ResponseHandler.generateResponseSocket(MessageResponse.JUST_ASSIGN_CARRIER, orderRespDTO), this.accountService.getAccountById(item.getAccountId()), shop.getAccount(), Constans.SocketTopic.REQUEST_SHIPPING
+                        ResponseHandler.generateResponseSocket(MessageResponse.JUST_ASSIGN_CARRIER, orderRespDTO.getId()), this.accountService.getAccountById(item.getAccountId()), shop.getAccount(), Constans.SocketTopic.REQUEST_SHIPPING
                         );
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
@@ -365,7 +366,7 @@ public class OrderService implements IOrderService {
         if (pageIndex < 1) {
             throw new ResponseException(MessageResponse.VALUE_PASSED_INCORRECT, HttpStatus.BAD_REQUEST, Constans.Code.INVALID.getCode());
         }
-        Page<OrderEntity> ordersPaging = this.orderRepository.findAllByStatus(status, PageRequest.of(pageIndex, Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())));
+        Page<OrderEntity> ordersPaging = this.orderRepository.findAllByStatus(status, PageRequest.of(pageIndex - 1, Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())));
         List<OrderEntity> orderEntities = ordersPaging.getContent();
         //convert to dto
         List<OrderRespodieuphoiGeneralDTO> orders = new ArrayList<>();
@@ -376,6 +377,7 @@ public class OrderService implements IOrderService {
             dto.setCreatedAt(o.getCreatedAt());
             dto.setReceiverName(o.getCustomer().getName());
             dto.setReceiverPhone(o.getCustomer().getPhoneNumber());
+            dto.setDestinationAddress(o.getDestinationAddress());
             if (o.getCarrier() != null) {
                 dto.setCarrierName(o.getCarrier().getName());
                 dto.setCarrierPhone(o.getCarrier().getPhoneNumber());
@@ -399,12 +401,13 @@ public class OrderService implements IOrderService {
     public OrderRespInfDetailDTO findOrderRespInfDetailById(Long orderId) {
         OrderEntity orderInf = this.orderRepository.findOrderRespInfDetailById(orderId);
         OrderRespInfDetailDTO output = new OrderRespInfDetailDTO();
+        output.setShopId(orderInf.getShop().getId());
         output.setShopName(orderInf.getShop().getAccount().getName());
         output.setShopPhone(orderInf.getShop().getAccount().getPhoneNumber());
         output.setShopAdd(IAddressMapper.INSTANCE.toDTO(orderInf.getShop().getAddresses().get(0)));
         output.setReceiverName(orderInf.getCustomer().getName());
         output.setReceiverPhone(orderInf.getCustomer().getPhoneNumber());
-        output.setReceiverAdd(orderInf.getAddress());
+        output.setReceiverAdd(orderInf.getDestinationAddress());
         if (orderInf.getCarrier() != null) {
             output.setDeliveryName(orderInf.getCarrier().getName());
             output.setDeliveryId(orderInf.getCarrier().getId().toString());
@@ -452,7 +455,7 @@ public class OrderService implements IOrderService {
         String message = MessageResponse.JUST_ASSIGN_CARRIER + "#" + orderId;
         this.notificationService.createNotify(topic,
                 ResponseHandler.generateResponseSocket(message, IOrderMapper.INSTANCE.toOrderRespDTO(orderEntity)),
-                this.accountService.getAccountById(carrierId), null, Constans.SocketTopic.NOTIFY);
+                this.accountService.getAccountById(carrier.getAccount().getId()), null, Constans.SocketTopic.NOTIFY);
 
 //        int id = orderRepository.updateCarrierIdAndStatus(String.valueOf(Constans.OrderStatus.PICKING_UP_GOODS), carrierId, orderId, new Date());
 
@@ -554,22 +557,23 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<OrderRespDTO> getOrderByDateAndCarrierId(OrderByDateAndCarrierId order) {
-        long carrierId = order.getCarrierId();
-        Date orderCreatedAt = order.getCreatedAt();
-        List<OrderRespDTO> listOrder = orderRepository
-                .findOrderEntityByCarrier_IdOrderByIdDesc(carrierId).stream().map(IOrderMapper.INSTANCE::toOrderRespDTO).collect(Collectors.toList());
-
-        List<OrderRespDTO> returnOrders = listOrder.stream().filter(o -> {
-            LocalDate localDate1 = orderCreatedAt.toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-            LocalDate localDate2 = o.getCreatedAt().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-            return localDate1.isEqual(localDate2);
-        }).collect(Collectors.toList());
-        return returnOrders;
+    public List<OrderRespDTO> getOrderByDateAndCarrierId(String date, Long id) throws ParseException {
+        Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+        List<OrderEntity> orders = this.orderRepository.getOrderEntityByCompletedAtAndCarrierId(date1, id);
+        return IOrderMapper.INSTANCE.toListOrderRespDTO(orders);
+//        List<OrderRespDTO> listOrder = orderRepository
+//                .findOrderEntityByCarrier_IdOrderByIdDesc(carrierId).stream().map(IOrderMapper.INSTANCE::toOrderRespDTO).collect(Collectors.toList());
+//
+//        List<OrderRespDTO> returnOrders = listOrder.stream().filter(o -> {
+//            LocalDate localDate1 = orderCreatedAt.toInstant()
+//                    .atZone(ZoneId.systemDefault())
+//                    .toLocalDate();
+//            LocalDate localDate2 = o.getCreatedAt().toInstant()
+//                    .atZone(ZoneId.systemDefault())
+//                    .toLocalDate();
+//            return localDate1.isEqual(localDate2);
+//        }).collect(Collectors.toList());
+//        return returnOrders;
     }
 
     @Override

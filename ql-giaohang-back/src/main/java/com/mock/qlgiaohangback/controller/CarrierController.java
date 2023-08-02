@@ -24,9 +24,15 @@ public class CarrierController {
     }
 
 
+
     @GetMapping(params = {"page"})
     public ResponseEntity getAll(@RequestParam("page") int page) {
         return ResponseHandler.generateResponse(MessageResponse.FOUND, Constans.Code.OK.getCode(), HttpStatus.OK, this.carrierService.getAll(page));
+    }
+
+    @GetMapping("all")
+    public ResponseEntity getAllWithoutPaging() {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND, Constans.Code.OK.getCode(), HttpStatus.OK, this.carrierService.getAllWithoutPaging());
     }
 
     @GetMapping(value = "/detail/{id}")
@@ -39,6 +45,14 @@ public class CarrierController {
         return ResponseHandler.generateResponse(MessageResponse.FOUND, Constans.Code.OK.getCode(),
                 HttpStatus.OK,
                 ICarrierMapper.INSTANCE.entityToRespDTO(this.carrierService.getCarrierById(id)));
+    }
+
+    @GetMapping("recommend/{shopId}")
+    public ResponseEntity getCarrierByShopId(@PathVariable("shopId") long id) {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND, Constans.Code.OK.getCode(),
+                HttpStatus.OK,
+                this.carrierService.getByShopId(id)
+                );
     }
 
     @PutMapping(value = "/{id}", params = {"active", "geometric"})

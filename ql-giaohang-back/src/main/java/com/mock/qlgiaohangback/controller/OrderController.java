@@ -16,6 +16,8 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/order")
@@ -269,6 +271,15 @@ public class OrderController  {
                 this.orderService.findAllProductOrderById(orderId));
     }
 
+    @GetMapping(value = "/count-by-status", params = {"status", "carrierId"})
+    public ResponseEntity countOrderByStatusAndCarrierId(@RequestParam("status")Constans.OrderStatus status, @RequestParam("carrierId") Long carrierId) {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND,
+                Constans.Code.OK.getCode(),
+                HttpStatus.OK,
+                this.orderService
+                );
+    }
+
     @Secured(value = {"ROLE_COORDINATOR", "ROLE_SHOP"} )
     @DeleteMapping("/{id}")
     public ResponseEntity cancelOrder(@PathVariable Long id) {
@@ -278,12 +289,12 @@ public class OrderController  {
                 this.orderService.cancelOrder(id));
     }
 
-    @PostMapping("/get-by-date-and-carrier-id")
-    public ResponseEntity gitOrdersByAbove(@RequestBody OrderByDateAndCarrierId body) {
+    @GetMapping(params = {"date", "carrierId"})
+    public ResponseEntity gitOrdersByAbove(@RequestParam("date") String date, @RequestParam("carrierId") Long id) throws ParseException {
         return ResponseHandler.generateResponse(MessageResponse.FOUND,
                 Constans.Code.OK.getCode(),
                 HttpStatus.OK,
-                this.orderService.getOrderByDateAndCarrierId(body));
+                this.orderService.getOrderByDateAndCarrierId(date, id));
     }
 
     @PostMapping("/get-by-date-and-list-id")

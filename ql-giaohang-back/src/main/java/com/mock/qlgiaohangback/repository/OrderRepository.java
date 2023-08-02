@@ -114,4 +114,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long>, Order
     int countOrderCompletedAtBeforeTimeReceiveExpected(long carrierId);
 
     int countOrderEntitiesByStatusInAndCarrierId(List<Constans.OrderStatus> statuses, long carrierId);
+
+    List<OrderEntity> getOrderEntityByCompletedAtAndCarrierId(Date completedAt, Long id);
 }

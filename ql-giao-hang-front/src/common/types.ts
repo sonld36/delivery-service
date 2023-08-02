@@ -283,6 +283,7 @@ export type OrderResp = {
 };
 
 export type OrderInfDetailResponse = {
+  shopId: number;
   shopName: string;
   shopAdd: AddressToSave | any;
   shopPhone: string;
@@ -290,7 +291,7 @@ export type OrderInfDetailResponse = {
   receiverAdd: AddressToSave | any;
   receiverPhone: string;
   deliveryName: string;
-  deliveryId: string;
+  deliveryId: number;
   deliveryPhone: string;
   note: string;
   createdAt: Date;
@@ -298,9 +299,9 @@ export type OrderInfDetailResponse = {
 };
 
 export type Deliverier = {
-  deliveryId: string;
+  deliveryId?: number;
   deliveryName: string;
-  deliveryPhone: string;
+  deliveryPhone?: string;
 };
 
 export type ProductInOrderByDP = {

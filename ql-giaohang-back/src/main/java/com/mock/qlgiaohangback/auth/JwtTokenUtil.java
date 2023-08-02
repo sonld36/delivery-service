@@ -48,6 +48,4 @@ public class JwtTokenUtil {
                 .getBody();
         return claimsResolver.apply(claims);
     }
-
-
 }

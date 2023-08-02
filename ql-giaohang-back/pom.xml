@@ -111,6 +111,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>0.9.1</version>
@@ -171,6 +177,20 @@
                                 <version>5.4.13.Final</version>
                             </path>
                         </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>3.3.2</version>
+                    <configuration>
+                        <to>
+                            <image>sonle24699/test</image>
+                            <auth>
+                                <username>sonle24699</username>
+                                <password>allIAO27.</password>
+                            </auth>
+                        </to>
                     </configuration>
                 </plugin>
             </plugins>

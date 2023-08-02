@@ -7,9 +7,11 @@ import com.mock.qlgiaohangback.dto.carrier.CarrierCreateDTO;
 import com.mock.qlgiaohangback.dto.carrier.CarrierDetailDTO;
 import com.mock.qlgiaohangback.dto.carrier.CarrierRespDTO;
 import com.mock.qlgiaohangback.dto.carrier.CarrierToRecommendDTO;
+import com.mock.qlgiaohangback.dto.shop.ShopDetailRespDTO;
 import com.mock.qlgiaohangback.entity.AccountEntity;
 import com.mock.qlgiaohangback.entity.CarrierEntity;
 import com.mock.qlgiaohangback.entity.OrderEntity;
+import com.mock.qlgiaohangback.entity.ShopEntity;
 import com.mock.qlgiaohangback.exception.ResponseException;
 import com.mock.qlgiaohangback.helpers.LocationHelpers;
 import com.mock.qlgiaohangback.helpers.ObjectHelpers;
@@ -19,6 +21,7 @@ import com.mock.qlgiaohangback.repository.OrderRepository;
 import com.mock.qlgiaohangback.service.IAccountService;
 import com.mock.qlgiaohangback.service.ICarrierService;
 import com.mock.qlgiaohangback.service.IOrderService;
+import com.mock.qlgiaohangback.service.IShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +40,8 @@ public class CarrierService implements ICarrierService {
     private final OrderRepository orderRepository;
 
     private final IAccountService accountService;
+
+    private final IShopService shopService;
 
     @Override
     public CarrierEntity createCarrier(CarrierCreateDTO carrierCreateDTO) {
@@ -62,6 +67,11 @@ public class CarrierService implements ICarrierService {
         return PagingResp.<CarrierRespDTO>builder()
                 .listData(ICarrierMapper.INSTANCE.listEntityToListRespDTO(carriersGot.getContent()))
                 .totalPage(carriersGot.getTotalPages()).build();
+    }
+
+    @Override
+    public List<CarrierRespDTO> getAllWithoutPaging() {
+        return ICarrierMapper.INSTANCE.listEntityToListRespDTO(this.carrierRepository.findAll());
     }
 
     @Override
@@ -177,6 +187,15 @@ public class CarrierService implements ICarrierService {
 
 
         return 1;
+    }
+
+    @Override
+    public List<CarrierToRecommendDTO> getByShopId(long shopId) {
+        ShopDetailRespDTO shop = this.shopService.getShopById(shopId);
+        if (shop.getLongitude() == null || shop.getLatitude() == null) throw new ResponseException(MessageResponse.NOT_FOUND,
+                HttpStatus.BAD_REQUEST,
+                Constans.Code.NOT_EXITED.getCode());
+        else return this.recommendCarrierForOrder(shop.getLongitude(), shop.getLatitude());
     }
 
     public int totalOrderCompleteOnTime(long id) {

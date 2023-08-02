@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Data
@@ -22,6 +21,6 @@ public class NotificationRespDTO {
     private AccountRespDTO destination;
     private AccountRespDTO from;
 
-    private Date createAt;
+    private Date createdAt;
 }
 

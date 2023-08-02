@@ -25,6 +25,7 @@ import orderService from '@Services/order.service';
 import accountService from '@Services/account.service';
 import Chip from '@mui/material/Chip';
 import { Link, useNavigate } from 'react-router-dom';
+import carrierService from '@Services/carrier.service';
 
 const theme = createTheme({
   palette: {
@@ -423,15 +424,15 @@ function BasicTabs() {
   }, []);
 
   const getData = async () => {
-    const res = await accountService.getAllAccount();
+    const res = await carrierService.getAllWithoutPaging();
     const res2 = await orderService.getAll();
     console.log(res)
     console.log(res2)
     let arr: TransportStaff[];
     arr = [];
     let map = new Map();
-    let carrierList = res.data.filter((item: any) => item.role == "ROLE_CARRIER")
-    let coordinatorList = res.data.filter((item: any) => item.role == "ROLE_COORDINATOR")
+    let carrierList = res.data;
+    let coordinatorList = res.data.filter((item: any) => item.role == "ROLE_COORDINATOR") || [];
     carrierList.map((item: any, index: number) => {
       if (!item.name) item.name = "";
       if (!item.phoneNumber) item.phoneNumber = "";

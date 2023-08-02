@@ -7,15 +7,33 @@
     android:orientation="vertical"
     tools:context=".NotifyPage">
 
-    <TextView
-        android:id="@+id/textView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20sp"
-        android:paddingStart="20sp"
-        android:text="Notifications"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:padding="5sp">
+
+        <ImageButton
+            android:id="@+id/notify_back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="29dp"
+            android:layout_gravity="center"
+            android:layout_weight="0"
+            android:minHeight="20dp"
+            android:onClick="handleBackToHome"
+            app:srcCompat="@drawable/baseline_arrow_back_24"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/order_detail_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="Thông báo"
+            android:textAlignment="gravity"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/notification_display_item"

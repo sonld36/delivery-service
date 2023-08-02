@@ -1,15 +1,15 @@
 package com.example.shippingapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.JsonReader;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.shippingapp.common.Constant;
+import com.example.shippingapp.dto.MessageDTO;
 import com.example.shippingapp.dto.NotificationRespDTO;
 import com.example.shippingapp.dto.ResponseTemplateDTO;
 import com.example.shippingapp.dto.ResponseWithPagingDTO;
@@ -17,12 +17,15 @@ import com.example.shippingapp.services.AuthService;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
-import org.w3c.dom.Text;
-
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,7 +52,6 @@ public class NotifyPage extends AppCompatActivity {
 
         getNotificationByPage(1);
 
-        setItemNotificationIntoLayout();
     }
 
 
@@ -61,6 +63,7 @@ public class NotifyPage extends AppCompatActivity {
                 ResponseWithPagingDTO<List<NotificationRespDTO>> resp = response.body().getData();
                 NotifyPage.totalPage = resp.getTotalPage();
                 notifications = resp.getPaging();
+                setItemNotificationIntoLayout();
 //                int count = (int) notifications.stream().filter((item) -> {
 //                    return !item.isSeen();
 //                }).count();
@@ -77,36 +80,64 @@ public class NotifyPage extends AppCompatActivity {
 
 
     private void setItemNotificationIntoLayout() {
+        List<String> status = EnumSet.allOf(Constant.OrderStatus.class).stream().map(Enum::name).collect(Collectors.toList());
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        Gson gson = new Gson();
         notifications.forEach((item) -> {
             final View componentItemNotify = getLayoutInflater().inflate(R.layout.item_notify, null, false);
             TextView nameFrom = componentItemNotify.findViewById(R.id.notify_name_from);
             TextView createdAt = componentItemNotify.findViewById(R.id.notify_created);
             TextView messageFrom = componentItemNotify.findViewById(R.id.notify_action);
-            String name = item.getFrom() == null ? "Không xác định" : item.getFrom().getName();
-            String date = item.getCreateAt() == null ? "Không xác định" : item.getCreateAt().toString();
-            JsonParser parser = new JsonParser();
-            JsonObject message = (JsonObject) parser.parse(item.getMessage());
+            String name = item.getFrom() == null ? "Hệ thống" : item.getFrom().getName();
+            Date date = item.getCreatedAt();
+            String dateFormed = date != null ? formatter.format(date) : "Không xác định";
             nameFrom.setText(name);
-            createdAt.setText(date);
-            String messageGot = message.get("message").toString();
-            messageFrom.setText(messageGot);
-            try {
-                String[] getOrderId = messageGot.split("#");
-                if (getOrderId.length == 2) {
-                    Long orderId = Long.parseLong(getOrderId[1].replace("\"", ""));
-                    componentItemNotify.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent intent = new Intent(NotifyPage.this, OrderDetail.class);
-                            intent.putExtra("order_id", orderId);
-                            startActivity(intent);
-                        }
-                    });
+            createdAt.setText(dateFormed);
+            if (status.contains(item.getTitle())) {
+                Type integerType = new TypeToken<MessageDTO<Long>>() {}.getType();
+                MessageDTO<Long> messageDTO = gson.fromJson(item.getMessage(),  integerType);
+                messageFrom.setText(messageDTO.getMessage());
+                try {
+                    if (messageDTO.getData() != null) {
+                        componentItemNotify.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(NotifyPage.this, OrderDetail.class);
+                                intent.putExtra("order_id", messageDTO.getData());
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                throw new RuntimeException(e);
+            } else {
+                JsonParser parser = new JsonParser();
+                JsonObject message = (JsonObject) parser.parse(item.getMessage());
+                String messageGot = message.get("message").toString();
+                try {
+                    String[] getOrderId = messageGot.split("#");
+                    if (getOrderId.length == 2) {
+                        Long orderId = Long.parseLong(getOrderId[1].replace("\"", ""));
+                        componentItemNotify.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(NotifyPage.this, OrderDetail.class);
+                                intent.putExtra("order_id", orderId);
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new RuntimeException(e);
+                }
+                messageFrom.setText(messageGot);
             }
             notificationDisplay.addView(componentItemNotify);
         });
+    }
+
+    public void handleBackToHome(View view) {
+        finish();
     }
 }

@@ -30,7 +30,7 @@ public class OrderRespDTO implements Serializable {
 
     private ShopInfoRespDTO shop;
 
-    private AccountRespDTO carrier;
+    private Long carrierId;
 
     private String fromAddress;
     private String destinationAddress;

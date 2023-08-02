@@ -16,5 +16,5 @@ public class NotificationRespDTO {
     private AccountRespDTO destination;
     private AccountRespDTO from;
 
-    private Date createAt;
+    private Date createdAt;
 }

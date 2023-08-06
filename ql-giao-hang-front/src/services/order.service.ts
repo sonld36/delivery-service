@@ -87,8 +87,8 @@ class OrderService {
     });
   }
 
-  getOrdersByDateAndListId = (body: Object) => {
-    return httpCommon.post("/order/get-by-date-and-list-id", body);
+  paidOrder = (body: Object) => {
+    return httpCommon.post("/order/paid", body);
   };
 
   getOrdersByDateAndShopId = (body: Object) => {
@@ -144,8 +144,6 @@ class OrderService {
     status: String,
     page: number
   ): Promise<ResponseReceived<OrderDPResponse>> {
-    console.log("page", page);
-
     return httpCommon
       .get("/order/dieu-phoi/get-all-order-by-status", {
         params: {

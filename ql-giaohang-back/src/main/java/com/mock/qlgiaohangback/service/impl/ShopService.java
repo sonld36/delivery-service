@@ -2,12 +2,15 @@ package com.mock.qlgiaohangback.service.impl;
 
 import com.mock.qlgiaohangback.common.Constans;
 import com.mock.qlgiaohangback.common.MessageResponse;
+import com.mock.qlgiaohangback.dto.PagingResp;
 import com.mock.qlgiaohangback.dto.address.AddressDTO;
 import com.mock.qlgiaohangback.dto.shop.ShopDetailRespDTO;
+import com.mock.qlgiaohangback.dto.shop.ShopInfoForManager;
 import com.mock.qlgiaohangback.dto.shop.ShopInfoRespDTO;
 import com.mock.qlgiaohangback.dto.shop.ShopRegisterDTO;
 import com.mock.qlgiaohangback.dto.user.AccountRespDTO;
 import com.mock.qlgiaohangback.entity.AccountEntity;
+import com.mock.qlgiaohangback.entity.OrderEntity;
 import com.mock.qlgiaohangback.entity.RoleEntity;
 import com.mock.qlgiaohangback.entity.ShopEntity;
 import com.mock.qlgiaohangback.exception.ResponseException;
@@ -16,6 +19,8 @@ import com.mock.qlgiaohangback.mapper.IShopMapper;
 import com.mock.qlgiaohangback.repository.ShopRepository;
 import com.mock.qlgiaohangback.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,7 +56,7 @@ public class ShopService implements IShopService {
         comingSave.getAddresses().forEach(item -> {
             item.setShop(comingSave);
         });
-        comingSave.setStatus(Constans.ShopStatus.REGISTERING);
+        comingSave.setStatus(Constans.ShopStatus.ACCEPTED);
         comingSave.setAccount(account);
         return IShopMapper.INSTANCE.fromEntityToInfoRespDTO(this.shopRepository.save(comingSave));
 //        return null;
@@ -99,6 +104,24 @@ public class ShopService implements IShopService {
     public AddressDTO getAddressForShop() {
         ShopEntity shop = getShopLoggedIn();
         return this.addressService.getAddressByShop(shop);
+    }
+
+    @Override
+    public PagingResp<ShopInfoForManager> getByPaging(int page) {
+        Page<ShopEntity> shopEntityPage = this.shopRepository.getAllBy(PageRequest.of(page - 1, 10));
+        List<ShopInfoForManager> shops = shopEntityPage.getContent().stream().map(item -> {
+           String phoneNumber = item.getAccount().getPhoneNumber();
+           String username = item.getAccount().getUsername();
+           List<OrderEntity> orders = item.getOrders();
+           double totalCashPaid = orders.stream().filter(i -> i.getStatus().equals(Constans.OrderStatus.DONE)).reduce(0.0, (sub, e) -> sub + e.getPaymentTotal(), Double::sum);
+           double totalCashToRefund = orders.stream().filter(i -> i.getStatus().equals(Constans.OrderStatus.DELIVERY_SUCCESSFUL)).reduce(0.0, (sub, e) -> sub + e.getPaymentTotal(), Double::sum);
+
+           return ShopInfoForManager.builder().email(item.getEmail()).phoneNumber(phoneNumber).username(username).totalCashPaid(totalCashPaid).totalCashToRefund(totalCashToRefund).id(item.getId()).build();
+        }).collect(Collectors.toList());
+        return PagingResp.<ShopInfoForManager>builder()
+                .totalPage(shopEntityPage.getTotalElements())
+                .listData(shops)
+                .build();
     }
 }
 

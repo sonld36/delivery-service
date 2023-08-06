@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long>, Order
     List<OrderEntity> findAll();
 
     List<OrderEntity> findOrderEntityByCarrier_IdOrderByIdDesc(Long shipper_id);
+
+    List<OrderEntity> findByCarrierIdAndIdIsIn(long carrierId, List<Long> ids);
 
     OrderEntity findOrderEntityById(Long id);
 
@@ -115,5 +118,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long>, Order
 
     int countOrderEntitiesByStatusInAndCarrierId(List<Constans.OrderStatus> statuses, long carrierId);
 
-    List<OrderEntity> getOrderEntityByCompletedAtAndCarrierId(Date completedAt, Long id);
+    @Query(value = "select * from _orders o where DATE(o.completed_at)=:completedAt and o.carrier_id = :id", nativeQuery = true)
+    List<OrderEntity> findByCompleteAtAndCarrierId(Date completedAt, Long id);
 }

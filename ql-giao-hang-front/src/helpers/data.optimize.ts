@@ -104,7 +104,7 @@ export const convertNumberToCurrency = (price: number) =>
     value: price.toString(),
     groupSeparator: ",",
     decimalSeparator: ".",
-    decimalScale: 2,
+    decimalScale: 1,
     suffix: " VNĐ",
   });
 

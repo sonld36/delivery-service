@@ -27,6 +27,14 @@ public class ShopController {
                 this.shopService.getShopByStatus(status));
     }
 
+    @GetMapping(params = {"page"})
+    public ResponseEntity getByPaging(@RequestParam int page) {
+        return ResponseHandler.generateResponse(MessageResponse.FOUND,
+                Constans.Code.OK.getCode(),
+                HttpStatus.OK,
+                this.shopService.getByPaging(page));
+    }
+
     @GetMapping("/all")
     public ResponseEntity getAll() {
         return ResponseHandler.generateResponse(MessageResponse.FOUND,

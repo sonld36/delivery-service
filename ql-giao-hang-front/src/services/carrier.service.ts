@@ -1,5 +1,10 @@
 import httpCommon from "@Services/http-common";
-import { CarrierRespType, PagingResp, ResponseReceived } from "@Common/types";
+import {
+  CarrierInfoManagerType,
+  CarrierRespType,
+  PagingResp,
+  ResponseReceived,
+} from "@Common/types";
 
 export interface CarrierDetailType {
   numberOfOrderDelivering: number;
@@ -28,8 +33,10 @@ class CarrierService {
     return httpCommon.get(`carrier/recommend/${shopId}`);
   }
 
-  async getAllWithoutPaging(): Promise<ResponseReceived<CarrierRespType[]>> {
-    return httpCommon.get("carrier/all");
+  async getAllWithoutPaging(): Promise<
+    ResponseReceived<CarrierInfoManagerType[]>
+  > {
+    return httpCommon.get("carrier/all").then();
   }
 
   async getById(id: number): Promise<ResponseReceived<CarrierRespType>> {

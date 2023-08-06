@@ -1,8 +1,10 @@
 package com.mock.qlgiaohangback.service;
 
 import com.mock.qlgiaohangback.common.Constans;
+import com.mock.qlgiaohangback.dto.PagingResp;
 import com.mock.qlgiaohangback.dto.address.AddressDTO;
 import com.mock.qlgiaohangback.dto.shop.ShopDetailRespDTO;
+import com.mock.qlgiaohangback.dto.shop.ShopInfoForManager;
 import com.mock.qlgiaohangback.dto.shop.ShopInfoRespDTO;
 import com.mock.qlgiaohangback.dto.shop.ShopRegisterDTO;
 import com.mock.qlgiaohangback.entity.ShopEntity;
@@ -26,4 +28,6 @@ public interface IShopService {
 
 
     AddressDTO getAddressForShop();
+
+    PagingResp<ShopInfoForManager> getByPaging(int page);
 }

@@ -297,8 +297,8 @@ public class OrderController  {
                 this.orderService.getOrderByDateAndCarrierId(date, id));
     }
 
-    @PostMapping("/get-by-date-and-list-id")
-    public ResponseEntity getOrderByDateAndListId(@RequestBody OrderByDateAndListId body) {
+    @PostMapping("/paid")
+    public ResponseEntity updateOrderPaid(@RequestBody OrderByDateAndListId body) {
         return ResponseHandler.generateResponse(MessageResponse.FOUND,
                 Constans.Code.OK.getCode(),
                 HttpStatus.OK,

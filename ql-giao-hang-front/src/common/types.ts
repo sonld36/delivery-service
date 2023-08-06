@@ -298,6 +298,16 @@ export type OrderInfDetailResponse = {
   status: string;
 };
 
+export type ShopInfoForManager = {
+  id: number;
+  username: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  totalCashPaid: number;
+  totalCashToRefund: number;
+};
+
 export type Deliverier = {
   deliveryId?: number;
   deliveryName: string;
@@ -363,6 +373,15 @@ export type CarrierRespType = {
   isActive: boolean;
   available: boolean;
   pathAvatar: string;
+};
+
+export type CarrierInfoManagerType = {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  orderDelivering: number;
+  cashNotRefundYet: number;
+  statusDelivery: boolean;
 };
 
 export type PagingResp<T> = {

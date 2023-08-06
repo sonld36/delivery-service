@@ -35,9 +35,16 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/notification_display_item"
+    <ScrollView
+        android:id="@+id/scroll_notification"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"></LinearLayout>
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/notification_display_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"></LinearLayout>
+    </ScrollView>
+
 </LinearLayout>

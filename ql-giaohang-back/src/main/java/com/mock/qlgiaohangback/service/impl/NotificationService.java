@@ -6,6 +6,7 @@ import com.mock.qlgiaohangback.common.Constans;
 import com.mock.qlgiaohangback.common.MessageResponse;
 import com.mock.qlgiaohangback.common.ResponseHandler;
 import com.mock.qlgiaohangback.dto.notification.NotificationRespDTO;
+import com.mock.qlgiaohangback.dto.notification.NotificationRespPaging;
 import com.mock.qlgiaohangback.dto.order.OrderRespDTO;
 import com.mock.qlgiaohangback.entity.AccountEntity;
 import com.mock.qlgiaohangback.entity.NotificationEntity;
@@ -69,9 +70,29 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
+    public NotificationRespPaging getNotificationByAccountV2(int page) {
+        AccountEntity account = this.accountService.getCurrentAccount();
+        Page<NotificationEntity> notificationEntities = this.notificationRepository.getNotificationEntitiesByDestinationOrderByCreatedAtDesc(account, PageRequest.of(page - 1, 20));
+        List<NotificationEntity> notify = notificationEntities.getContent();
+        long notSeen = notify.stream().filter(item -> !item.getSeen()).count();
+        return NotificationRespPaging.builder()
+                .notificationRespDTOS(INotificationMapper.INSTANCE.toListDTO(notify))
+                .total(notificationEntities.getTotalPages())
+                .numberNotSeen(notSeen).build();
+    }
+
+    @Override
     public int seenNotification() {
         AccountEntity account = this.accountService.getCurrentAccount();
         return this.notificationRepository.countNotificationEntitiesBySeenIsFalseAndDestination_Id(account.getId());
+    }
+
+    @Override
+    public int setSeen(long id) {
+        NotificationEntity notification = this.notificationRepository.getById(id);
+        notification.setSeen(true);
+        this.notificationRepository.save(notification);
+        return 1;
     }
 
     @Override

@@ -1,9 +1,11 @@
 import {
   AddressToSave,
+  PagingResp,
   ProductPaging,
   ProductTop10Type,
   ProductType,
   ResponseReceived,
+  ShopInfoForManager,
   ShopProfile,
 } from "@Common/types";
 import httpCommon from "@Services/http-common";
@@ -87,6 +89,18 @@ class ShopService {
   async getProfileShop(): Promise<ResponseReceived<ShopProfile>> {
     return httpCommon
       .get<ResponseReceived<ShopProfile>>("/shop/profile")
+      .then();
+  }
+
+  async getShopForManager(
+    page: number
+  ): Promise<ResponseReceived<PagingResp<ShopInfoForManager>>> {
+    return httpCommon
+      .get<ResponseReceived<PagingResp<ShopInfoForManager>>>("/shop", {
+        params: {
+          page,
+        },
+      })
       .then();
   }
 }

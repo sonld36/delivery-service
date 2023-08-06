@@ -292,7 +292,7 @@ export default function CustomerInfo() {
                 orderCode: item.id,
                 status: item.status,
                 price: item.paymentTotal,
-                shipTo: item.address,
+                shipTo: item.destinationAddress,
                 shipFrom: address,
                 dayCreated: new Date(item.createdAt),
                 dayComplete: new Date(item.modifiedAt),

@@ -37,6 +37,26 @@ public class MapService extends AsyncTask<String, Void, Void> {
         return String.format(URL_MAP_DIRECTION, this.destination.latitude + "," + this.destination.longitude, this.origin.latitude + "," + this.origin.longitude);
     }
 
+    public void getDirection() {
+        GoogleMapService.mapService.getDirection(destination.latitude + "," + destination.longitude,
+                origin.latitude + "," + origin.longitude,
+                "AIzaSyC8MxVTaIKHbjmJ9-sfQ-lT7Vs4Lm-xk7s").enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                Log.d("hello", "onResponse: " + response.body());
+                if (geometric != null) {
+                    geometric.clear();
+                    geometric.addAll(MapDataParser.parse(response.body()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+
+            }
+        });
+    }
+
 //    public void getDirection() throws IOException {
 //        StringBuilder sb=null;
 //        BufferedReader reader=null;
@@ -60,7 +80,10 @@ public class MapService extends AsyncTask<String, Void, Void> {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 Log.d("hello", "onResponse: " + response.body());
-                geometric.addAll(MapDataParser.parse(response.body()));
+                if (geometric != null) {
+                    geometric.clear();
+                    geometric.addAll(MapDataParser.parse(response.body()));
+                }
             }
 
             @Override

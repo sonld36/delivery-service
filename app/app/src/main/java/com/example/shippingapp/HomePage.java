@@ -41,9 +41,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,9 +68,11 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
 
     public static String token;
 
+    public boolean isDialogOpen = false;
+
     private StompClient mStompClient;
 
-
+    public static Queue<SocketResponse<Integer>> queue;
     private TextView countNotificationsText;
 
     public static UpdateLocationDTO updateLocationDTO;
@@ -84,6 +90,9 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
     protected void onResume() {
         super.onResume();
         getOrdersByStatus();
+        this.isDialogOpen = true;
+        displayAlertDialog();
+        getCountNotification();
     }
 
     @Override
@@ -109,6 +118,7 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         containOrdersView = findViewById(R.id.orders_contains);
         user = new Gson().fromJson(message, AccountRespDTO.class);
         countNotificationsText = findViewById(R.id.count_notify);
+        queue = new PriorityQueue<>();
         getCountNotification();
         new SocketService(user).execute();
 
@@ -123,7 +133,11 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         SocketService.stompClient.topic("/request_shipping/" + user.getId()).subscribe(topicMess -> {
             Type type = new TypeToken<SocketResponse<Integer>>() {}.getType();
             SocketResponse<Integer> orderResp = new Gson().fromJson(topicMess.getPayload(), type);
-            displayAlertDialog(orderResp.getData(), orderResp.getMessage());
+            queue.add(orderResp);
+            if (!isDialogOpen) {
+                this.isDialogOpen = true;
+                displayAlertDialog();
+            }
         }, throwable -> {
             Log.d("socket", throwable.getMessage());
         });
@@ -138,7 +152,6 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        Log.d("test", "onPostResume: ");
     }
 
     @Override
@@ -224,6 +237,8 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
 
     private void addOrderView() {
         containOrdersView.removeAllViews();
+        Locale locale = new Locale("vi", "VN");
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
         orders.forEach((item) -> {
             ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(0,0,0, 20);
@@ -245,7 +260,7 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
             });
             locationFrom.setText(item.getFromAddress());
             locationDes.setText(item.getDestinationAddress());
-            shipFee.setText(item.getPaymentTotal() + "VNĐ");
+            shipFee.setText(currencyFormat.format(item.getPaymentTotal()));
             orderId.setText(item.getId().toString());
             contactFrom.setText(item.getShop().getName());
             contactDes.setText(item.getCustomer().getPhoneNumber());
@@ -267,8 +282,7 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         orderStatusCurrent = new ArrayList<>();
         orderStatusCurrent.addAll(Arrays.asList(Constant.OrderStatus.BEING_TRANSPORTED.name(),
                 Constant.OrderStatus.DELIVERY_SUCCESSFUL.name(),
-                Constant.OrderStatus.REFUNDS.name(),
-                Constant.OrderStatus.CANCEL.name()));
+                Constant.OrderStatus.REFUNDS.name()));
         currentStatus = orderStatusCurrent.get(0);
         getOrdersByStatus();
         updateDropdown();
@@ -318,11 +332,16 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
 
 
     @WorkerThread
-    public void displayAlertDialog(Integer orderId, String message) {
+    public void displayAlertDialog() {
+        if (queue.size() < 1) {
+            this.isDialogOpen = false;
+            return;
+        };
+        SocketResponse<Integer> socketResponse = queue.poll();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final View dialog = getLayoutInflater().inflate(R.layout.dialog_map, null, false);
 
-        AuthService.authService.getOrderById(token, orderId).enqueue(new Callback<ResponseTemplateDTO<OrderRespDTO>>() {
+        AuthService.authService.getOrderById(token, socketResponse.getData()).enqueue(new Callback<ResponseTemplateDTO<OrderRespDTO>>() {
             @Override
             public void onResponse(Call<ResponseTemplateDTO<OrderRespDTO>> call, Response<ResponseTemplateDTO<OrderRespDTO>> response) {
                 OrderRespDTO order = response.body().getData();
@@ -335,12 +354,34 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
                 shipFee.setText(order.getShipFee().toString());
 
                 ContextCompat.getMainExecutor(HomePage.this).execute(() -> {
-                    builder.setTitle(message);
+                    builder.setTitle(socketResponse.getMessage());
                     builder.setView(dialog);
                     builder.setPositiveButton("Nhận đơn", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            AuthService.authService.acceptOrder(HomePage.token, socketResponse.getData()).enqueue(new Callback<ResponseTemplateDTO<Integer>>() {
+                                @Override
+                                public void onResponse(Call<ResponseTemplateDTO<Integer>> call, Response<ResponseTemplateDTO<Integer>> response) {
+                                    Log.d("Accept", "onResponse: " + response);
+                                    ResponseTemplateDTO<Integer> resp = response.body();
+                                    if (resp.getCode().longValue() == Constant.Code.TAKE_A_ORDER_SUCCESSFUL.getCode()) {
+                                        Toast.makeText(HomePage.this, "Nhận đơn hàng thành công", Toast.LENGTH_SHORT).show();
+//                                        Intent intentToOrderDetail = new Intent(HomePage.this, OrderDetail.class);
+//                                        intentToOrderDetail.putExtra("order_id", orderId);
+//                                        startActivity(intentToOrderDetail);
+                                    }
+                                    if (resp.getCode().longValue() == Constant.Code.ORDER_WAS_ASSIGNED.getCode()) {
+                                        Toast.makeText(HomePage.this, "Đơn hàng đã được vận chuyển", Toast.LENGTH_SHORT).show();
+//                                        finish();
+                                    }
+                                }
 
+                                @Override
+                                public void onFailure(Call<ResponseTemplateDTO<Integer>> call, Throwable t) {
+
+                                }
+                            });
+                            displayAlertDialog();
                         }
                     });
 
@@ -358,7 +399,21 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
                     builder.setNegativeButton("Từ chối", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Log.d("Dialog", "onClick: " + "Từ chối");
+                            AuthService.authService.rejectOrder(HomePage.token, socketResponse.getData()).enqueue(new Callback<ResponseTemplateDTO<Integer>>() {
+                                @Override
+                                public void onResponse(Call<ResponseTemplateDTO<Integer>> call, Response<ResponseTemplateDTO<Integer>> response) {
+                                    if (response.body().getCode().longValue() == Constant.Code.UPDATE_ACCOUNT_SUCCESSFUL.getCode()) {
+                                        Toast.makeText(HomePage.this, "Từ chối đơn hàng thành công", Toast.LENGTH_SHORT).show();
+//                                        finish();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ResponseTemplateDTO<Integer>> call, Throwable t) {
+
+                                }
+                            });
+                            displayAlertDialog();
                         }
                     });
 

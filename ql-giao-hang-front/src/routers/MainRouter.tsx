@@ -51,6 +51,7 @@ import { openToast } from "@Features/toast/toastSlice";
 import { status } from "@Common/toast.const";
 import { fetchOrderWithPaging, selectOrder } from "@Features/order/orderSlice";
 import Overview from "@Components/custom-manage/Overview";
+import Customer from "@Components/ship-manage/Customer";
 
 export default function MainRouter() {
   const auth = useAppSelector(selectUser);
@@ -158,7 +159,7 @@ export default function MainRouter() {
             <Route path="tien-hang/:id" element={<OrderMoneyManagement />} />
             <Route path="them-nhan-vien" element={<StaffRegister />} />
             <Route path="danh-sach-nhan-vien" element={<StaffList />} />
-            <Route path="danh-sach-khach-hang" element={<CustomerList />} />
+            <Route path="danh-sach-khach-hang" element={<Customer />} />
             <Route path="khach-hang-dang-ky/:id" element={<CustomerRegisterApply />} />
             <Route path="ds-khach-hang-dang-ky" element={<CustomerRegisterList />} />
             <Route path="thong-tin-khach-hang/:id" element={<CustomerInfo />} />

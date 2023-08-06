@@ -59,10 +59,6 @@ public class ShopEntity implements Serializable {
     @Column
     private Double latitude;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "joined_at")
-    private Date joinedAt;
-
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "modified_at")

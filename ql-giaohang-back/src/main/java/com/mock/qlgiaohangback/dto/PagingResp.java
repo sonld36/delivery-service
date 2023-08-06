@@ -14,5 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 public class PagingResp<T> implements Serializable {
     private List<T> listData;
-    private int totalPage;
+    private long totalPage;
 }

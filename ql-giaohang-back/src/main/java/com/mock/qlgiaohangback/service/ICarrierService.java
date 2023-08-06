@@ -1,10 +1,7 @@
 package com.mock.qlgiaohangback.service;
 
 import com.mock.qlgiaohangback.dto.PagingResp;
-import com.mock.qlgiaohangback.dto.carrier.CarrierCreateDTO;
-import com.mock.qlgiaohangback.dto.carrier.CarrierDetailDTO;
-import com.mock.qlgiaohangback.dto.carrier.CarrierRespDTO;
-import com.mock.qlgiaohangback.dto.carrier.CarrierToRecommendDTO;
+import com.mock.qlgiaohangback.dto.carrier.*;
 import com.mock.qlgiaohangback.entity.CarrierEntity;
 
 import java.util.List;
@@ -18,14 +15,14 @@ public interface ICarrierService {
 
     PagingResp<CarrierRespDTO> getAll(int page);
 
-    List<CarrierRespDTO> getAllWithoutPaging();
+    List<CarrierInfoManager> getAllWithoutPaging();
 
     int updateCarrierActiveById(long id, boolean active, String geometric);
 
     CarrierDetailDTO getDetailFollowOrder(long id);
 
 
-    int updateLocationCarrierById(long id, double longitude, double latitude);
+    int updateLocationCarrierByAccountId(long id, double longitude, double latitude);
 
     List<CarrierToRecommendDTO> recommendCarrierForOrder(double longitude, double latitude);
 
@@ -36,4 +33,8 @@ public interface ICarrierService {
     int rejectOrder(long orderId);
 
     List<CarrierToRecommendDTO> getByShopId(long shopId);
+
+    boolean checkCarrierCanTakeOrder(long carrierId);
+
+    void updateAvailable(long carrierId);
 }

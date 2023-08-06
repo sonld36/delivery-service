@@ -42,14 +42,9 @@ function Sidebar() {
         </ListItemButton>
         <Collapse in={open === key.CUS} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <ListItemButton sx={{ pl: 4 }} onClick={() => navigate("danh-sach-khach-hang")}>
+            <ListItemButton sx={{ pl: 4 }} onClick={() => navigate("danh-sach-khach-hang?page=1")}>
               <ListItemText primary="Danh sách khách hàng" />
             </ListItemButton>
-
-            <ListItemButton sx={{ pl: 4 }} onClick={() => navigate("ds-khach-hang-dang-ky")}>
-              <ListItemText primary="Đăng ký đối tác" />
-            </ListItemButton>
-
           </List>
         </Collapse>
       </Box>
@@ -74,15 +69,6 @@ function Sidebar() {
 
           </List>
         </Collapse>
-      </Box>
-
-      <Box>
-        <ListItemButton onClick={() => navigate("quan-ly-kho")} id={key.INVENTORY}>
-          <ListItemIcon>
-            <GroupIcon sx={{ color: '#ffffff' }} />
-          </ListItemIcon>
-          <ListItemText primary="Quản lý kho" />
-        </ListItemButton>
       </Box>
     </List>
 

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,9 +17,11 @@ import com.example.shippingapp.dto.OrderRespDTO;
 import com.example.shippingapp.dto.ResponseTemplateDTO;
 import com.example.shippingapp.services.AuthService;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -72,7 +76,16 @@ public class OrderDetail extends AppCompatActivity {
     }
 
     private void setStatusForButton() {
-        if (order.getStatus().equals(Constant.OrderStatus.REQUEST_SHIPPING.name()) && order.getCarrierId() == null) {
+        if (order.getStatus().equals(Constant.OrderStatus.REFUNDS.name())) {
+            changeStatusButton.setText("Đã hoàn");
+            changeStatusButton.setEnabled(false);
+        } else if (order.getStatus().equals(Constant.OrderStatus.DELIVERY_SUCCESSFUL.name())) {
+            changeStatusButton.setText("Giao thành công");
+            changeStatusButton.setEnabled(false);
+        } else if (order.getStatus().equals(Constant.OrderStatus.DONE.name())) {
+            changeStatusButton.setText("Đã hoàn tiền");
+            changeStatusButton.setEnabled(false);
+        } else if (order.getStatus().equals(Constant.OrderStatus.REQUEST_SHIPPING.name()) && order.getCarrierId() == null) {
             changeStatusButton.setText("Nhận đơn");
             changeStatusButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -102,7 +115,20 @@ public class OrderDetail extends AppCompatActivity {
             Constant.OrderStatus statusCurrent = STATUS_LIST.stream().filter((item) -> item.name().equals(status)).findFirst().orElse(null);
             int statusNextIndex = STATUS_LIST.indexOf(statusCurrent) + 1;
             statusNext = STATUS_LIST.get(statusNextIndex);
+            CheckBox checkBox = findViewById(R.id.return_checkbox);
+            if (statusNext == Constant.OrderStatus.DELIVERY_SUCCESSFUL) {
+                checkBox.setVisibility(View.VISIBLE);
+            }
             changeStatusButton.setText(statusCurrent.getStatus() + " >> " + statusNext.getStatus());
+            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) statusNext = Constant.OrderStatus.REFUNDS;
+                    else statusNext = Constant.OrderStatus.DELIVERY_SUCCESSFUL;
+                    changeStatusButton.setText(statusCurrent.getStatus() + " >> " + statusNext.getStatus());
+                }
+            });
+
             changeStatusButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -130,13 +156,15 @@ public class OrderDetail extends AppCompatActivity {
         AuthService.authService.getOrderById(token, id).enqueue(new Callback<ResponseTemplateDTO<OrderRespDTO>>() {
             @Override
             public void onResponse(Call<ResponseTemplateDTO<OrderRespDTO>> call, Response<ResponseTemplateDTO<OrderRespDTO>> response) {
+                Locale locale = new Locale("vi", "VN");
+                NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
                 order = response.body().getData();
                 addressFrom.setText(order.getFromAddress());
                 nameDes.setText(order.getCustomer().getName());
                 addressDes.setText(order.getDestinationAddress());
-                deliveryCharge.setText(String.valueOf(order.getPaymentTotal() - order.getShipFee()));
-                shipFee.setText(order.getShipFee().toString());
-                packageTotal.setText(order.getPaymentTotal().toString());
+                deliveryCharge.setText(currencyFormat.format(order.getPaymentTotal() - order.getShipFee()));
+                shipFee.setText(currencyFormat.format(order.getShipFee()));
+                packageTotal.setText(currencyFormat.format(order.getPaymentTotal()));
                 typeOrder.setText(order.getType());
                 noteOrder.setText(order.getNote());
 

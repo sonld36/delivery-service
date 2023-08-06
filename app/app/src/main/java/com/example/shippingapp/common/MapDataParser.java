@@ -25,14 +25,11 @@ public class MapDataParser {
                 jSteps = ( (JsonObject)jLegs.get(j)).getAsJsonArray("steps");
 
                 for (int k = 0; k < jSteps.size(); k++) {
-                    String polyline = "";
-                    polyline = ((JsonObject)((JsonObject)jSteps.get(k)).get("polyline")).get("points").toString();
-                    List<LatLng> list = decodePoly(polyline);
-
-                    for (int l = 0; l < list.size(); l++) {
+                    JsonArray longlat= ((JsonObject) ((JsonObject) jSteps.get(k)).get("geometry")).getAsJsonArray("coordinates");
+                    for (int l = 0; l < longlat.size(); l++) {
                         HashMap<String, String> hm = new HashMap<>();
-                        hm.put("lat", Double.toString((list.get(l)).latitude) );
-                        hm.put("lng", Double.toString((list.get(l)).longitude) );
+                        hm.put("lat", Double.toString((longlat.get(l)).getAsJsonArray().get(1).getAsDouble()) );
+                        hm.put("lng", Double.toString((longlat.get(l)).getAsJsonArray().get(0).getAsDouble()) );
                         path.add(hm);
                     }
                 }

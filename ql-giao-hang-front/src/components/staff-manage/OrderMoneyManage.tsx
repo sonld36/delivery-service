@@ -25,8 +25,8 @@ interface Data {
   shopName: String;
   shipFrom: String;
   shipTo: String;
-  rawFrom: AddressToSave;
-  rawTo: AddressToSave;
+  rawFrom?: AddressToSave;
+  rawTo?: AddressToSave;
   status: String;
   price: number;
   isPaid: Boolean;
@@ -117,47 +117,33 @@ export default function OrderMoneyManagement() {
 
   const changeDate = async (newValue: Dayjs | null) => {
     setOpen(true)
+
     setDate(newValue);
-    let res = await orderService.getOrdersByDateAndCarrierId(newValue?.toDate().toISOString().split("T")[0], Number(params.id))
-    console.log(res)
+    let res = await orderService.getOrdersByDateAndCarrierId(newValue?.toDate().toLocaleDateString(), Number(params.id))
 
     let data: Data[];
     data = [];
 
-    res.data.map((item: any) => {
-      data.push({
-        orderCode: item.id,
-        shopName: "",
-        shipFrom: item.address.addressDetail,
-        shipTo: item.customer.addresses[0].addressDetail,
-        status: item.status,
-        price: item.paymentTotal,
-        isPaid: item.isPaid,
-        shopId: item.shop.id,
-        pay: false,
-        rawTo: {
-          addressDetail: item.customer.addresses[0].addressDetail,
-          provinceCode: item.customer.addresses[0].provinceCode,
-          districtCode: item.customer.addresses[0].districtCode,
-          wardCode: item.customer.addresses[0].wardCode
-        },
-        rawFrom: {
-          addressDetail: item.address.addressDetail,
-          provinceCode: item.address.provinceCode,
-          districtCode: item.address.districtCode,
-          wardCode: item.address.wardCode,
-        }
-      })
-    })
+    data = res.data.map((item: any) => ({
+      orderCode: item.id,
+      shopName: "",
+      shipFrom: item.fromAddress,
+      shipTo: item.destinationAddress,
+      status: item.status,
+      price: item.paymentTotal,
+      isPaid: item.isPaid,
+      shopId: item.shop.id,
+      pay: false,
+    }))
 
-    await Promise.all(data.map(async (item: any) => {
-      let shop = await shopService.getShop(item.shopId)
-      item.shopName = shop.data.account.name
-      let shipFrom = await provinceService.getAddress(item.rawFrom)
-      let shipTo = await provinceService.getAddress(item.rawTo)
-      item.shipFrom = shipFrom
-      item.shipTo = shipTo
-    }));
+    // await Promise.all(data.map(async (item: any) => {
+    //   let shop = await shopService.getShop(item.shopId)
+    //   item.shopName = shop.data.account.name
+    //   let shipFrom = await provinceService.getAddress(item.rawFrom)
+    //   let shipTo = await provinceService.getAddress(item.rawTo)
+    //   item.shipFrom = shipFrom
+    //   item.shipTo = shipTo
+    // }));
 
     setRows(data)
     let total = 0;
@@ -171,7 +157,7 @@ export default function OrderMoneyManagement() {
 
   const handlePay = async () => {
     setOpen(true)
-    let res = await orderService.getOrdersByDateAndListId({
+    let res = await orderService.paidOrder({
       carrierId: Number(params.id),
       createdAt: date,
       listId: selected

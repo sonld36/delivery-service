@@ -41,8 +41,8 @@ public class SocketService extends AsyncTask<Void, Void, String> {
 
 //        stompClient.topic("/request_shipping/" + user.getId()).subscribe(topicMess -> {
 //            Type type = new TypeToken<SocketResponse<OrderRespDTO>>() {}.getType();
-//            SocketResponse<OrderRespDTO> orderResp = new Gson().fromJson(topicMess.getPayload(), type);
-////            displayAlertDialog(orderResp.getData(), orderResp.getMessage());
+//            SocketResponse<Integer> orderResp = new Gson().fromJson(topicMess.getPayload(), type);
+//            HomePage.queue.add(orderResp);
 //        }, throwable -> {
 //            Log.d("socket", throwable.getMessage());
 //        });

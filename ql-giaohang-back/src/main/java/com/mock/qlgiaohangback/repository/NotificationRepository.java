@@ -12,4 +12,6 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
     Page<NotificationEntity> getNotificationEntitiesByDestinationOrderByCreatedAtDesc(AccountEntity account, Pageable page);
 
     int countNotificationEntitiesBySeenIsFalseAndDestination_Id(Long id);
+
+    NotificationEntity getById(long id);
 }

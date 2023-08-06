@@ -33,6 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -64,6 +65,8 @@ public class OrderService implements IOrderService {
     private final INotificationService notificationService;
 
     private final ICarrierService carrierService;
+
+    private final CarrierRepository carrierRepository;
 
     public Long getShipperId() {
         Authentication user = SecurityContextHolder.getContext().getAuthentication();
@@ -249,7 +252,7 @@ public class OrderService implements IOrderService {
             oldOrder.setCompletedAt(new Date());
         }
         this.orderRepository.save(oldOrder);
-
+        this.carrierService.updateAvailable(oldOrder.getCarrier().getId());
 
         return 1;
     }
@@ -502,13 +505,17 @@ public class OrderService implements IOrderService {
     @Override
     @Transactional
     public int takeOrder(long orderId) {
+        AccountEntity account = this.accountService.getCurrentAccount();
+        CarrierEntity carrier = this.carrierService.getCarrierByAccountId(account.getId());
+//        if (!this.carrierService.checkCarrierCanTakeOrder(carrier.getId())) {
+//            carrier.setAvailable(false);
+//            this.carrierRepository.save(carrier);
+//        }
         OrderEntity orderEntity = this.orderRepository.findOrderEntityById(orderId);
         if (orderEntity.getCarrier() != null) {
             throw new ResponseException(MessageResponse.EXISTED, HttpStatus.BAD_REQUEST, Constans.Code.ORDER_WAS_ASSIGNED.getCode());
         }
 
-        AccountEntity account = this.accountService.getCurrentAccount();
-        CarrierEntity carrier = this.carrierService.getCarrierByAccountId(account.getId());
 
         if (carrier == null) {
             throw new ResponseException(MessageResponse.NOT_EXISTED, HttpStatus.BAD_REQUEST, Constans.Code.USER_NOT_EXISTED.getCode());
@@ -520,6 +527,7 @@ public class OrderService implements IOrderService {
         orderEntity.setCarrier(carrierUpdated);
         orderEntity.setStatus(Constans.OrderStatus.PICKING_UP_GOODS);
         this.orderRepository.save(orderEntity);
+        this.carrierService.updateAvailable(carrier.getId());
 
         return 1;
     }
@@ -558,22 +566,9 @@ public class OrderService implements IOrderService {
 
     @Override
     public List<OrderRespDTO> getOrderByDateAndCarrierId(String date, Long id) throws ParseException {
-        Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(date);
-        List<OrderEntity> orders = this.orderRepository.getOrderEntityByCompletedAtAndCarrierId(date1, id);
+        Date date1 = new SimpleDateFormat("M/d/yyyy").parse(date);
+        List<OrderEntity> orders = this.orderRepository.findByCompleteAtAndCarrierId(date1, id);
         return IOrderMapper.INSTANCE.toListOrderRespDTO(orders);
-//        List<OrderRespDTO> listOrder = orderRepository
-//                .findOrderEntityByCarrier_IdOrderByIdDesc(carrierId).stream().map(IOrderMapper.INSTANCE::toOrderRespDTO).collect(Collectors.toList());
-//
-//        List<OrderRespDTO> returnOrders = listOrder.stream().filter(o -> {
-//            LocalDate localDate1 = orderCreatedAt.toInstant()
-//                    .atZone(ZoneId.systemDefault())
-//                    .toLocalDate();
-//            LocalDate localDate2 = o.getCreatedAt().toInstant()
-//                    .atZone(ZoneId.systemDefault())
-//                    .toLocalDate();
-//            return localDate1.isEqual(localDate2);
-//        }).collect(Collectors.toList());
-//        return returnOrders;
     }
 
     @Override
@@ -605,26 +600,15 @@ public class OrderService implements IOrderService {
     @Override
     public List<OrderEntity> updateOrderIsPaid(OrderByDateAndListId order) {
         List<Long> listId = order.getListId();
-        Date orderCreatedAt = order.getCreatedAt();
         Long carrierId = order.getCarrierId();
 
-        List<OrderEntity> listOrder = orderRepository.findOrderEntityByCarrier_IdOrderByIdDesc(carrierId);
-        listOrder = listOrder.stream().filter(o -> {
-            LocalDate localDate1 = orderCreatedAt.toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-            LocalDate localDate2 = o.getCreatedAt().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-            return localDate1.isEqual(localDate2);
-        }).collect(Collectors.toList());
+        List<OrderEntity> listOrder = orderRepository.findByCarrierIdAndIdIsIn(carrierId, listId);
 
-        listOrder.forEach(item -> {
-            if (listId.contains(item.getId())) {
-                item.setIsPaid(true);
-            }
-        });
-        listOrder = orderRepository.saveAll(listOrder);
+        List<OrderEntity> toUpdate = listOrder.stream().map(item -> {
+            item.setIsPaid(true);
+            return item;
+        }).collect(Collectors.toList());
+        listOrder = orderRepository.saveAll(toUpdate);
         return listOrder;
     }
 

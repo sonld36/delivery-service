@@ -5,10 +5,9 @@ import com.example.shippingapp.dto.CarrierRespDTO;
 import com.example.shippingapp.dto.CountOrderByRangeDateDTO;
 import com.example.shippingapp.dto.LoginRequest;
 import com.example.shippingapp.dto.LoginRespDTO;
-import com.example.shippingapp.dto.NotificationRespDTO;
+import com.example.shippingapp.dto.NotificationRespPaging;
 import com.example.shippingapp.dto.OrderRespDTO;
 import com.example.shippingapp.dto.ResponseTemplateDTO;
-import com.example.shippingapp.dto.ResponseWithPagingDTO;
 
 import java.util.List;
 
@@ -36,11 +35,14 @@ public interface AuthService {
     @PUT("order/shipper/change-status")
     Call<ResponseTemplateDTO<Integer>> changeStatus(@Header("Authorization") String authorization, @Query("id") long id, @Query("status")Constant.OrderStatus status);
 
-    @GET("notify")
-    Call<ResponseTemplateDTO<ResponseWithPagingDTO<List<NotificationRespDTO>>>> getNotify(@Header("Authorization") String authorization, @Query("page") int page);
+    @GET("notify/v2")
+    Call<ResponseTemplateDTO<NotificationRespPaging>> getNotify(@Header("Authorization") String authorization, @Query("page") int page);
 
     @GET("notify/count-not-seen")
     Call<ResponseTemplateDTO<Integer>> getCountNotification(@Header("Authorization") String authorization);
+
+    @PUT("notify/seen/{id}")
+    Call<ResponseTemplateDTO<Integer>> setSeen(@Header("Authorization") String authorization, @Path("id") long id);
 
     @GET("carrier")
     Call<ResponseTemplateDTO<CarrierRespDTO>> getCarrierProfile(@Header("Authorization") String authorization);

@@ -16,7 +16,7 @@ const getDirectionUrl = (
   fromLocation: LongLatData,
   toLocation: LongLatData
 ) => {
-  return `https://api.mapbox.com/directions/v5/mapbox/cycling/${fromLocation.longtitude},${fromLocation.latitude};${toLocation.longtitude},${toLocation.latitude}?geometries=geojson&access_token=pk.eyJ1IjoibWFib25nIiwiYSI6ImNrMm9qN2tiYTEwc3ozZG41emx6bW9uZnQifQ.PhojWq3UwsAlPB7LBvJiTw`;
+  return `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${fromLocation.longtitude},${fromLocation.latitude};${toLocation.longtitude},${toLocation.latitude}?geometries=geojson&access_token=pk.eyJ1IjoibWFib25nIiwiYSI6ImNrMm9qN2tiYTEwc3ozZG41emx6bW9uZnQifQ.PhojWq3UwsAlPB7LBvJiTw`;
 };
 
 class MapService {

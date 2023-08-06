@@ -26,6 +26,8 @@ import accountService from '@Services/account.service';
 import Chip from '@mui/material/Chip';
 import { Link, useNavigate } from 'react-router-dom';
 import carrierService from '@Services/carrier.service';
+import { CarrierInfoManagerType } from '@Common/types';
+import { convertNumberToCurrency } from '@Helpers/data.optimize';
 
 const theme = createTheme({
   palette: {
@@ -40,7 +42,7 @@ interface TransportStaff {
   staffName: string,
   phoneNumber: string,
   ordersBeingDelivered: number,
-  debt: number,
+  debt: string,
   status: string
 }
 
@@ -433,16 +435,16 @@ function BasicTabs() {
     let map = new Map();
     let carrierList = res.data;
     let coordinatorList = res.data.filter((item: any) => item.role == "ROLE_COORDINATOR") || [];
-    carrierList.map((item: any, index: number) => {
+    carrierList.map((item: CarrierInfoManagerType, index: number) => {
       if (!item.name) item.name = "";
       if (!item.phoneNumber) item.phoneNumber = "";
       arr.push({
-        staffCode: item.id,
+        staffCode: `${item.id}`,
         staffName: item.name,
         phoneNumber: item.phoneNumber,
-        ordersBeingDelivered: 0,
-        debt: 0,
-        status: "Đang hoạt động"
+        ordersBeingDelivered: item.orderDelivering,
+        debt: convertNumberToCurrency(item.cashNotRefundYet),
+        status: item.statusDelivery ? "Đang hoạt động" : "Không hoạt động"
       });
       map.set(item.id, index)
     })

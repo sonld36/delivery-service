@@ -9,6 +9,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(uses = {IAddressMapper.class, ICustomerMapper.class, IAccountMapper.class})
 public interface IShopMapper {
     IShopMapper INSTANCE = Mappers.getMapper(IShopMapper.class);
@@ -22,4 +24,6 @@ public interface IShopMapper {
     ShopEntity fromPartnersToEntity(PartnersRegistrationDTO partnersRegistrationDTO);
 
     ShopDetailRespDTO fromEntityToDetailRespDTO(ShopEntity shopEntity);
+
+    List<ShopDetailRespDTO> fromEntitiesToDetailResponse(List<ShopEntity> shopEntities);
 }

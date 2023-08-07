@@ -47,13 +47,6 @@ public class ProductService implements IProductService {
             throw new ResponseException(MessageResponse.EXISTED, HttpStatus.BAD_REQUEST, Constans.Code.EXISTED.getCode());
         }
 
-        /**
-         * Kiểm tra giá nhập sản phẩm có nhỏ hơn giá bán ra hay không
-         * */
-
-        if (productCreateDTO.getEntryPrice() > productCreateDTO.getSalePrice()) {
-            throw new ResponseException(MessageResponse.VALUE_PASSED_INCORRECT, HttpStatus.BAD_REQUEST, Constans.Code.INVALID.getCode());
-        }
 
 
         /**

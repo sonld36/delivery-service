@@ -23,9 +23,6 @@ public class ProductCreateDTO {
     @Min(value = 0, message = "Price should be larger 0")
     private Integer salePrice;
 
-    @NotNull(message = "Product should be have entry price")
-    @Min(value = 0, message = "Price should be larger 0")
-    private Integer entryPrice;
 
     @NotNull(message = "Product should be have weight")
     @Min(value = 0, message = "Weight should be larger 0")

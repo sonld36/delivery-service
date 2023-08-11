@@ -37,27 +37,20 @@ function RecentOrder() {
 
 
 
-  // useEffect(() => {
-  //   const fetchDataOrder = async () => {
-  //     setLoading(true);
-  //     const resp: ResponseReceived<OrderDisplayPagingType> = await orderService.getOrderNewest(page);
-  //     const orders = resp.data.orders;
-  //     // const optimizeAddressForOrder = await Promise.all(orders.map(async (item) => {
-  //     //   const address = await provinceService.getAddress(item.address);
-  //     //   return {
-  //     //     ...item,
-  //     //     address: address,
-  //     //   }
-  //     }));
+  useEffect(() => {
+    const fetchDataOrder = async () => {
+      setLoading(true);
+      const resp: ResponseReceived<OrderDisplayPagingType> = await orderService.getOrderNewest(page);
+      const orders = resp.data.orders;
 
-  //     setLoading(false);
+      setLoading(false);
 
-  //     setData(optimizeAddressForOrder);
+      setData(orders);
 
-  //   };
+    };
 
-  //   fetchDataOrder();
-  // }, [page]);
+    fetchDataOrder();
+  }, [page]);
 
   const handleOpenDrawer = (params: any) => {
     if (params.field !== "actions") {

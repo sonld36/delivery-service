@@ -22,6 +22,8 @@ public class Constans {
         REFUNDS("Hoàn đơn"),
 
         CANCEL("Hủy đơn"),
+
+        RETURN("Trả đơn"),
         DONE("Hoàn thành");
 
         private String status;
@@ -93,7 +95,7 @@ public class Constans {
 
         ORDER_WAS_ASSIGNED(4009),
 
-
+        ORDER_NOT_CANCEL(4010);
 
 
         ;

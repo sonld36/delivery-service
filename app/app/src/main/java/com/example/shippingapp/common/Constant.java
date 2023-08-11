@@ -8,7 +8,8 @@ public class Constant {
         BEING_TRANSPORTED("Đang vận chuyển"),
         DELIVERY_SUCCESSFUL("Giao hàng thành công"),
         REFUNDS("Hoàn đơn"),
-
+        CANCEL("Hủy đơn"),
+        RETURN("Trả đơn"),
         DONE("Đã hoàn tiền")
         ;
 

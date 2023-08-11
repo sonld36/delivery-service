@@ -52,4 +52,7 @@ public class CarrierEntity {
     @Column(name = "number_reject_order")
     private Integer numberRejectOrder;
 
+    @Column(name = "distance_in_km")
+    private transient Double distance;
+
 }

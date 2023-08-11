@@ -65,7 +65,7 @@ public interface IOrderService {
     OrderRespInfDetailDTO findOrderRespInfDetailById(Long orderId);
 
 
-    Integer cancelOrder(Long orderId);
+    Integer cancelOrder(Long orderId) throws JsonProcessingException;
 
     List<OrderRespDTO> getOrderByDateAndCarrierId(String date, Long id) throws ParseException;
 
@@ -89,7 +89,7 @@ public interface IOrderService {
 
     List<OrderEntity> getByCarrierIdAndListStatus(long carrierId, List<Constans.OrderStatus> statuses);
 
-    int takeOrder(long orderId);
+    int takeOrder(long orderId) throws JsonProcessingException;
 
     List<CountOrderByRangeDateDTO> getInAWeekByCarrier();
 

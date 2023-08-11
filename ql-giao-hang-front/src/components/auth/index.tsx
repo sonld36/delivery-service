@@ -16,11 +16,10 @@ const theme = createTheme();
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props} sx={{ mb: 5 }}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://www.sapo.vn/">
-        Sapo Company
+      {'Tải app dành cho nhân viên giao hàng '}
+      <Link color="inherit" href="https://drive.google.com/drive/folders/1NerwMuN-TWjtF0ewXI59581qMPe8RryD?usp=sharing">
+        Tại đây
       </Link>{' '}
-      {new Date().getFullYear()}
       {'.'}
     </Typography>
   );

@@ -1,11 +1,8 @@
 import { AppDispatch } from "@App/store";
-import { openToast } from "@Features/toast/toastSlice";
-import { stompClient } from "@Services/socket.service";
-import { OrderLogTopic, SocketTopic } from "./const";
-import { status } from "./toast.const";
-import { OrderDisplayType, OrderLogType, SocketMessageFormat } from "./types";
-import { addOrder } from "@Features/order/orderSlice";
 import { addNewLog } from "@Features/log/logSlice";
+import stompClient from "@Services/socket.service";
+import { OrderLogTopic, SocketTopic } from "./const";
+import { OrderLogType } from "./types";
 
 export const roles = {
   ROLE_SHOP: "ROLE_SHOP",

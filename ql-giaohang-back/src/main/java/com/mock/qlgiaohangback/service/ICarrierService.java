@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface ICarrierService {
     CarrierEntity createCarrier(CarrierCreateDTO carrierCreateDTO);
+    CarrierEntity save(CarrierEntity carrier);
 
     CarrierRespDTO getCurrentCarrier();
 

@@ -7,12 +7,15 @@ import com.mock.qlgiaohangback.dto.user.AccountLoginDTO;
 import com.mock.qlgiaohangback.dto.user.AccountRegisterDTO;
 import com.mock.qlgiaohangback.dto.user.AccountRespDTO;
 import com.mock.qlgiaohangback.entity.AccountEntity;
+import com.mock.qlgiaohangback.entity.CarrierEntity;
 import com.mock.qlgiaohangback.entity.RoleEntity;
 import com.mock.qlgiaohangback.exception.ResponseException;
 import com.mock.qlgiaohangback.mapper.IAccountMapper;
 import com.mock.qlgiaohangback.repository.AccountRepository;
+import com.mock.qlgiaohangback.repository.CarrierRepository;
 import com.mock.qlgiaohangback.service.IAccountService;
 import com.mock.qlgiaohangback.service.IAuthenticationService;
+import com.mock.qlgiaohangback.service.ICarrierService;
 import com.mock.qlgiaohangback.service.IRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class AuthenticationService implements IAuthenticationService {
     private final JwtTokenUtil jwtTokenUtil;
 
     private final IRoleService roleService;
+    private final CarrierRepository carrierRepository;
 
     @Override
     public Map<String, Object> login(AccountLoginDTO userLogin) {
@@ -104,9 +109,18 @@ public class AuthenticationService implements IAuthenticationService {
         user.setName(registerDTO.getName());
         user.setPhoneNumber(registerDTO.getPhoneNumber());
         RoleEntity role = this.roleService.getByName(roleParam);
-
+        AccountEntity account = this.userService.saveAccount(user);
         user.setRole(role);
-
-        return IAccountMapper.INSTANCE.toResponseDTO(this.userService.saveAccount(user));
+        if (Objects.equals(role.getName(), Constans.Roles.ROLE_CARRIER.name())) {
+            CarrierEntity carrier = new CarrierEntity();
+            carrier.setAvailable(true);
+            carrier.setName(registerDTO.getName());
+            carrier.setPhoneNumber(registerDTO.getPhoneNumber());
+            carrier.setAccount(account);
+            carrier.setNumberAcceptOrder(0);
+            carrier.setNumberRejectOrder(0);
+            this.carrierRepository.save(carrier);
+        }
+        return IAccountMapper.INSTANCE.toResponseDTO(account);
     }
 }

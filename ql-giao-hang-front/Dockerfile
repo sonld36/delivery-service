@@ -2,14 +2,16 @@
 # Use a Node 16 base image
 FROM node:16-alpine 
 # Set the working directory to /app inside the container
-WORKDIR /ql-giao-hang-front
+WORKDIR /app
 # Copy app files
-COPY . .
+COPY package.json package-lock.json ./
 # ==== BUILD =====
 # Install dependencies (npm ci makes sure the exact versions in the lockfile gets installed)
-RUN npm install 
+RUN npm install --legacy-peer-deps
+COPY src/ /app/src
+COPY . .
 # Build the app
-RUN npm run build
+#RUN npm run build
 # ==== RUN =======
 # Set the env to "production"
 #ENV NODE_ENV production

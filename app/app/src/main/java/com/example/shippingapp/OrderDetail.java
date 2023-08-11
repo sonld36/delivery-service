@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +29,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class OrderDetail extends AppCompatActivity {
-
+    private TextView nameFrom;
     private TextView addressFrom;
     private TextView nameDes;
     private TextView addressDes;
@@ -52,6 +53,7 @@ public class OrderDetail extends AppCompatActivity {
 
     private ImageButton directionFrom;
     private ImageButton directionDes;
+    private ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,9 +61,11 @@ public class OrderDetail extends AppCompatActivity {
         token = HomePage.token;
         Intent intent = getIntent();
         long orderId = (long) intent.getSerializableExtra("order_id");
+        progressBar = findViewById(R.id.loading_order_detail);
+        progressBar.setVisibility(View.INVISIBLE);
 
         getOrderById(orderId);
-
+        nameFrom = findViewById(R.id.name_from);
         addressFrom = findViewById(R.id.address_detail_order_from);
         nameDes = findViewById(R.id.name_des);
         addressDes = findViewById(R.id.address_des);
@@ -73,6 +77,7 @@ public class OrderDetail extends AppCompatActivity {
         changeStatusButton = findViewById(R.id.change_status);
         directionFrom = findViewById(R.id.detail_address_from);
         directionDes = findViewById(R.id.detail_address_des);
+
     }
 
     private void setStatusForButton() {
@@ -85,14 +90,20 @@ public class OrderDetail extends AppCompatActivity {
         } else if (order.getStatus().equals(Constant.OrderStatus.DONE.name())) {
             changeStatusButton.setText("Đã hoàn tiền");
             changeStatusButton.setEnabled(false);
+        } else if (order.getStatus().equals(Constant.OrderStatus.RETURN.name())) {
+            changeStatusButton.setText("Đã hoàn đơn hủy giao");
+            changeStatusButton.setEnabled(false);
         } else if (order.getStatus().equals(Constant.OrderStatus.REQUEST_SHIPPING.name()) && order.getCarrierId() == null) {
             changeStatusButton.setText("Nhận đơn");
             changeStatusButton.setOnClickListener(new View.OnClickListener() {
+                ProgressBar loading = getProgressBar();
                 @Override
                 public void onClick(View v) {
+                    loading.setVisibility(View.VISIBLE);
                     AuthService.authService.acceptOrder(token, order.getId()).enqueue(new Callback<ResponseTemplateDTO<Integer>>() {
                         @Override
                         public void onResponse(Call<ResponseTemplateDTO<Integer>> call, Response<ResponseTemplateDTO<Integer>> response) {
+                            loading.setVisibility(View.INVISIBLE);
                             assert response.body() != null;
                             if (response.body().getCode().intValue() == 4009) {
                                 Toast.makeText(OrderDetail.this, "Đơn hàng đã được nhận bởi người khác", Toast.LENGTH_SHORT).show();
@@ -130,11 +141,15 @@ public class OrderDetail extends AppCompatActivity {
             });
 
             changeStatusButton.setOnClickListener(new View.OnClickListener() {
+                ProgressBar loading = getProgressBar();
                 @Override
                 public void onClick(View v) {
+                    loading.setVisibility(View.VISIBLE);
                     AuthService.authService.changeStatus(token, order.getId(), statusNext).enqueue(new Callback<ResponseTemplateDTO<Integer>>() {
                         @Override
                         public void onResponse(Call<ResponseTemplateDTO<Integer>> call, Response<ResponseTemplateDTO<Integer>> response) {
+
+                            loading.setVisibility(View.INVISIBLE);
                             Toast.makeText(OrderDetail.this, "Thay đổi trạng thái đơn thành công", Toast.LENGTH_SHORT).show();
                             order.setStatus(statusNext.name());
                             setStatusForButton();
@@ -142,6 +157,7 @@ public class OrderDetail extends AppCompatActivity {
 
                         @Override
                         public void onFailure(Call<ResponseTemplateDTO<Integer>> call, Throwable t) {
+                            loading.setVisibility(View.INVISIBLE);
                             Toast.makeText(OrderDetail.this, "Thay đổi trạng thái đơn thất bại", Toast.LENGTH_SHORT).show();
 
                         }
@@ -153,12 +169,15 @@ public class OrderDetail extends AppCompatActivity {
 
 
     private void getOrderById(long id) {
+        progressBar.setVisibility(View.VISIBLE);
         AuthService.authService.getOrderById(token, id).enqueue(new Callback<ResponseTemplateDTO<OrderRespDTO>>() {
             @Override
             public void onResponse(Call<ResponseTemplateDTO<OrderRespDTO>> call, Response<ResponseTemplateDTO<OrderRespDTO>> response) {
+                progressBar.setVisibility(View.INVISIBLE);
                 Locale locale = new Locale("vi", "VN");
                 NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
                 order = response.body().getData();
+                nameFrom.setText(order.getShop().getName() != null ? order.getShop().getName() : order.getShop().getUsername());
                 addressFrom.setText(order.getFromAddress());
                 nameDes.setText(order.getCustomer().getName());
                 addressDes.setText(order.getDestinationAddress());
@@ -199,5 +218,10 @@ public class OrderDetail extends AppCompatActivity {
 
     public void handleBackToHome(View view) {
         finish();
+    }
+
+
+    public ProgressBar getProgressBar() {
+        return progressBar;
     }
 }

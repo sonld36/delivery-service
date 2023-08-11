@@ -123,6 +123,7 @@ function OrderDetail(props: { maVanDon: number, setReload: any }) {
                             deliveryId: item.id,
                             deliveryName: item.name,
                             deliveryPhone: item.phoneNumber,
+                            distance: item.distance
                         }) as Deliverier);
 
                         setDeliverierList(optimize)
@@ -233,11 +234,16 @@ function OrderDetail(props: { maVanDon: number, setReload: any }) {
                                                             setDeliverierInfTemp(deliverierInfTemp)
                                                         }}
                                                         value={deliverierInfTemp}
-                                                        getOptionLabel={(options) => options.deliveryName}
+                                                        getOptionLabel={(options) => `${options.deliveryName} ${options.distance?.toFixed(2) ? `- ${options.distance?.toFixed(2)}km` : ""} `}
                                                         options={deliverierList}
                                                         sx={{ padding: "0px" }}
-                                                        renderInput={(params) =>
-                                                            <TextField sx={{ padding: "0px", borderRadius: "5px" }} {...params} />} />
+                                                        renderInput={(params) => {
+                                                            return <TextField sx={{ padding: "0px", borderRadius: "5px" }} {...params} />
+
+                                                        }
+
+                                                        }
+                                                    />
                                                 </Grid>
                                                 <Grid item xs={6} direction="column" sx={{ pr: "28px" }}>
                                                     <TypoInfModalLabel> Mã NV giao hàng </TypoInfModalLabel>

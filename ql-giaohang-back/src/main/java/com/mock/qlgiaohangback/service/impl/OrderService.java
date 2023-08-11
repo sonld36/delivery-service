@@ -88,7 +88,7 @@ public class OrderService implements IOrderService {
     public OrderRespDTO getOrderById(Long id) {
         OrderEntity orderEntity = this.orderRepository.findOrderEntityById(id);
         OrderRespDTO order = IOrderMapper.INSTANCE.toOrderRespDTO(orderEntity);
-        if (orderEntity.getStatus().equals(Constans.OrderStatus.PICKING_UP_GOODS)) {
+        if (Arrays.asList(Constans.OrderStatus.PICKING_UP_GOODS, Constans.OrderStatus.BEING_TRANSPORTED, Constans.OrderStatus.CANCEL).contains(order.getStatus())) {
             CarrierEntity carrierEntity = orderEntity.getCarrier();
             order.setCurrentLat(carrierEntity.getLatitudeNewest());
             order.setCurrentLong(carrierEntity.getLongitudeNewest());
@@ -251,7 +251,8 @@ public class OrderService implements IOrderService {
         if (status.equals(Constans.OrderStatus.DELIVERY_SUCCESSFUL) || status.equals(Constans.OrderStatus.REFUNDS)) {
             oldOrder.setCompletedAt(new Date());
         }
-        this.orderRepository.save(oldOrder);
+        OrderEntity order = this.orderRepository.save(oldOrder);
+        this.orderLogService.save(IOrderMapper.INSTANCE.toOrderRespDTO(order), Constans.OrderLogAction.ORDER_LOG_ACTION_UPDATED);
         this.carrierService.updateAvailable(oldOrder.getCarrier().getId());
 
         return 1;
@@ -278,16 +279,18 @@ public class OrderService implements IOrderService {
                 StringUtils.lowerCase(Constans.SocketTopic.NOTIFY.name()) +
                 "/3";
 
-        carrierEntities.forEach((item) -> {
-            String topic = StringHelper.getSocketTopic(Constans.SocketTopic.REQUEST_SHIPPING).concat("/" + item.getAccountId());
-            try {
-                this.notificationService.createNotify(topic,
-                        ResponseHandler.generateResponseSocket(MessageResponse.JUST_ASSIGN_CARRIER, orderRespDTO.getId()), this.accountService.getAccountById(item.getAccountId()), shop.getAccount(), Constans.SocketTopic.REQUEST_SHIPPING
-                        );
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        if (carrierEntities != null) {
+            carrierEntities.forEach((item) -> {
+                String topic = StringHelper.getSocketTopic(Constans.SocketTopic.REQUEST_SHIPPING).concat("/" + item.getAccountId());
+                try {
+                    this.notificationService.createNotify(topic,
+                            ResponseHandler.generateResponseSocket(MessageResponse.JUST_ASSIGN_CARRIER, orderRespDTO.getId()), this.accountService.getAccountById(item.getAccountId()), shop.getAccount(), Constans.SocketTopic.REQUEST_SHIPPING
+                    );
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
         String message = MessageResponse.JUST_CREATED_ORDER + shop.getAccount().getName();
         AccountEntity destination = this.accountService.getAccountsByRole(Constans.Roles.ROLE_COORDINATOR, 1).getContent().get(0);
         this.orderLogService.save(orderRespDTO, Constans.OrderLogAction.ORDER_LOG_ACTION_CREATED);
@@ -336,7 +339,7 @@ public class OrderService implements IOrderService {
         if (pageIndex < 1) {
             throw new ResponseException(MessageResponse.VALUE_PASSED_INCORRECT, HttpStatus.BAD_REQUEST, Constans.Code.INVALID.getCode());
         }
-        Page<OrderEntity> ordersPaging = this.orderRepository.findAll(PageRequest.of(pageIndex - 1, Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())));
+        Page<OrderEntity> ordersPaging = this.orderRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(pageIndex - 1, Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())));
         List<OrderEntity> orderEntities = ordersPaging.getContent();
         //convert to dto
         List<OrderRespodieuphoiGeneralDTO> orders = new ArrayList<>();
@@ -369,7 +372,7 @@ public class OrderService implements IOrderService {
         if (pageIndex < 1) {
             throw new ResponseException(MessageResponse.VALUE_PASSED_INCORRECT, HttpStatus.BAD_REQUEST, Constans.Code.INVALID.getCode());
         }
-        Page<OrderEntity> ordersPaging = this.orderRepository.findAllByStatus(status, PageRequest.of(pageIndex - 1, Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())));
+        Page<OrderEntity> ordersPaging = this.orderRepository.findAllByStatusOrderByCreatedAtDesc(status, PageRequest.of(pageIndex - 1, Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())));
         List<OrderEntity> orderEntities = ordersPaging.getContent();
         //convert to dto
         List<OrderRespodieuphoiGeneralDTO> orders = new ArrayList<>();
@@ -454,7 +457,7 @@ public class OrderService implements IOrderService {
 //                StringUtils.lowerCase(Constans.SocketTopic.NOTIFY.name()) +
 //                "/3";
         String topic = "/" +
-                StringUtils.lowerCase(Constans.SocketTopic.NOTIFY.name()) + "/order-request/" + carrierId;
+                StringUtils.lowerCase(Constans.SocketTopic.NOTIFY.name()) + "/order-request/" + carrier.getAccount().getId();
         String message = MessageResponse.JUST_ASSIGN_CARRIER + "#" + orderId;
         this.notificationService.createNotify(topic,
                 ResponseHandler.generateResponseSocket(message, IOrderMapper.INSTANCE.toOrderRespDTO(orderEntity)),
@@ -492,9 +495,9 @@ public class OrderService implements IOrderService {
 
     @Override
     public Integer getPageByOrderId(long orderId) {
-        int index = this.orderRepository.getIndexOfEntity(orderId);
-
-        return (index / Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())) + 1;
+        int index = this.orderRepository.getIndexOfEntity(orderId) + 1;
+        long totalRecord = this.orderRepository.countAllOrder();
+        return (Integer.parseInt(String.valueOf((totalRecord - index)))/ Integer.parseInt(Constans.CommonConstant.SIZE_PAGE.getSomeThing().toString())) + 1;
     }
 
     @Override
@@ -504,7 +507,7 @@ public class OrderService implements IOrderService {
 
     @Override
     @Transactional
-    public int takeOrder(long orderId) {
+    public int takeOrder(long orderId) throws JsonProcessingException {
         AccountEntity account = this.accountService.getCurrentAccount();
         CarrierEntity carrier = this.carrierService.getCarrierByAccountId(account.getId());
 //        if (!this.carrierService.checkCarrierCanTakeOrder(carrier.getId())) {
@@ -525,8 +528,10 @@ public class OrderService implements IOrderService {
         CarrierEntity carrierUpdated = this.carrierService.updateCarrier(carrier);
 
         orderEntity.setCarrier(carrierUpdated);
+
         orderEntity.setStatus(Constans.OrderStatus.PICKING_UP_GOODS);
-        this.orderRepository.save(orderEntity);
+        OrderEntity order = this.orderRepository.save(orderEntity);
+        this.orderLogService.save(IOrderMapper.INSTANCE.toOrderRespDTO(order), Constans.OrderLogAction.ORDER_LOG_ACTION_UPDATED);
         this.carrierService.updateAvailable(carrier.getId());
 
         return 1;
@@ -557,10 +562,28 @@ public class OrderService implements IOrderService {
 
 
     @Override
-    public Integer cancelOrder(Long orderId) {
+    public Integer cancelOrder(Long orderId) throws JsonProcessingException {
+        ShopEntity shop = this.shopService.getShopLoggedIn();
         OrderEntity orderEntity = this.orderRepository.findOrderEntityById(orderId);
+        List<Constans.OrderStatus> statuses = Arrays.asList(Constans.OrderStatus.DONE,
+                Constans.OrderStatus.DELIVERY_SUCCESSFUL,
+                Constans.OrderStatus.RETURN,
+                Constans.OrderStatus.REFUNDS,
+                Constans.OrderStatus.CANCEL);
+        if (statuses.contains(orderEntity.getStatus())) {
+            throw new ResponseException(MessageResponse.ORDER_NOT_CANCEL, HttpStatus.BAD_REQUEST, Constans.Code.ORDER_NOT_CANCEL.getCode());
+        }
         orderEntity.setStatus(Constans.OrderStatus.CANCEL);
         this.orderRepository.save(orderEntity);
+        if (orderEntity.getCarrier() != null) {
+            CarrierEntity carrier = orderEntity.getCarrier();
+            String topic = "/" +
+                    StringUtils.lowerCase(Constans.SocketTopic.NOTIFY.name()) + "/order-cancel/" + carrier.getAccount().getId();
+            String message = MessageResponse.CANCEL_ORDER + ", mã đơn #" + orderId;
+            this.notificationService.createNotify(topic,
+                    ResponseHandler.generateResponseSocket(message, orderEntity.getId()),
+                    this.accountService.getAccountById(carrier.getAccount().getId()), shop.getAccount(), Constans.SocketTopic.NOTIFY);
+        }
         return 1;
     }
 

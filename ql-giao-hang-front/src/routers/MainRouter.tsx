@@ -1,61 +1,53 @@
 import Login from "@Components/auth/Login";
 import Register from "@Components/auth/Register";
+import CODBill from "@Components/custom-manage/CODBill";
+import CustomerInfo from "@Components/custom-manage/CustomerInfo";
+import CustomerRegisterApply from "@Components/custom-manage/CustomerRegisterApply";
+import CustomerRegisterList from "@Components/custom-manage/CustomerRegisterList";
 import Dashboard from "@Components/dashboard/Dashboard";
 import CreateNewProduct from "@Components/dashboard/shop/CreateNewProduct";
-import CustomerList from "@Components/custom-manage/CustomerList";
-import CustomerRegisterList from "@Components/custom-manage/CustomerRegisterList";
-import CustomerInfo from "@Components/custom-manage/CustomerInfo";
 import ShopOverview from "@Components/dashboard/shop/OverviewPage";
 import ShopSidebar, { shopLink } from "@Components/dashboard/shop/Sidebar";
-import ShipManagementSidebar from "@Components/ship-manage/Sidebar";
 import CreateNewOrder from "@Components/order/CreateNewOrder";
-import Toast from "@Features/toast/Toast";
+import ShipManagementSidebar from "@Components/ship-manage/Sidebar";
 import OrderMoneyManagement from "@Components/staff-manage/OrderMoneyManage";
-import StaffRegister from "@Components/staff-manage/StaffRegister";
 import StaffList from "@Components/staff-manage/StaffList";
-import CustomerRegisterApply from "@Components/custom-manage/CustomerRegisterApply";
-import CODBill from "@Components/custom-manage/CODBill";
+import StaffRegister from "@Components/staff-manage/StaffRegister";
+import Toast from "@Features/toast/Toast";
 //Import for coordinator
-import General from "@Components/coordinator/general/General";
-import Quanlydonhang from "@Components/coordinator/quanlydonhang/Quanlydonhang";
 import CoordinatorSidebar, { orderManageLinks } from "@Components/coordinator/CoordinatorSidebar/CoordinatorSidebar";
+import General from "@Components/coordinator/general/General";
 import QuanlyNVgiaohang from "@Components/coordinator/quanlydonhang/QuanlyNVgiaohang";
+import Quanlydonhang from "@Components/coordinator/quanlydonhang/Quanlydonhang";
 
-import Homepage from "@Components/shipper/Homepage/Homepage";
-import Transport from "@Components/shipper/Transport/Transport";
-import Detail from "@Components/shipper/Detail/Detail";
 import Account from "@Components/shipper/Account/Account";
+import Detail from "@Components/shipper/Detail/Detail";
+import Homepage from "@Components/shipper/Homepage/Homepage";
 import ListOrderByStatus from "@Components/shipper/ListOrderByStatus/ListOrderByStatus";
+import Transport from "@Components/shipper/Transport/Transport";
 import UpdateShipperInfo from "@Components/shipper/UpdateShipperInfo/UpdateShipperInfo";
 // import Notification from "@Components/shipper/Notification/Notification";
-import {
-  BrowserRouter as Router, Outlet, Route, Routes
-} from "react-router-dom";
+import { useAppSelector } from "@App/hook";
+import AuthVerify from "@Common/auth-verify";
+import AccessDenied from "@Components/AccessDenied";
+import Profile from "@Components/Profile";
+import Overview from "@Components/custom-manage/Overview";
+import OrderControl from "@Components/dashboard/shop/OrderControl";
 import ProductList from "@Components/dashboard/shop/ProductList";
-import { useAppDispatch, useAppSelector } from "@App/hook";
+import ShopCustomerList from "@Components/dashboard/shop/ShopCustomerList";
+import OrderList from "@Components/order/OrderList";
+import Customer from "@Components/ship-manage/Customer";
 import { selectUser } from "@Features/user/userSlice";
+import {
+  Outlet, Route,
+  BrowserRouter as Router,
+  Routes
+} from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import RedirectRoute from "./RedirectRoute";
-import AuthVerify from "@Common/auth-verify";
-import OrderList from "@Components/order/OrderList";
-import ShopCustomerList from "@Components/dashboard/shop/ShopCustomerList";
-import Profile from "@Components/Profile";
-import AccessDenied from "@Components/AccessDenied";
-import OrderControl from "@Components/dashboard/shop/OrderControl";
-import { useCallback, useEffect } from "react";
-import { stompClient } from "@Services/socket.service";
-import { SocketSubcribe, roles } from "@Common/socket.subcribe";
-import { SocketTopic } from "@Common/const";
-import { SocketMessageFormat } from "@Common/types";
-import { openToast } from "@Features/toast/toastSlice";
-import { status } from "@Common/toast.const";
-import { fetchOrderWithPaging, selectOrder } from "@Features/order/orderSlice";
-import Overview from "@Components/custom-manage/Overview";
-import Customer from "@Components/ship-manage/Customer";
 
 export default function MainRouter() {
   const auth = useAppSelector(selectUser);
-  const dispatch = useAppDispatch();
 
   const { user } = auth;
 
@@ -67,34 +59,7 @@ export default function MainRouter() {
   //   dispatch(fetchOrderWithPaging(1));
   // }, [])
 
-  const subcribeSocket = useCallback(() => {
-    switch (user.role) {
-      case roles.ROLE_COORDINATOR:
-        return SocketSubcribe[roles.ROLE_COORDINATOR](dispatch);
-    }
-  }, [user, dispatch]);
 
-  useEffect(() => {
-    stompClient.connect({}, function () {
-      stompClient.subscribe(
-        `/${SocketTopic.NOTIFY}`,
-        (message) => {
-          const resp: SocketMessageFormat<string | null> = JSON.parse(
-            message.body
-          );
-          dispatch(
-            openToast({
-              open: true,
-              message: resp.message,
-              status: status.INFO,
-            })
-          );
-        }
-      );
-
-      subcribeSocket();
-    });
-  }, [dispatch, subcribeSocket]);
 
   return (
     <>

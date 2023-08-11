@@ -31,4 +31,5 @@ public class CarrierToRecommendDTO {
     private double orderAcceptRating;
 
     private double weightAverage;
+    private double distance;
 }

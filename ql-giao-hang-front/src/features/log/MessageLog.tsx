@@ -20,7 +20,7 @@ function MessageLog(props: Props) {
     case OrderLogAction.ORDER_LOG_ACTION_UPDATED: {
       return (<Typography variant='caption'>{item.account.name} thay đổi trạng thái đơn hàng <Link to={`quan-ly-don-hang/tat-ca?order=${item.order.id}`}>#{
         item.order.id
-      }</Link> thành {orderStatus[item.toStatus]}</Typography>)
+      }</Link> thành <Typography fontWeight={"bold"} variant='inherit'>{orderStatus[item.toStatus]}</Typography></Typography>)
     }
     default:
       return (<Typography variant='caption'>{item.account.name} hủy đơn hàng <Link to={`quan-ly-don-hang/tat-ca?order=${item.order.id}`}>#{

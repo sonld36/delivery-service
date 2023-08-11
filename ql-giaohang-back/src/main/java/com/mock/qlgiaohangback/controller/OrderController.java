@@ -35,8 +35,9 @@ public class OrderController  {
                 this.orderService.createOrder(orderCreateDTO));
     }
 
+
     @PutMapping(value = "/take-order/{id}")
-    public ResponseEntity carrierTakeOrder(@PathVariable("id") long orderId) {
+    public ResponseEntity carrierTakeOrder(@PathVariable("id") long orderId) throws JsonProcessingException {
         return ResponseHandler.generateResponse(MessageResponse.UPDATE_SUCCESS,
                 Constans.Code.TAKE_A_ORDER_SUCCESSFUL.getCode(),
                 HttpStatus.OK,
@@ -282,7 +283,7 @@ public class OrderController  {
 
     @Secured(value = {"ROLE_COORDINATOR", "ROLE_SHOP"} )
     @DeleteMapping("/{id}")
-    public ResponseEntity cancelOrder(@PathVariable Long id) {
+    public ResponseEntity cancelOrder(@PathVariable Long id) throws JsonProcessingException {
         return ResponseHandler.generateResponse(MessageResponse.DELETE_SUCCESS,
                 Constans.Code.DELETE_SUCCESSFUL.getCode(),
                 HttpStatus.ACCEPTED,

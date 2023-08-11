@@ -1,8 +1,11 @@
 package com.example.shippingapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
-import android.location.Location;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.shippingapp.common.Constant;
@@ -24,14 +28,19 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.JsonObject;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,9 +55,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Double longitude;
     private Double latitude;
 
-    private Location curLocation;
-
     private CoordinatorLayout coordinatorLayout;
+    private LatLng start;
+    private LatLng end;
+    Locale locale = new Locale("vi", "VN");
+    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
 
 
     @Override
@@ -121,11 +132,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
             fromAddress.setText(orderRespDTO.getFromAddress());
             desAddress.setText(orderRespDTO.getDestinationAddress());
-            shipFee.setText(Double.toString(orderRespDTO.getShipFee()));
+            shipFee.setText(currencyFormat.format(orderRespDTO.getShipFee()));
         } else {
-            decline.setEnabled(false);
-            accept.setEnabled(false);
             coordinatorLayout = findViewById(R.id.coordinator);
+            binding.getRoot().findViewById(R.id.invi2).setVisibility(View.INVISIBLE);
+            binding.getRoot().findViewById(R.id.invi1).setVisibility(View.INVISIBLE);
+            binding.getRoot().findViewById(R.id.invi3).setVisibility(View.INVISIBLE);
+            decline.setText("Quay lại");
+            decline.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+
+            accept.setText("Cập nhật vị trí");
+            accept.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    displayPolyline();
+                }
+            });
             coordinatorLayout.setVisibility(View.INVISIBLE);
         }
 
@@ -149,110 +176,104 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         // Add a marker in Sydney and move the camera
         if (longitude != null || latitude != null) {
-            LatLng end = new LatLng(latitude, longitude);
-            LatLng start = new LatLng(HomePage.updateLocationDTO.getLatitude(),HomePage.updateLocationDTO.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(end));
-            mMap.addMarker(new MarkerOptions().position(start).title("Vị trí hiện tại"));
-            GoogleMapService.mapService.getDirectionV2(start.longitude + "," + start.latitude + ";" +
-                    end.longitude + "," + end.latitude).enqueue(new Callback<JsonObject>() {
-                @Override
-                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                    List<List<HashMap<String,String>>> geometric = MapDataParser.parse(response.body());
-                    Double duration = ((JsonObject) response.body().getAsJsonArray("routes").get(0)).get("duration_typical").getAsDouble();
-                    Double distance = ((JsonObject) response.body().getAsJsonArray("routes").get(0)).get("distance").getAsDouble();
-                    coordinatorLayout = findViewById(R.id.coordinator);
-                    TextView distanceText = coordinatorLayout.findViewById(R.id.distance);
-                    TextView durationText = coordinatorLayout.findViewById(R.id.time);
-                    distanceText.setText(Double.toString((distance/1000)) + " km");
-                    durationText.setText(Double.toString(duration/60) + " phút");
-                    coordinatorLayout.setVisibility(View.VISIBLE);
-
-                    ArrayList<LatLng> points;
-                    PolylineOptions lineOptions = null;
-
-                    for (int i = 0; i < geometric.size(); i++) {
-                        points = new ArrayList<>();
-                        lineOptions = new PolylineOptions();
-
-                        List<HashMap<String, String>> path = geometric.get(i);
-
-                        for (int j = 0; j < path.size(); j++) {
-                            HashMap<String, String> point = path.get(j);
-                            double lat = Double.parseDouble(point.get("lat"));
-                            double lng = Double.parseDouble(point.get("lng"));
-                            LatLng position = new LatLng(lat, lng);
-                            points.add(position);
-                        }
-
-                        lineOptions.addAll(points);
-                        lineOptions.width(20);
-                        lineOptions.color(Color.GREEN);
-                    }
-                    if(lineOptions != null) {
-                        mMap.addPolyline(lineOptions);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
-
-                }
-            });
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15.0f));
+            end = new LatLng(latitude, longitude);
+            start = new LatLng(HomePage.updateLocationDTO.getLatitude(),HomePage.updateLocationDTO.getLongitude());
+            displayPolyline();
 
         } else {
-//            Polyline line = mMap.addPolyline(new PolylineOptions()
-//                    .add(new LatLng(orderRespDTO.getDestinationLat(),orderRespDTO.getDestinationLongitude()), new LatLng(orderRespDTO.getShop().getLatitude(),orderRespDTO.getShop().getLongitude()))
-//                    .addSpan(new StyleSpan(Color.RED))
-//                    .addSpan(new StyleSpan(Color.GREEN)));
-            GoogleMapService.mapService.getDirectionV2(orderRespDTO.getShop().getLongitude() + "," + orderRespDTO.getShop().getLatitude() + ";" +
-                    orderRespDTO.getDestinationLongitude() + "," + orderRespDTO.getDestinationLat()).enqueue(new Callback<JsonObject>() {
-                @Override
-                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                    List<List<HashMap<String,String>>> geometric = MapDataParser.parse(response.body());
-                    Double duration = ((JsonObject) response.body().getAsJsonArray("routes").get(0)).get("duration_typical").getAsDouble();
-                    Double distance = ((JsonObject) response.body().getAsJsonArray("routes").get(0)).get("distance").getAsDouble();
-                    coordinatorLayout = findViewById(R.id.coordinator);
-                    TextView distanceText = coordinatorLayout.findViewById(R.id.distance);
-                    TextView durationText = coordinatorLayout.findViewById(R.id.time);
-                    distanceText.setText(Double.toString((distance/1000)) + " km");
-                    durationText.setText(Double.toString(duration/60) + " phút");
-                    coordinatorLayout.setVisibility(View.VISIBLE);
-
-                    ArrayList<LatLng> points;
-                    PolylineOptions lineOptions = null;
-
-                    for (int i = 0; i < geometric.size(); i++) {
-                        points = new ArrayList<>();
-                        lineOptions = new PolylineOptions();
-
-                        List<HashMap<String, String>> path = geometric.get(i);
-
-                        for (int j = 0; j < path.size(); j++) {
-                            HashMap<String, String> point = path.get(j);
-                            double lat = Double.parseDouble(point.get("lat"));
-                            double lng = Double.parseDouble(point.get("lng"));
-                            LatLng position = new LatLng(lat, lng);
-                            points.add(position);
-                        }
-
-                        lineOptions.addAll(points);
-                        lineOptions.width(20);
-                        lineOptions.color(Color.GREEN);
-                    }
-                    if(lineOptions != null) {
-                        mMap.addPolyline(lineOptions);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
-
-                }
-            });
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(orderRespDTO.getDestinationLat(),orderRespDTO.getDestinationLongitude())));
+            start = new LatLng(orderRespDTO.getShop().getLatitude(), orderRespDTO.getShop().getLongitude());
+            end = new LatLng(orderRespDTO.getDestinationLat(), orderRespDTO.getShop().getLongitude());
+            displayPolyline();
         }
+    }
+
+    private BitmapDescriptor
+    BitmapFromVector(Context context, int vectorResId)
+    {
+        // below line is use to generate a drawable.
+        Drawable vectorDrawable = ContextCompat.getDrawable(
+                context, vectorResId);
+
+        // below line is use to set bounds to our vector
+        // drawable.
+        vectorDrawable.setBounds(
+                0, 0, vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight());
+
+        // below line is use to create a bitmap for our
+        // drawable which we have added.
+        Bitmap bitmap = Bitmap.createBitmap(
+                vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(),
+                Bitmap.Config.ARGB_8888);
+
+        // below line is use to add bitmap in our canvas.
+        Canvas canvas = new Canvas(bitmap);
+
+        // below line is use to draw our
+        // vector drawable in canvas.
+        vectorDrawable.draw(canvas);
+
+        // after generating our bitmap we are returning our
+        // bitmap.
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    private void updateCurrentLocation() {
+        start = new LatLng(HomePage.updateLocationDTO.getLatitude(),HomePage.updateLocationDTO.getLongitude());
+    }
+
+    private void displayPolyline() {
+        updateCurrentLocation();
+        mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(end));
+        mMap.addMarker(new MarkerOptions().position(start).title("Vị trí hiện tại").icon(BitmapFromVector(getApplicationContext(), R.drawable.baseline_my_location_24)));
+         GoogleMapService.mapService.getDirectionV2(start.longitude + "," + start.latitude + ";" +
+                end.longitude + "," + end.latitude).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                List<List<HashMap<String,String>>> geometric = MapDataParser.parse(response.body());
+                Double duration = ((JsonObject) response.body().getAsJsonArray("routes").get(0)).get("duration_typical").getAsDouble();
+                Double distance = ((JsonObject) response.body().getAsJsonArray("routes").get(0)).get("distance").getAsDouble();
+                coordinatorLayout = findViewById(R.id.coordinator);
+                TextView distanceText = coordinatorLayout.findViewById(R.id.distance);
+                TextView durationText = coordinatorLayout.findViewById(R.id.time);
+                distanceText.setText((new DecimalFormat("##.##").format((distance/1000))) + " km");
+                durationText.setText((new DecimalFormat("##.##").format((duration/60))) + " phút");
+                coordinatorLayout.setVisibility(View.VISIBLE);
+
+                ArrayList<LatLng> points;
+                PolylineOptions lineOptions = null;
+
+                for (int i = 0; i < geometric.size(); i++) {
+                    points = new ArrayList<>();
+                    lineOptions = new PolylineOptions();
+
+                    List<HashMap<String, String>> path = geometric.get(i);
+
+                    for (int j = 0; j < path.size(); j++) {
+                        HashMap<String, String> point = path.get(j);
+                        double lat = Double.parseDouble(point.get("lat"));
+                        double lng = Double.parseDouble(point.get("lng"));
+                        LatLng position = new LatLng(lat, lng);
+                        points.add(position);
+                    }
+
+                    lineOptions.addAll(points);
+                    lineOptions.width(20);
+                    lineOptions.color(Color.GREEN);
+                }
+                if(lineOptions != null) {
+                    mMap.addPolyline(lineOptions);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+
+            }
+        });
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 15.0f));
     }
 
 }

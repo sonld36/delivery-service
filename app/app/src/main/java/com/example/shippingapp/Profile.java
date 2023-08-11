@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,6 +41,8 @@ public class Profile extends AppCompatActivity {
 
     private CarrierRespDTO carrierRespDTO;
 
+    private TextView name;
+
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +56,12 @@ public class Profile extends AppCompatActivity {
         toggle = findViewById(R.id.available_switch);
         barChart = findViewById(R.id.idBarChart);
         carrierRespDTO = new CarrierRespDTO();
+        name = findViewById(R.id.name_profile);
         AuthService.authService.getCarrierProfile(HomePage.token).enqueue(new Callback<ResponseTemplateDTO<CarrierRespDTO>>() {
             @Override
             public void onResponse(Call<ResponseTemplateDTO<CarrierRespDTO>> call, Response<ResponseTemplateDTO<CarrierRespDTO>> response) {
                 CarrierRespDTO resp = response.body().getData();
+                name.setText(resp.getName());
                 toggle.setChecked(resp.isActive());
             }
 

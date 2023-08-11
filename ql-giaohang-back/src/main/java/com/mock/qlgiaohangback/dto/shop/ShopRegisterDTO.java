@@ -34,4 +34,7 @@ public class ShopRegisterDTO implements Serializable {
 
     @NotEmpty(message = "Address should be not empty")
     private List<AddressDTO> addresses;
+
+    private Double longitude;
+    private Double latitude;
 }

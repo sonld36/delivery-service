@@ -8,16 +8,12 @@ import com.mock.qlgiaohangback.dto.shop.ShopDetailRespDTO;
 import com.mock.qlgiaohangback.entity.AccountEntity;
 import com.mock.qlgiaohangback.entity.CarrierEntity;
 import com.mock.qlgiaohangback.entity.OrderEntity;
-import com.mock.qlgiaohangback.entity.ShopEntity;
 import com.mock.qlgiaohangback.exception.ResponseException;
-import com.mock.qlgiaohangback.helpers.LocationHelpers;
-import com.mock.qlgiaohangback.helpers.ObjectHelpers;
 import com.mock.qlgiaohangback.mapper.ICarrierMapper;
 import com.mock.qlgiaohangback.repository.CarrierRepository;
 import com.mock.qlgiaohangback.repository.OrderRepository;
 import com.mock.qlgiaohangback.service.IAccountService;
 import com.mock.qlgiaohangback.service.ICarrierService;
-import com.mock.qlgiaohangback.service.IOrderService;
 import com.mock.qlgiaohangback.service.IShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,9 +37,16 @@ public class CarrierService implements ICarrierService {
 
     private final IShopService shopService;
 
+    private final EntityManager entityManager;
+
     @Override
     public CarrierEntity createCarrier(CarrierCreateDTO carrierCreateDTO) {
         return this.carrierRepository.save(ICarrierMapper.INSTANCE.createToEntity(carrierCreateDTO));
+    }
+
+    @Override
+    public CarrierEntity save(CarrierEntity carrier) {
+        return this.carrierRepository.save(carrier);
     }
 
     @Override
@@ -145,14 +149,23 @@ public class CarrierService implements ICarrierService {
 
     @Override
     public List<CarrierToRecommendDTO> recommendCarrierForOrder(double longitude, double latitude) {
-        List<CarrierEntity> carrierActiveAndAvailable = this.carrierRepository.findByIsActiveTrueAndAvailableTrue();
-        List<CarrierEntity> carrierEntitiesInArea = carrierActiveAndAvailable.stream()
-                .filter((item) -> LocationHelpers.calculateDistance(latitude, longitude, item.getLatitudeNewest(), item.getLongitudeNewest()) <= 3000).collect(Collectors.toList());
-        List<CarrierToRecommendDTO> toRecommendDTOS = carrierEntitiesInArea.stream().map((item) -> {
+        List<CarrierDistanceDTO> carriers = this.carrierRepository.getCarrierByLocation(longitude, latitude, 5.0);
+        List<CarrierEntity> carrierEntities = carriers.stream().map(item -> {
+           CarrierEntity carrier = this.carrierRepository.findById(item.getId()).get();
+           carrier.setDistance(item.getDistance());
+           return carrier;
+        }).filter(CarrierEntity::isAvailable).collect(Collectors.toList());
+
+        if (carrierEntities.size() == 0) {
+            return null;
+        }
+
+        List<CarrierToRecommendDTO> toRecommendDTOS = carrierEntities.stream().map((item) -> {
+            double rating = item.getNumberRejectOrder() != 0 && item.getNumberAcceptOrder() != 0 ? item.getNumberAcceptOrder() / (item.getNumberAcceptOrder() + item.getNumberRejectOrder()) : 0;
             CarrierToRecommendDTO carrier = ICarrierMapper.INSTANCE.toRecommendDTO(item);
             int totalOrderCompleteOnTime = this.totalOrderCompleteOnTime(carrier.getId());
             int totalOrderCompleted = this.totalOrderCompleted(carrier.getId());
-            carrier.setOrderAcceptRating((double) (item.getNumberAcceptOrder() / (item.getNumberAcceptOrder() + item.getNumberRejectOrder())));
+            carrier.setOrderAcceptRating(rating);
             carrier.setCountNumberOnTime(totalOrderCompleteOnTime);
             carrier.setNumberOrderCompleted(totalOrderCompleted);
             return  carrier;
@@ -204,7 +217,13 @@ public class CarrierService implements ICarrierService {
         if (shop.getLongitude() == null || shop.getLatitude() == null) throw new ResponseException(MessageResponse.NOT_FOUND,
                 HttpStatus.BAD_REQUEST,
                 Constans.Code.NOT_EXITED.getCode());
-        else return this.recommendCarrierForOrder(shop.getLongitude(), shop.getLatitude());
+        List<CarrierDistanceDTO> carrierEntities = this.carrierRepository.getCarrierByLocation(shop.getLongitude(), shop.getLatitude(), 10.0);
+        return carrierEntities.stream().map(item -> {
+            CarrierEntity carrierEntity = this.carrierRepository.findById(item.getId()).get();
+            CarrierToRecommendDTO toRecommendDTO = ICarrierMapper.INSTANCE.toRecommendDTO(carrierEntity);
+            toRecommendDTO.setDistance(item.getDistance());
+            return toRecommendDTO;
+        }).collect(Collectors.toList());
     }
 
     @Override

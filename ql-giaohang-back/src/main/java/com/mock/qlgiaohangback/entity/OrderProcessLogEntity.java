@@ -23,6 +23,10 @@ public class OrderProcessLogEntity {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "owner_order")
+    private ShopEntity owner;
+
+    @ManyToOne
     @JoinColumn(name = "account_modified_id")
     private AccountEntity account;
 
@@ -31,13 +35,6 @@ public class OrderProcessLogEntity {
     private OrderEntity order;
 
     private Constans.OrderLogAction action;
-
-    @Column(name = "previous_inventory")
-    private Long previousInventory;
-
-    @Column(name = "current_inventory")
-    private Long currentInventory;
-
 
     @Column(name = "to_status")
     private Constans.OrderStatus toStatus;

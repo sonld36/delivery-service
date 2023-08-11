@@ -20,6 +20,8 @@ public class ShopInfoRespDTO implements Serializable {
 
     private String status;
 
+    private String phoneNumber;
+
     private List<AddressDTO> addresses;
 
     private Double longitude;

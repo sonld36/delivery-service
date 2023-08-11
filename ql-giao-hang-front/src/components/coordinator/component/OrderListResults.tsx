@@ -131,7 +131,6 @@ export default function OrderListResults(props: OrderListResultsProps) {
   const ordersState: OrderStateType = useAppSelector(selectOrder);
   const [orders, setOrders] = React.useState<Order[] | any>([]);
   const [totalRecord, setTotalRecord] = React.useState<number>(0);
-  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams({});
 
   const pageIndex = React.useMemo(() => toInteger(searchParams.get("page")), [searchParams]);

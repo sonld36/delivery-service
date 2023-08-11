@@ -63,6 +63,8 @@ function OrderList() {
   const dispatch = useAppDispatch();
 
   const handleDeleteClick = (event: React.MouseEvent<HTMLButtonElement>, id: any) => {
+    event.preventDefault();
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
     setOrderIdToHandleAction(id);
 

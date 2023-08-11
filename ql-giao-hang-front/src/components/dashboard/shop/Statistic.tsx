@@ -5,15 +5,18 @@ import { CardHeaderStyled } from '@Components/Utils';
 import Title from '@Components/Title';
 import orderService from '@Services/order.service';
 import Grid from '@mui/material/Grid';
+import { CircularProgress } from '@mui/material';
 
 export default function Statistic() {
 
   const [totalOrder, setTotalOrder] = React.useState(0);
   const [codOrder, setCodOrder] = React.useState(0);
-  const [paidOrder, setPaidOrder] = React.useState(0)
+  const [paidOrder, setPaidOrder] = React.useState(0);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const fetchOrderNotDone = async () => {
+      setLoading(true);
       const resp = await orderService.getNotDoneYet();
 
       const data = resp.data;
@@ -31,7 +34,7 @@ export default function Statistic() {
       setCodOrder(cod);
       setPaidOrder(paid);
       setTotalOrder(total);
-
+      setLoading(false);
     }
 
     fetchOrderNotDone();
@@ -44,7 +47,9 @@ export default function Statistic() {
           <Title title='Thống kê đơn hàng đang chờ' />
         }
       />
-      <Grid container rowSpacing={2}>
+      {loading ? <CircularProgress size={25} style={{
+        margin: "auto"
+      }} /> : (<Grid container rowSpacing={2}>
         <Grid item xs={12}>
           <Grid container>
             <Grid item xs={8}>
@@ -100,7 +105,7 @@ export default function Statistic() {
           </Grid>
         </Grid>
 
-      </Grid>
+      </Grid>)}
 
 
     </React.Fragment>

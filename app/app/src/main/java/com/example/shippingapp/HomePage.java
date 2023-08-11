@@ -1,14 +1,19 @@
 package com.example.shippingapp;
 
-import android.Manifest;
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -16,7 +21,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,12 +32,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.shippingapp.common.Constant;
-import com.example.shippingapp.common.IBaseGPS;
+import com.example.shippingapp.common.LocationTrack;
 import com.example.shippingapp.dto.AccountRespDTO;
+import com.example.shippingapp.dto.CarrierRespDTO;
 import com.example.shippingapp.dto.OrderRespDTO;
 import com.example.shippingapp.dto.ResponseTemplateDTO;
 import com.example.shippingapp.dto.SocketResponse;
@@ -55,10 +63,10 @@ import retrofit2.Response;
 import ua.naiksoftware.stomp.StompClient;
 
 
-public class HomePage extends AppCompatActivity implements AdapterView.OnItemSelectedListener, IBaseGPS {
+public class HomePage extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private static final String LOG_TAG = HomePage.class.getSimpleName();
-    private AccountRespDTO user;
+    public static AccountRespDTO user;
     private List<OrderRespDTO> orders;
     private LinearLayout containOrdersView;
     private Spinner orderStatusDropdown;
@@ -75,20 +83,32 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
     public static Queue<SocketResponse<Integer>> queue;
     private TextView countNotificationsText;
 
+    private List permissions = new ArrayList();
+    private List<String> permissionsToRequest;
+    private List<String> permissionsRejected = new ArrayList();
+
     public static UpdateLocationDTO updateLocationDTO;
+    private final static int ALL_PERMISSIONS_RESULT = 101;
+
+    private ProgressBar progressBar;
+
+    LocationTrack locationTrack;
+
+    SocketService socketService;
+
+    private ImageButton checkSocket;
 
 
 
-    private static final String ip = "ws://10.0.2.2:8080/api/socket/websocket";
-
-
-    private List<String> orderStatusCurrent = new ArrayList<>(Arrays.asList(
-            Constant.OrderStatus.REQUEST_SHIPPING.name(),
-            Constant.OrderStatus.PICKING_UP_GOODS.name()));
+    private List<String> orderStatusCurrent = new ArrayList<>(Arrays.asList(Constant.OrderStatus.PICKING_UP_GOODS.name(),
+            Constant.OrderStatus.REQUEST_SHIPPING.name(), Constant.OrderStatus.CANCEL.name()));
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (socketService.isCancelled()) {
+            socketService.execute();
+        }
         getOrdersByStatus();
         this.isDialogOpen = true;
         displayAlertDialog();
@@ -103,11 +123,24 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         super.onSaveInstanceState(outState, outPersistentState);
     }
 
+
     @SuppressLint("CheckResult")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
+        permissions.add(ACCESS_FINE_LOCATION);
+        permissions.add(ACCESS_COARSE_LOCATION);
+
+        permissionsToRequest = findUnAskedPermissions(permissions);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+
+            if (permissionsToRequest.size() > 0)
+                requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]), ALL_PERMISSIONS_RESULT);
+        }
+
 
         Intent intent = getIntent();
         String message = intent.getStringExtra("user");
@@ -117,22 +150,93 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         editor.putString("token", token).apply();
         containOrdersView = findViewById(R.id.orders_contains);
         user = new Gson().fromJson(message, AccountRespDTO.class);
+
         countNotificationsText = findViewById(R.id.count_notify);
+        progressBar = findViewById(R.id.loading_home);
+        progressBar.setVisibility(View.INVISIBLE);
         queue = new PriorityQueue<>();
         getCountNotification();
-        new SocketService(user).execute();
+        socketService = new SocketService(getApplicationContext(), user);
+        socketService.execute();
+        checkSocket = findViewById(R.id.load_socket);
+        checkSocket.setVisibility(View.VISIBLE);
 
-        SocketService.stompClient.topic("/notify/order-request/" + user.getId()).subscribe(topicMess -> {
-            SocketResponse<OrderRespDTO> orderRequest = new Gson().fromJson(topicMess.getPayload(), SocketResponse.class);
-            toast(orderRequest.getMessage());
+        checkSocket.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!socketService.getStompClient().isConnected()) {
+                    socketService.getStompClient().reconnect();
+                    if (socketService.getStompClient().isConnected()) {
+                        toast("Kết nối lại thành công");
+                    } else {
+                        toast("Kết nối lại thất bại");
+                    }
+                    subcribeTopic();
+                    return;
+                }
+                toast("Đã kết nối");
+            }
+        });
+
+        socketService.getStompClient().lifecycle().subscribe(lifecycleEvent -> {
+            switch (lifecycleEvent.getType()) {
+                case OPENED:
+                    subcribeTopic();
+                    break;
+                case ERROR:
+                case CLOSED:
+                    break;
+
+            }
+        });
+        locationTrack = new LocationTrack(HomePage.this);
+        if (locationTrack.getLocation() == null) {
+            AuthService.authService.getCarrierProfile(token).enqueue(new Callback<ResponseTemplateDTO<CarrierRespDTO>>() {
+                @Override
+                public void onResponse(Call<ResponseTemplateDTO<CarrierRespDTO>> call, Response<ResponseTemplateDTO<CarrierRespDTO>> response) {
+                    assert response.body() != null;
+                    CarrierRespDTO carrierRespDTO = response.body().getData();
+                    updateLocationDTO = new UpdateLocationDTO();
+                    updateLocationDTO.setUserId(user.getId());
+                    if (carrierRespDTO.getLatitudeNewest() != null && carrierRespDTO.getLongitudeNewest() != null) {
+                        updateLocationDTO.setLatitude(carrierRespDTO.getLatitudeNewest());
+                        updateLocationDTO.setLongitude(carrierRespDTO.getLongitudeNewest());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseTemplateDTO<CarrierRespDTO>> call, Throwable t) {
+
+                }
+            });
+        }
+
+
+
+//        showLocation();
+        orderStatusDropdown = findViewById(R.id.order_status);
+        orderStatusDropdown.setOnItemSelectedListener(this);
+        updateDropdown();
+    }
+
+    public void buttonLoad(boolean display) {
+        checkSocket.setVisibility(display ? View.VISIBLE : View.INVISIBLE);
+    }
+    @SuppressLint("CheckResult")
+    public void subcribeTopic() {
+        socketService.getStompClient().topic("/notify/order-cancel/" + user.getId()).subscribe(topicMess -> {
+            Type type = new TypeToken<SocketResponse<Integer>>() {}.getType();
+            SocketResponse<Integer> orderResp = new Gson().fromJson(topicMess.getPayload(), type);
+            notificationDialog("order-cancel", "Hủy đơn", orderResp.getMessage());
 //            notifications.add(NotificationRespDTO.builder().message(orderRequest.getMessage()).seen(false).build());
         }, throwable -> {
             Log.d("socket", throwable.getMessage());
         });
 //
-        SocketService.stompClient.topic("/request_shipping/" + user.getId()).subscribe(topicMess -> {
+        socketService.getStompClient().topic("/request_shipping/" + user.getId()).subscribe(topicMess -> {
             Type type = new TypeToken<SocketResponse<Integer>>() {}.getType();
             SocketResponse<Integer> orderResp = new Gson().fromJson(topicMess.getPayload(), type);
+            notificationDialog("request_shipping", "Yêu cầu vận chuyển", orderResp.getMessage());
             queue.add(orderResp);
             if (!isDialogOpen) {
                 this.isDialogOpen = true;
@@ -141,12 +245,75 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         }, throwable -> {
             Log.d("socket", throwable.getMessage());
         });
+    }
+
+    private List findUnAskedPermissions(List<String> wanted) {
+        List result = new ArrayList();
+        for (String perm: wanted) {
+            if (hasPermission(perm)) {
+                result.add(perm);
+            }
+        }
+
+        return result;
+    }
+
+    private boolean hasPermission(String permission) {
+        if (canMakeSmores()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED);
+            }
+        }
+        return true;
+    }
+
+    private boolean canMakeSmores() {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+
+            case ALL_PERMISSIONS_RESULT:
+                for (String perms : permissionsToRequest) {
+                    if (!hasPermission(perms)) {
+                        permissionsRejected.add(perms);
+                    }
+                }
+
+                if (permissionsRejected.size() > 0) {
 
 
-        showLocation();
-        orderStatusDropdown = findViewById(R.id.order_status);
-        orderStatusDropdown.setOnItemSelectedListener(this);
-        updateDropdown();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (shouldShowRequestPermissionRationale(permissionsRejected.get(0))) {
+                            showMessageOKCancel("These permissions are mandatory for the application. Please allow access.",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                                requestPermissions(permissionsRejected.toArray(new String[permissionsRejected.size()]), ALL_PERMISSIONS_RESULT);
+                                            }
+                                        }
+                                    });
+                            return;
+                        }
+                    }
+
+                }
+
+                break;
+        }
+    }
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(HomePage.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
     }
 
     @Override
@@ -172,24 +339,24 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
 //        }
 //    }
 
-    private void showLocation() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, this);
-        } else {
-            Toast.makeText(this, "Enable GPS", Toast.LENGTH_SHORT).show();
-        }
-    }
+//    private void showLocation() {
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                // TODO: Consider calling
+//                //    ActivityCompat#requestPermissions
+//                // here to request the missing permissions, and then overriding
+//                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//                //                                          int[] grantResults)
+//                // to handle the case where the user grants the permission. See the documentation
+//                // for ActivityCompat#requestPermissions for more details.
+//                return;
+//            }
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, this);
+//        } else {
+//            Toast.makeText(this, "Enable GPS", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     private void updateDropdown() {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, orderStatusCurrent);
@@ -216,9 +383,11 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     private void getOrdersByStatus() {
+        progressBar.setVisibility(View.VISIBLE);
         AuthService.authService.getOrderByStatus(token, currentStatus).enqueue(new Callback<ResponseTemplateDTO<List<OrderRespDTO>>>() {
             @Override
             public void onResponse(Call<ResponseTemplateDTO<List<OrderRespDTO>>> call, Response<ResponseTemplateDTO<List<OrderRespDTO>>> response) {
+                progressBar.setVisibility(View.INVISIBLE);
                 assert response.body() != null;
 
                 orders = response.body().getData();
@@ -237,6 +406,13 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
 
     private void addOrderView() {
         containOrdersView.removeAllViews();
+        if (orders.size() == 0) {
+            final View empty = getLayoutInflater().inflate(R.layout.empty, null, false);
+            TextView content = empty.findViewById(R.id.content_empty);
+            content.setText("Không có đơn hàng nào");
+            containOrdersView.addView(empty);
+            return;
+        }
         Locale locale = new Locale("vi", "VN");
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
         orders.forEach((item) -> {
@@ -262,7 +438,7 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
             locationDes.setText(item.getDestinationAddress());
             shipFee.setText(currencyFormat.format(item.getPaymentTotal()));
             orderId.setText(item.getId().toString());
-            contactFrom.setText(item.getShop().getName());
+            contactFrom.setText(item.getShop().getPhoneNumber());
             contactDes.setText(item.getCustomer().getPhoneNumber());
             containOrdersView.addView(componentItemOrder);
         });
@@ -271,8 +447,9 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
     public void onClickReceiveOrder(View view) {
         orderStatusCurrent = new ArrayList<>();
         orderStatusCurrent.addAll(Arrays.asList(
+                Constant.OrderStatus.PICKING_UP_GOODS.name(),
                 Constant.OrderStatus.REQUEST_SHIPPING.name(),
-                Constant.OrderStatus.PICKING_UP_GOODS.name()));
+                Constant.OrderStatus.CANCEL.name()));
         currentStatus = orderStatusCurrent.get(0);
         getOrdersByStatus();
         updateDropdown();
@@ -309,18 +486,6 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onGpsStatusChanged(int event) {
-
-    }
-
-    @Override
-    public void onLocationChanged(@NonNull Location location) {
-        updateLocationDTO = UpdateLocationDTO.builder().userId(user.getId()).latitude(location.getLatitude()).longitude(location.getLongitude()).build();
-        Gson gson = new Gson();
-        String message = gson.toJson(updateLocationDTO);
-        SocketService.stompClient.send("/app/location", message).subscribe();
-    }
 
     public void handleClickProfileButton(View view) {
         Intent intent = new Intent(this, Profile.class);
@@ -340,18 +505,23 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         SocketResponse<Integer> socketResponse = queue.poll();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final View dialog = getLayoutInflater().inflate(R.layout.dialog_map, null, false);
-
+        Locale locale = new Locale("vi", "VN");
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(locale);
         AuthService.authService.getOrderById(token, socketResponse.getData()).enqueue(new Callback<ResponseTemplateDTO<OrderRespDTO>>() {
             @Override
             public void onResponse(Call<ResponseTemplateDTO<OrderRespDTO>> call, Response<ResponseTemplateDTO<OrderRespDTO>> response) {
-                OrderRespDTO order = response.body().getData();
+                Log.d("CALLAPI", "onResponse: " + response);
+                assert response.body() != null;
+                if (response.body() == null) {
 
+                }
+                OrderRespDTO order = response.body().getData();
                 TextView fromAddress = dialog.findViewById(R.id.from_address_bottom);
                 TextView destinationAddress = dialog.findViewById(R.id.destination_address_bottom);
                 TextView shipFee = dialog.findViewById(R.id.ship_fee_dialog_bottom);
                 fromAddress.setText(order.getFromAddress());
                 destinationAddress.setText(order.getDestinationAddress());
-                shipFee.setText(order.getShipFee().toString());
+                shipFee.setText(currencyFormat.format(order.getShipFee()));
 
                 ContextCompat.getMainExecutor(HomePage.this).execute(() -> {
                     builder.setTitle(socketResponse.getMessage());
@@ -364,14 +534,16 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
                                 public void onResponse(Call<ResponseTemplateDTO<Integer>> call, Response<ResponseTemplateDTO<Integer>> response) {
                                     Log.d("Accept", "onResponse: " + response);
                                     ResponseTemplateDTO<Integer> resp = response.body();
-                                    if (resp.getCode().longValue() == Constant.Code.TAKE_A_ORDER_SUCCESSFUL.getCode()) {
+                                    Log.d("RESP", "onResponse: " + resp);
+                                    if (resp != null && resp.getCode().longValue() == Constant.Code.TAKE_A_ORDER_SUCCESSFUL.getCode()) {
                                         Toast.makeText(HomePage.this, "Nhận đơn hàng thành công", Toast.LENGTH_SHORT).show();
+                                        getOrdersByStatus();
 //                                        Intent intentToOrderDetail = new Intent(HomePage.this, OrderDetail.class);
 //                                        intentToOrderDetail.putExtra("order_id", orderId);
 //                                        startActivity(intentToOrderDetail);
                                     }
-                                    if (resp.getCode().longValue() == Constant.Code.ORDER_WAS_ASSIGNED.getCode()) {
-                                        Toast.makeText(HomePage.this, "Đơn hàng đã được vận chuyển", Toast.LENGTH_SHORT).show();
+                                    if (response.code() == 400) {
+                                        Toast.makeText(HomePage.this, "Đơn hàng đã được nhận trước đó", Toast.LENGTH_SHORT).show();
 //                                        finish();
                                     }
                                 }
@@ -429,8 +601,33 @@ public class HomePage extends AppCompatActivity implements AdapterView.OnItemSel
         });
 
 //        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById();
-
-
     }
+
+    private void notificationDialog(String channel, String title, String content) {
+        NotificationManager notificationManager = (NotificationManager)       getSystemService(Context.NOTIFICATION_SERVICE);
+        String NOTIFICATION_CHANNEL_ID = channel;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            @SuppressLint("WrongConstant") NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "My Notifications", NotificationManager.IMPORTANCE_MAX);
+            // Configure the notification channel.
+            notificationChannel.setDescription("Sample Channel description");
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+            notificationChannel.enableVibration(true);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+        notificationBuilder.setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setTicker("Tutorialspoint")
+                //.setPriority(Notification.PRIORITY_MAX)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setContentInfo("Information");
+        notificationManager.notify(1, notificationBuilder.build());
+    }
+
 
 }

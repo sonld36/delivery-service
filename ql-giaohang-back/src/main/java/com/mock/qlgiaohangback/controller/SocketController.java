@@ -25,6 +25,7 @@ public class SocketController {
     public void updateLocation(String updateLocationString) throws JsonProcessingException {
         String stringToHandle = updateLocationString.replace("UpdateLocationDTO", "");
         UpdateLocationDTO updateLocationDTO = new ObjectMapper().readValue(stringToHandle, UpdateLocationDTO.class);
+        log.info(updateLocationDTO);
         this.carrierService.updateLocationCarrierByAccountId(updateLocationDTO.getUserId(), updateLocationDTO.getLongitude(), updateLocationDTO.getLatitude());
         simpMessagingTemplate.convertAndSend(StringHelper.getSocketTopic(Constans.SocketTopic.LOCATION) + "/" + updateLocationDTO.getUserId(), updateLocationDTO);
     }

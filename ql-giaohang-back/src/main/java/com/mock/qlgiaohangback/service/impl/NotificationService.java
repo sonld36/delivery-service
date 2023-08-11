@@ -16,6 +16,8 @@ import com.mock.qlgiaohangback.service.IAccountService;
 import com.mock.qlgiaohangback.service.INotificationService;
 import com.mock.qlgiaohangback.service.IShopService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class NotificationService implements INotificationService {
     private final NotificationRepository notificationRepository;
@@ -47,7 +50,7 @@ public class NotificationService implements INotificationService {
         notification.setFrom(from);
 
         this.notificationRepository.save(notification);
-
+        log.info("Socket SEND " + topic + " --- message: " + message);
         simpMessagingTemplate.convertAndSend(topic, message);
 
         return 1;

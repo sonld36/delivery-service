@@ -82,14 +82,14 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long>, Order
     Long countByStatus(@Param("status") String status);
 
     // Lấy mọi đơn hàng mọi trạng thái
-    Page<OrderEntity> findAll(Pageable pageable);
+    Page<OrderEntity> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     //Lấy  tổng số lượng bản ghi
     @Query(value = "SELECT COUNT(*) from _orders", nativeQuery = true)
     Long countAllOrder();
 
     // Lấy mọi đơn hàng theo trạng thái
-    Page<OrderEntity> findAllByStatus(Constans.OrderStatus status, Pageable pageable);
+    Page<OrderEntity> findAllByStatusOrderByCreatedAtDesc(Constans.OrderStatus status, Pageable pageable);
 
     //Lấy thông tin gửi nhận cho đơn hàng
     OrderEntity findOrderRespInfDetailById(Long id);
@@ -109,7 +109,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long>, Order
 
     @Query(value = "select count(*) from _orders o where o.id < :entityId", nativeQuery = true)
     Integer getIndexOfEntity(@Param("entityId") Long entityId);
-
 
     List<OrderEntity> findByCarrierIdAndStatusIn(long carrierId, List<Constans.OrderStatus> statuses);
 

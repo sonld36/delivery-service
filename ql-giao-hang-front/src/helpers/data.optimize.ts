@@ -4,6 +4,8 @@ import {
   ShopRegisterForm,
   Date7Days,
 } from "@Common/types";
+import mapService from "@Services/map.service";
+import provinceService from "@Services/province.service";
 import { formatValue } from "react-currency-input-field";
 
 type PartnersRegisterNotOptimize = {
@@ -13,9 +15,15 @@ type PartnersRegisterNotOptimize = {
   address: AddressCode;
 };
 
-export const dataShopRegistrationOptimize = (
+export const dataShopRegistrationOptimize = async (
   data: PartnersRegisterNotOptimize
-): ShopRegisterForm => {
+): Promise<ShopRegisterForm> => {
+  const address = await provinceService.getAddress({
+    addressDetail: data.addressDetail,
+    ...data.address,
+  });
+
+  const longlat = await mapService.getCoordinate(address);
   return {
     ...data,
     addresses: [
@@ -24,6 +32,8 @@ export const dataShopRegistrationOptimize = (
         ...data.address,
       },
     ],
+    latitude: longlat[1],
+    longitude: longlat[0],
   };
 };
 

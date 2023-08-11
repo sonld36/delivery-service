@@ -10,6 +10,7 @@ export const orderStatus: {
   REFUNDS: "Hoàn đơn",
   DONE: "Hoàn thành",
   CANCEL: "Hủy đơn",
+  RETURN: "Trả đơn",
 };
 
 export const orderShopStatus: {
@@ -21,6 +22,7 @@ export const orderShopStatus: {
   DELIVERY_SUCCESSFUL: "Giao hàng thành công",
   REFUNDS: "Hoàn đơn",
   CANCEL: "Hủy đơn",
+  RETURN: "Trả đơn",
 };
 export const orderShopStatusColor: {
   [key: string]: any;
@@ -31,6 +33,7 @@ export const orderShopStatusColor: {
   DELIVERY_SUCCESSFUL: "success",
   REFUNDS: "error",
   CANCEL: "default",
+  RETURN: "error",
 };
 
 export const orderStatusColor: {
@@ -44,6 +47,7 @@ export const orderStatusColor: {
   REFUNDS: "error",
   DONE: "default",
   CANCEL: "default",
+  RETURN: "error",
 };
 
 export const orderType: {

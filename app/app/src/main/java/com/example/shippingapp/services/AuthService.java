@@ -61,4 +61,5 @@ public interface AuthService {
 
     @GET("order/week-recent")
     Call<ResponseTemplateDTO<List<CountOrderByRangeDateDTO>>> getNumberOfOrderInWeekRecent(@Header("Authorization") String authorization);
+
 }

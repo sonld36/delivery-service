@@ -1,9 +1,14 @@
 import { useAppDispatch, useAppSelector } from '@App/hook';
-import { ToastPayloadCustom } from '@Common/toast.const';
+import { SocketTopic } from '@Common/const';
+import { SocketSubcribe, roles } from '@Common/socket.subcribe';
+import { ToastPayloadCustom, status } from '@Common/toast.const';
+import { OrderLogType, SocketMessageFormat } from '@Common/types';
+import { addNewLog } from '@Features/log/logSlice';
 import { openToast } from '@Features/toast/toastSlice';
 import { logout, selectUser } from '@Features/user/userSlice';
 import { usePageTitle } from '@Helpers/hooks';
 import { MainLogo } from '@Helpers/image.handle';
+import stompClient from '@Services/socket.service';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Logout from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -105,6 +110,8 @@ function DashboardContent(props: Props) {
 
 
 
+
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openDropdown = Boolean(anchorEl);
 
@@ -137,7 +144,7 @@ function DashboardContent(props: Props) {
     }
 
     alertWelcome();
-  }, [user]);
+  }, [dispatch, user]);
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -298,5 +305,48 @@ function DashboardContent(props: Props) {
 
 export default function Dashboard(props: Props) {
   const { sidebar, mainContent } = props;
+  const inforUser = useAppSelector(state => selectUser(state));
+  const { user } = inforUser;
+
+  const dispatch = useAppDispatch();
+
+  const subcribeSocket = React.useCallback(() => {
+    switch (user.role) {
+      case roles.ROLE_COORDINATOR:
+        return SocketSubcribe[roles.ROLE_COORDINATOR](dispatch);
+      default:
+        return;
+    }
+  }, [user, dispatch]);
+
+  React.useEffect(() => {
+    stompClient.connect({}, function () {
+      stompClient.subscribe(
+        `/${SocketTopic.NOTIFY}`,
+        (message) => {
+          const resp: SocketMessageFormat<string | null> = JSON.parse(
+            message.body
+          );
+          dispatch(
+            openToast({
+              open: true,
+              message: resp.message,
+              status: status.INFO,
+            })
+          );
+        }
+      );
+
+      stompClient.subscribe(`/${SocketTopic.LOG}/${user.id}`, (message) => {
+        const resp: OrderLogType = JSON.parse(
+          message.body
+        );
+
+        dispatch(addNewLog(resp));
+      });
+
+      subcribeSocket();
+    });
+  }, [dispatch, user.id]);
   return <DashboardContent mainContent={mainContent} sidebar={sidebar} />;
 }

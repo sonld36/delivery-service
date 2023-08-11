@@ -16,7 +16,9 @@ public interface IShopMapper {
     IShopMapper INSTANCE = Mappers.getMapper(IShopMapper.class);
 
     ShopEntity fromRegisterToEntity(ShopRegisterDTO shopRegisterDTO);
-
+    @Mapping(source = "account.username", target = "username")
+    @Mapping(source = "account.name", target = "name")
+    @Mapping(source = "account.phoneNumber", target = "phoneNumber")
     ShopInfoRespDTO fromEntityToInfoRespDTO(ShopEntity shopEntity);
 
     @Mapping(source = "partnersRegistrationDTO.name", target = "account.name")

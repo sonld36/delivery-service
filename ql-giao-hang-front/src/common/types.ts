@@ -16,6 +16,8 @@ export type ShopRegisterForm = {
   phoneNumber: string;
   name: string;
   addresses: AddressToSave[];
+  latitude: number;
+  longitude: number;
 };
 
 export type ProductType = {
@@ -312,6 +314,7 @@ export type Deliverier = {
   deliveryId?: number;
   deliveryName: string;
   deliveryPhone?: string;
+  distance?: number;
 };
 
 export type ProductInOrderByDP = {
@@ -367,12 +370,13 @@ export type CarrierRespType = {
   accountId: number;
   orders: OrderDisplayType;
   name: string;
-  longtitudeNewest: number;
+  longitudeNewest: number;
   latitudeNewest: number;
   phoneNumber: string;
-  isActive: boolean;
+  active: boolean;
   available: boolean;
   pathAvatar: string;
+  distance: number;
 };
 
 export type CarrierInfoManagerType = {
@@ -426,11 +430,11 @@ export const CarrierAvailableObject: {
   };
 } = {
   available: {
-    label: "Đang giao hàng",
+    label: "Đang Rảnh",
     color: "success",
   },
   inavailable: {
-    label: "Rảnh",
+    label: "Đang giao hàng",
     color: "primary",
   },
 };

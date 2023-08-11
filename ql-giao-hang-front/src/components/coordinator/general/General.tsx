@@ -6,7 +6,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ReplyIcon from '@mui/icons-material/Reply';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import { Box, CardActions, createTheme, Grid, Typography } from '@mui/material';
+import { Box, CardActions, CircularProgress, createTheme, Grid, Typography } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
@@ -22,6 +22,7 @@ import LogActivity from '@Components/log-activity/LogActivity';
 import { useAppDispatch, useAppSelector } from '@App/hook';
 import { fetchAllOrderLog, selectLog } from '@Features/log/logSlice';
 import ItemLog from '@Components/log-activity/ItemLog';
+import Empty from '@Components/Empty';
 
 const theme = createTheme();
 const heightCard = 500;
@@ -67,7 +68,7 @@ function General() {
       DONE: 0,
     }
   );
-
+  const [loading, setLoading] = useState(false);
   const logs = useAppSelector(selectLog);
   const [page, setPage] = useState(1);
 
@@ -81,10 +82,12 @@ function General() {
   useEffect(() => {
     const getCountOrderAllStatus = async () => {
       try {
+        setLoading(true);
         let resp: any = await orderService.getCountOrderAllStatus();
         if (resp && resp.code === 2000) {
           setListStatus(resp.data);
         }
+        setLoading(false);
       }
       catch (e) {
         console.log(e)
@@ -120,9 +123,9 @@ function General() {
                       }}>
                         <CreateIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đang chờ xử lý </Typography>
-                        <Link underline="none">
+                        {loading ? <CircularProgress size={10} /> : (<Link underline="none">
                           <Num>{listStatus.WAITING_FOR_ACCEPT_NEW_ORDER} đơn</Num>
-                        </Link>
+                        </Link>)}
                       </CarDetail>
                     </Grid>
                     <GridDetail item xs={4}>
@@ -132,9 +135,11 @@ function General() {
                       }} >
                         <InventoryIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đơn yêu cầu vận chuyển</Typography>
-                        <Link underline="none">
+                        {loading ? <CircularProgress size={10} style={{
+                          margin: "auto"
+                        }} /> : <Link underline="none">
                           <Num>{listStatus.REQUEST_SHIPPING} đơn</Num>
-                        </Link>
+                        </Link>}
                       </CarDetail>
                     </GridDetail>
                     <GridDetail item xs={4}>
@@ -144,9 +149,11 @@ function General() {
                       }}>
                         <DirectionsRunIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đang đi lấy hàng</Typography>
-                        <Link underline="none">
+                        {loading ? <CircularProgress size={10} style={{
+                          margin: "auto"
+                        }} /> : (<Link underline="none">
                           <Num>{listStatus.PICKING_UP_GOODS} đơn</Num>
-                        </Link>
+                        </Link>)}
                       </CarDetail>
                     </GridDetail>
                     <GridDetail item xs={4} >
@@ -156,9 +163,11 @@ function General() {
                       }}>
                         <LocalShippingIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đang vận chuyển</Typography>
-                        <Link underline="none">
+                        {loading ? <CircularProgress size={10} style={{
+                          margin: "auto"
+                        }} /> : (<Link underline="none">
                           <Num>{listStatus.BEING_TRANSPORTED} đơn</Num>
-                        </Link>
+                        </Link>)}
                       </CarDetail>
                     </GridDetail>
                     <GridDetail xs={4} item >
@@ -168,9 +177,11 @@ function General() {
                       }}>
                         <TaskAltIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Giao thành công</Typography>
-                        <Link underline="none">
+                        {loading ? <CircularProgress size={10} style={{
+                          margin: "auto"
+                        }} /> : (<Link underline="none">
                           <Num>{listStatus.DELIVERY_SUCCESSFUL} đơn</Num>
-                        </Link>
+                        </Link>)}
                       </CarDetail>
                     </GridDetail>
                     <GridDetail item xs={4} >
@@ -180,9 +191,11 @@ function General() {
                       }}>
                         <ReplyIcon sx={{ display: 'flex', margin: 'auto', mb: '0', mt: '0' }} />
                         <Typography>Đơn hoàn</Typography>
-                        <Link underline="none">
+                        {loading ? <CircularProgress size={10} style={{
+                          margin: "auto"
+                        }} /> : (<Link underline="none">
                           <Num>{listStatus.REFUNDS} đơn</Num>
-                        </Link>
+                        </Link>)}
                       </CarDetail>
                     </GridDetail>
                   </Grid>
@@ -192,7 +205,7 @@ function General() {
               </CardStyled>
             </Grid>
             <Grid item xs={4}>
-              <LogActivity key={1} childrend={<ItemLog logs={logs.logs} />} />
+              <LogActivity key={1} childrend={logs.logs.length > 0 ? <ItemLog logs={logs.logs} /> : <Empty>Không có hoạt động mới</Empty>} />
             </Grid>
           </Grid>
         </Box>

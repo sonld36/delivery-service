@@ -15,6 +15,7 @@ import com.mock.qlgiaohangback.entity.RoleEntity;
 import com.mock.qlgiaohangback.entity.ShopEntity;
 import com.mock.qlgiaohangback.exception.ResponseException;
 import com.mock.qlgiaohangback.mapper.IAccountMapper;
+import com.mock.qlgiaohangback.mapper.IAddressMapper;
 import com.mock.qlgiaohangback.mapper.IShopMapper;
 import com.mock.qlgiaohangback.repository.ShopRepository;
 import com.mock.qlgiaohangback.service.*;
@@ -52,6 +53,8 @@ public class ShopService implements IShopService {
         AccountRespDTO accountComingSave = this.authenticationService
                 .register(IAccountMapper.INSTANCE.shopRegisterToAccountRegister(shopRegisterDTO));
         AccountEntity account = this.accountService.getAccountById(accountComingSave.getId());
+        RoleEntity roleEntity = roleService.getByName(Constans.Roles.ROLE_SHOP.name());
+        account.setRole(roleEntity);
         ShopEntity comingSave = IShopMapper.INSTANCE.fromRegisterToEntity(shopRegisterDTO);
         comingSave.getAddresses().forEach(item -> {
             item.setShop(comingSave);
@@ -103,7 +106,10 @@ public class ShopService implements IShopService {
     @Override
     public AddressDTO getAddressForShop() {
         ShopEntity shop = getShopLoggedIn();
-        return this.addressService.getAddressByShop(shop);
+        if (shop.getAddresses().get(0) != null) {
+            return IAddressMapper.INSTANCE.toDTO(shop.getAddresses().get(0));
+        }
+        return null;
     }
 
     @Override

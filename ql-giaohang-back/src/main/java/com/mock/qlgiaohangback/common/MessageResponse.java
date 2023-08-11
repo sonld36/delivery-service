@@ -27,4 +27,8 @@ public class MessageResponse {
     public static final String JUST_CREATED_ORDER = "Vừa có đơn hàng được tạo bởi ";
 
     public static final String JUST_ASSIGN_CARRIER = "Bạn được yêu cầu vận chuyển đơn hàng ";
+
+    public static final String CANCEL_ORDER = "Đơn hàng đã hủy giao";
+
+    public static final String ORDER_NOT_CANCEL = "Đơn hàng không thể hủy";
 }

@@ -21,6 +21,7 @@ public class ShopInfoRespDTO implements Serializable {
     private Long id;
 
     private String name;
+    private String phoneNumber;
 
     private Constans.ShopStatus status;
 

@@ -109,7 +109,8 @@ export default function Register() {
 
   const onSubmitHandler: SubmitHandler<RegisterInput> = async (values) => {
     setLoading(true);
-    let data: ShopRegisterForm = dataShopRegistrationOptimize(values);
+    let data: ShopRegisterForm = await dataShopRegistrationOptimize(values);
+
     const resp = await authService.shopRegister(data);
 
     setLoading(false);

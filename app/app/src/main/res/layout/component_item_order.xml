@@ -73,7 +73,8 @@
                     android:id="@+id/location_from"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thành công, Ba Đình, Hà Nội" />
+                    android:text="Thành công, Ba Đình, Hà Nội"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/contact_from"
@@ -109,7 +110,8 @@
                     android:id="@+id/location_des"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thành công, Ba Đình, Hà Nội" />
+                    android:text="Thành công, Ba Đình, Hà Nội"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/contact_des"

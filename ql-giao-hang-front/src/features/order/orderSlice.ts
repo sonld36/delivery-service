@@ -8,12 +8,14 @@ export type OrderStateType = {
   currentPage: number;
   totalPage: number;
   orderDisplayType: OrderDisplayType[] | Order[];
+  isLoading: boolean;
 };
 
 const initialState: OrderStateType = {
   currentPage: 1,
   orderDisplayType: [],
   totalPage: 1,
+  isLoading: false,
 };
 
 export const fetchOrderWithPaging = createAsyncThunk(
@@ -82,14 +84,29 @@ const orderSlice = createSlice({
     });
 
     builder.addCase(
+      fetchAllOrderByDPWithPagination.pending,
+      (state, action) => {
+        state.isLoading = true;
+      }
+    );
+
+    builder.addCase(
       fetchAllOrderByDPWithPagination.fulfilled,
       (state, action) => {
         const payload: OrderStateType = action.payload;
         state = {
           ...payload,
         };
+        state.isLoading = false;
 
         return state;
+      }
+    );
+
+    builder.addCase(
+      fetchAllOrderByStatusDPWithPagination.pending,
+      (state, action) => {
+        state.isLoading = true;
       }
     );
 
@@ -100,7 +117,7 @@ const orderSlice = createSlice({
         state = {
           ...payload,
         };
-
+        state.isLoading = false;
         return state;
       }
     );

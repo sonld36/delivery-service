@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@emotion/react';
 import styled from '@emotion/styled';
-import { Box, Typography, createTheme, Tabs, Tab, FormControl, TextField, InputAdornment, Grid, Container, Stack } from '@mui/material';
+import { Box, Typography, createTheme, Tabs, Tab, FormControl, TextField, InputAdornment, Grid, Container, Stack, Modal, CircularProgress } from '@mui/material';
 import Card from '@mui/material/Card';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -9,10 +9,17 @@ import OrderListResults from '../component/OrderListResults';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getCurrentPath } from '@Helpers/data.optimize';
 import { orderManageLinks } from '../CoordinatorSidebar/CoordinatorSidebar';
+import { useAppSelector } from '@App/hook';
+import { OrderStateType, selectOrder } from '@Features/order/orderSlice';
 
 
 
 const theme = createTheme();
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+};
 
 interface LinkTabProps {
   label: string;
@@ -47,6 +54,7 @@ function Quanlydonhang() {
 
   const [showClearIcon, setShowClearIcon] = useState("none");
 
+  const ordersState: OrderStateType = useAppSelector(selectOrder);
   const location = useLocation();
   const currentStatus = getCurrentPath(location.pathname);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -122,6 +130,11 @@ function Quanlydonhang() {
 
         </Box>
       </Box >
+      <Modal component={"center"} open={ordersState.isLoading}>
+        <Box sx={style}>
+          <CircularProgress size={50} />
+        </Box>
+      </Modal>
     </ThemeProvider >
   )
 }
